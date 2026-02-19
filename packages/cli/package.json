@@ -1,0 +1,64 @@
+{
+  "name": "@tutellus/agentic-architecture",
+  "version": "1.8.0",
+  "description": "CLI for deploying AI Agentic Architecture template to your projects",
+  "type": "module",
+  "bin": {
+    "agentic-architecture": "./dist/index.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format esm --dts --clean",
+    "dev": "tsup src/index.ts --format esm --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src/",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "ai",
+    "agent",
+    "claude",
+    "cursor",
+    "antigravity",
+    "copilot",
+    "template",
+    "cli"
+  ],
+  "author": "Tutellus",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tutellus/ai-agentic-architecture.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://github.com/Tutellus/ai-agentic-architecture#readme",
+  "bugs": {
+    "url": "https://github.com/Tutellus/ai-agentic-architecture/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.8.2",
+    "chalk": "^5.3.0",
+    "commander": "^12.1.0",
+    "glob": "^11.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@types/node": "^22.10.0",
+    "@vitest/coverage-v8": "^4.0.18",
+    "eslint": "^9.39.2",
+    "tsup": "^8.3.0",
+    "typescript": "^5.7.0",
+    "typescript-eslint": "^8.54.0",
+    "vitest": "^4.0.18"
+  }
+}

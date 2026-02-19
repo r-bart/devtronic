@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# AI local overrides (should not be committed)
+.claude/settings.local.json
+CLAUDE.local.md
+*.local.md
+
+# Test coverage
+coverage/
+
+# AI checkpoints (optional - uncomment if you don't want to track these)
+# thoughts/checkpoints/

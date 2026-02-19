@@ -1,0 +1,44 @@
+# Code Quality Checks
+
+After implementing a new feature or modifying existing code, **always run the following checks** before considering the task complete.
+
+## Required Validation Steps
+
+### 1. Type Checking
+
+```bash
+npm run typecheck
+```
+
+- Fix any type errors before proceeding
+- Do not use `any` to bypass errors—find the correct type
+
+### 2. Linting
+
+```bash
+npm run lint
+```
+
+- Fix all linting errors and warnings
+- Use `npm run lint:fix` for auto-fixable issues
+
+### 3. Formatting
+
+```bash
+npm run format
+```
+
+- Run this to ensure consistent code style
+
+## Quick Reference
+
+```bash
+# All checks in sequence
+npm run typecheck && npm run lint && npm run format
+```
+
+## When to Skip
+
+Only skip these checks if:
+- The user explicitly says the change is WIP/draft
+- The user specifically asks to skip validation

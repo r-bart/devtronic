@@ -1,0 +1,38 @@
+{
+  "name": "@tutellus/agentic-marketplace",
+  "version": "1.8.0",
+  "description": "Tutellus AI Agentic Architecture plugin for Claude Code — 16 skills, 7 agents, workflow hooks",
+  "license": "MIT",
+  "type": "commonjs",
+  "files": [
+    ".claude-plugin",
+    "tut-ai"
+  ],
+  "scripts": {
+    "build": "node scripts/build.mjs"
+  },
+  "keywords": [
+    "claude-code",
+    "claude-plugin",
+    "agentic",
+    "architecture",
+    "clean-architecture",
+    "ddd",
+    "skills",
+    "agents",
+    "hooks"
+  ],
+  "author": {
+    "name": "Tutellus",
+    "url": "https://github.com/nicobistolfi/ai-agentic-architecture"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Tutellus/ai-agentic-architecture.git",
+    "directory": "packages/marketplace"
+  },
+  "homepage": "https://github.com/Tutellus/ai-agentic-architecture#readme",
+  "bugs": {
+    "url": "https://github.com/Tutellus/ai-agentic-architecture/issues"
+  }
+}
