@@ -1,7 +1,7 @@
 {
   "name": "agentic-marketplace",
   "version": "1.8.0",
-  "description": "r-bart rbartronic plugin for Claude Code — 17 skills, 8 agents, workflow hooks",
+  "description": "r-bart rbartronic plugin for Claude Code — 18 skills, 8 agents, workflow hooks",
   "license": "MIT",
   "type": "commonjs",
   "files": [

@@ -49,7 +49,7 @@ writeFileSync(
         {
           name: PLUGIN_NAME,
           source: `./${PLUGIN_NAME}`,
-          description: 'rbartronic — 17 skills, 8 agents, full workflow hooks',
+          description: 'rbartronic — 18 skills, 8 agents, full workflow hooks',
         },
       ],
     },
@@ -68,7 +68,7 @@ writeFileSync(
       name: PLUGIN_NAME,
       version,
       description:
-        'rbartronic — 17 skills, 8 agents, full workflow hooks by rbart',
+        'rbartronic — 18 skills, 8 agents, full workflow hooks by rbart',
       author: {
         name: 'r-bart',
         url: 'https://github.com/r-bart/rbartronic',
@@ -312,7 +312,7 @@ chmodSync(join(scriptsDir, 'stop-guard.sh'), 0o755);
 console.log(`Built agentic-marketplace v${version}`);
 console.log(`  .claude-plugin/marketplace.json`);
 console.log(`  ${PLUGIN_NAME}/.claude-plugin/plugin.json`);
-console.log(`  ${PLUGIN_NAME}/skills/ (17 skills)`);
+console.log(`  ${PLUGIN_NAME}/skills/ (18 skills)`);
 console.log(`  ${PLUGIN_NAME}/agents/ (8 agents)`);
 console.log(`  ${PLUGIN_NAME}/hooks/hooks.json (5 hooks)`);
 console.log(`  ${PLUGIN_NAME}/scripts/checkpoint.sh`);

@@ -7,7 +7,7 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 17 skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 18 skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
@@ -114,7 +114,7 @@ npx rbartronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/rbartronic:spec, etc.)    │
-│       │             17 skills included                          │
+│       │             18 skills included                          │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             8 agents included                           │
@@ -198,7 +198,7 @@ your-project/
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
 │   └── rbartronic/                         # ← the plugin
-│       ├── skills/                     # 17 skills (/rbartronic:brief, etc.)
+│       ├── skills/                     # 18 skills (/rbartronic:brief, etc.)
 │       ├── agents/                     # 8 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh

@@ -39,7 +39,7 @@ your-project/
 │   └── rbartronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
-│       ├── skills/                     # 17 skills
+│       ├── skills/                     # 18 skills
 │       │   ├── brief/SKILL.md
 │       │   ├── spec/SKILL.md
 │       │   ├── scaffold/
