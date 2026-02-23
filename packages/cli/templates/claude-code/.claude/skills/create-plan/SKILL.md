@@ -63,6 +63,9 @@ A good plan means:
 │  2. RESEARCH CODEBASE                                           │
 │     └── Existing patterns, related code, constraints            │
 │                                                                 │
+│  2.5 CHECK FOR SPEC TESTS                                       │
+│      └── If thoughts/tests/ manifest exists, integrate          │
+│                                                                 │
 │  3. DESIGN APPROACH                                             │
 │     └── Consider 2+ options, recommend one                      │
 │                                                                 │
@@ -77,6 +80,20 @@ A good plan means:
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+### Check for Pre-existing Spec Tests
+
+Before designing the approach, check if `/generate-tests` has already been run:
+
+1. Look for `thoughts/tests/` manifest matching the spec slug
+2. If found:
+   - Read the manifest to understand what tests exist and what spec items they cover
+   - Add test files to the "Files to Create/Modify" table with action **"Make pass"**
+   - Add `All spec tests pass: <pm> test -- [test-files]` to Done Criteria
+   - Add `No spec test files were modified (immutability preserved)` to Done Criteria
+3. If not found: proceed normally (recommend running `/generate-tests` first)
+
+---
 
 ### Strategic Plan Template
 
@@ -217,6 +234,10 @@ Verifiable checklist — each item must be testable with a command or concrete o
 
 ### Phase 2: [Phase Name]
 - [ ] [Criterion]: [How to verify]
+
+### Spec Tests (if generated via /generate-tests)
+- [ ] All spec tests pass: `<pm> test -- [test-files]`
+- [ ] No spec test files were modified (immutability preserved)
 
 ### Overall
 - [ ] All phases complete

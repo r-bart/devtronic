@@ -264,6 +264,14 @@ If the plan has a `## Done Criteria` section, validate each criterion:
 
 ## Error Handling
 
+### Automatic Retry Policy
+
+Before escalating to the user, retry failed tasks automatically:
+
+1. **Attempt 1 fails**: Re-read task context, retry immediately
+2. **Attempt 2 fails**: Include error context from both attempts, retry with expanded instructions
+3. **Attempt 3 fails**: Escalate to user with full error history and options (Retry/Skip/Abort)
+
 ### Task Failure
 
 When a subagent task fails:

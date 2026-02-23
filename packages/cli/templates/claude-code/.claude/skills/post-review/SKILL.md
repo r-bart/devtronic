@@ -2,7 +2,7 @@
 name: post-review
 description: Post-feature review before PR. Checks requirements, architecture, quality, and captures lessons. Auto-invoke after completing a plan implementation. Use --strict for senior engineer mode.
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write
+allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
 argument-hint: "[--strict|--quick|files...]"
 ---
 
@@ -140,10 +140,31 @@ If no plan with done criteria exists, use the manual requirements checklist:
 
 ---
 
-## Step 3: Architecture Check
+## Step 3: Architecture Check (Automated)
+
+**Spawn the `architecture-checker` subagent** to validate compliance on changed files:
+
+```
+Use the Task tool with:
+  subagent_type: "rbartronic:architecture-checker"
+  model: "sonnet"
+  prompt: "Check architecture compliance on these changed files: [file list from Step 1]"
+```
+
+The subagent reads architecture rules from `CLAUDE.md`, `docs/ARCHITECTURE.md`, or `.claude/architecture-rules.md`, then:
+1. Categorizes changed files by architecture layer
+2. Checks layer dependency direction, domain purity, pattern compliance
+3. Returns a structured report with violations (file:line) and a PASS/FAIL verdict
+
+**If the subagent returns FAIL:**
+- List each violation in the review
+- Mark the review as NEEDS FIXES
+- Violations MUST be resolved before proceeding
+
+**If the subagent is unavailable** (e.g., Task tool not available), fall back to manual checklist:
 
 ```markdown
-## Architecture Compliance
+## Architecture Compliance (manual fallback)
 
 ### Clean Architecture
 - [ ] Domain has no external dependencies

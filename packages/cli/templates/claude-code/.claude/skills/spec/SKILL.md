@@ -221,6 +221,7 @@ Please review:
 4. Risks - Concerns not addressed?
 
 Once approved, proceed to:
+- /generate-tests (generate failing tests as Definition of Done)
 - /research (if code investigation needed)
 - /create-plan (if ready to design implementation)
 ```
