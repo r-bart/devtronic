@@ -38,7 +38,7 @@ describe('generateHooks', () => {
 
   it('includes description field', () => {
     const result = JSON.parse(generateHooks(createConfig(), 'npm'));
-    expect(result.description).toContain('Tutellus');
+    expect(result.description).toContain('r-bart');
   });
 
   describe('SessionStart hook', () => {

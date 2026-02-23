@@ -86,7 +86,7 @@ Run after every change.
 
 | Task | Commands |
 |------|----------|
-| New feature | `/brief` → `/spec` → `/research --deep` → `/create-plan` → implement → `/post-review` |
+| New feature | `/brief` → `/spec` → `/generate-tests` → `/research --deep` → `/create-plan` → implement → `/post-review` |
 | Bug fix | `/brief` → fix → test → `/post-review` |
 | Refactor | `/brief` → `/create-plan` → implement → `/post-review` |
 

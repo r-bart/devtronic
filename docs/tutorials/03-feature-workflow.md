@@ -15,7 +15,7 @@ By the end of this tutorial:
 
 ## Prerequisites
 
-- Project with AI Agentic Architecture installed (Tutorial 01 or 02)
+- Project with rbartronic installed (Tutorial 01 or 02)
 - A feature to implement (we'll use "notification system" as example)
 
 ---

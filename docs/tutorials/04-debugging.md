@@ -1,6 +1,6 @@
 # Tutorial 04: Error Debugging
 
-How to approach error debugging in a structured way with AI Agentic Architecture.
+How to approach error debugging in a structured way with rbartronic.
 
 ---
 
@@ -15,7 +15,7 @@ By the end of this tutorial:
 
 ## Prerequisites
 
-- Project with AI Agentic Architecture installed
+- Project with rbartronic installed
 - An error to debug (or follow the example)
 
 ---

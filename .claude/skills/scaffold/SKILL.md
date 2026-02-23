@@ -28,7 +28,7 @@ This skill uses supporting files for detailed reference:
 - [structures.md](structures.md) - Folder structures for each architecture pattern
 - [bootstrap-commands.md](bootstrap-commands.md) - Bootstrap commands per project type
 - [examples-frontend.md](examples-frontend.md) - Frontend (Clean Architecture) example code
-- [examples-tutellus.md](examples-tutellus.md) - Tutellus DDD example code
+- [examples-spa-ddd.md](examples-spa-ddd.md) - SPA-DDD example code
 - [examples-backend.md](examples-backend.md) - Backend (Express) example code
 
 ---
@@ -61,7 +61,7 @@ Use AskUserQuestion for each step:
 What type of project are you building?
 
 1. **frontend** - React (Vite) or Next.js
-2. **frontend-tutellus** - React (Vite) + Tutellus architecture (DDD + Zustand + Apollo)
+2. **spa-ddd** - React (Vite) + SPA-DDD architecture (DDD + Zustand + Apollo)
 3. **backend** - Node + Express
 4. **fullstack** - Next.js (app + api)
 5. **monorepo** - Multiple apps with shared packages
@@ -70,7 +70,7 @@ What type of project are you building?
 ### 2. Framework (based on type)
 
 **Frontend:** React (Vite) or Next.js
-**Frontend Tutellus:** React (Vite) + pnpm monorepo
+**SPA DDD:** React (Vite) + pnpm monorepo
 **Backend:** Express
 **Fullstack:** Next.js
 **Monorepo:** Turborepo + pnpm workspaces
@@ -161,7 +161,7 @@ Read [structures.md](structures.md) for the folder structure per architecture pa
 If user selected "yes" to examples, create example files from:
 
 - **Frontend (generic)**: Read [examples-frontend.md](examples-frontend.md)
-- **Frontend Tutellus**: Read [examples-tutellus.md](examples-tutellus.md)
+- **SPA DDD**: Read [examples-spa-ddd.md](examples-spa-ddd.md)
 - **Backend**: Read [examples-backend.md](examples-backend.md)
 
 ---
@@ -171,7 +171,7 @@ If user selected "yes" to examples, create example files from:
 After structure is created, configure AI agents:
 
 ```bash
-cd {name} && npx @tutellus/agentic-architecture init -y --ide claude-code
+cd {name} && npx rbartronic init -y --ide claude-code
 ```
 
 This creates:

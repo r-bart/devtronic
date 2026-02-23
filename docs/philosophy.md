@@ -1,6 +1,6 @@
 # Philosophy
 
-The principles and reasoning behind AI Agentic Architecture.
+The principles and reasoning behind rbartronic.
 
 ---
 

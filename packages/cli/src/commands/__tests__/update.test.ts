@@ -112,10 +112,10 @@ describe('hasStandaloneSkills', () => {
   it('returns false when manifest has plugin files instead of standalone', () => {
     const manifest = baseManifest({
       installMode: 'plugin',
-      pluginPath: '.claude-plugins/tut-ai',
+      pluginPath: '.claude-plugins/rbartronic',
       files: {
-        '.claude-plugins/tut-ai/skills/brief/SKILL.md': createManifestFile('# Brief'),
-        '.claude-plugins/tut-ai/agents/code-reviewer.md': createManifestFile('# Reviewer'),
+        '.claude-plugins/rbartronic/skills/brief/SKILL.md': createManifestFile('# Brief'),
+        '.claude-plugins/rbartronic/agents/code-reviewer.md': createManifestFile('# Reviewer'),
       },
     });
 

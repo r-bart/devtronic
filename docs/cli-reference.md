@@ -1,6 +1,6 @@
 # CLI Reference
 
-Complete reference for the `@tutellus/agentic-architecture` CLI.
+Complete reference for the `rbartronic` CLI.
 
 ---
 
@@ -9,14 +9,14 @@ Complete reference for the `@tutellus/agentic-architecture` CLI.
 The CLI can be run directly with npx (no installation required):
 
 ```bash
-npx @tutellus/agentic-architecture [command]
+npx rbartronic [command]
 ```
 
 Or install globally:
 
 ```bash
-npm install -g @tutellus/agentic-architecture
-agentic-architecture [command]
+npm install -g rbartronic
+rbartronic [command]
 ```
 
 ---
@@ -25,10 +25,10 @@ agentic-architecture [command]
 
 ### init
 
-Initialize AI Agentic Architecture in a project.
+Initialize rbartronic in a project.
 
 ```bash
-npx @tutellus/agentic-architecture init [path] [options]
+npx rbartronic init [path] [options]
 ```
 
 **Arguments:**
@@ -46,19 +46,19 @@ npx @tutellus/agentic-architecture init [path] [options]
 
 ```bash
 # Interactive initialization
-npx @tutellus/agentic-architecture init
+npx rbartronic init
 
 # Initialize specific directory
-npx @tutellus/agentic-architecture init /path/to/project
+npx rbartronic init /path/to/project
 
 # Specific IDEs without prompts
-npx @tutellus/agentic-architecture init --ide claude-code,cursor -y
+npx rbartronic init --ide claude-code,cursor -y
 
 # Preview mode (no changes)
-npx @tutellus/agentic-architecture init --preview
+npx rbartronic init --preview
 
 # Use a preset
-npx @tutellus/agentic-architecture init --preset nextjs-clean
+npx rbartronic init --preset nextjs-clean
 ```
 
 **Process:**
@@ -76,7 +76,7 @@ npx @tutellus/agentic-architecture init --preset nextjs-clean
 Update to the latest template version.
 
 ```bash
-npx @tutellus/agentic-architecture update [options]
+npx rbartronic update [options]
 ```
 
 **Options:**
@@ -89,13 +89,13 @@ npx @tutellus/agentic-architecture update [options]
 
 ```bash
 # Check for updates
-npx @tutellus/agentic-architecture update --check
+npx rbartronic update --check
 
 # Apply updates
-npx @tutellus/agentic-architecture update
+npx rbartronic update
 
 # Preview updates
-npx @tutellus/agentic-architecture update --dry-run
+npx rbartronic update --dry-run
 ```
 
 **Features:**
@@ -111,7 +111,7 @@ npx @tutellus/agentic-architecture update --dry-run
 Add another IDE configuration to an existing installation.
 
 ```bash
-npx @tutellus/agentic-architecture add [ide]
+npx rbartronic add [ide]
 ```
 
 **Arguments:**
@@ -127,11 +127,11 @@ npx @tutellus/agentic-architecture add [ide]
 
 ```bash
 # Interactive selection
-npx @tutellus/agentic-architecture add
+npx rbartronic add
 
 # Add specific IDE
-npx @tutellus/agentic-architecture add cursor
-npx @tutellus/agentic-architecture add antigravity
+npx rbartronic add cursor
+npx rbartronic add antigravity
 ```
 
 ---
@@ -141,7 +141,7 @@ npx @tutellus/agentic-architecture add antigravity
 Regenerate configuration files.
 
 ```bash
-npx @tutellus/agentic-architecture regenerate [target] [options]
+npx rbartronic regenerate [target] [options]
 ```
 
 **Arguments:**
@@ -157,13 +157,13 @@ npx @tutellus/agentic-architecture regenerate [target] [options]
 
 ```bash
 # Regenerate AGENTS.md with current stack
-npx @tutellus/agentic-architecture regenerate AGENTS.md
+npx rbartronic regenerate AGENTS.md
 
 # Regenerate all architecture rules
-npx @tutellus/agentic-architecture regenerate --rules
+npx rbartronic regenerate --rules
 
 # Regenerate everything
-npx @tutellus/agentic-architecture regenerate --all
+npx rbartronic regenerate --all
 ```
 
 **Use when:**
@@ -178,7 +178,7 @@ npx @tutellus/agentic-architecture regenerate --all
 Show installation status.
 
 ```bash
-npx @tutellus/agentic-architecture status
+npx rbartronic status
 ```
 
 **Shows:**
@@ -195,7 +195,7 @@ npx @tutellus/agentic-architecture status
 Show differences between current files and template.
 
 ```bash
-npx @tutellus/agentic-architecture diff
+npx rbartronic diff
 ```
 
 **Shows:**
@@ -210,7 +210,7 @@ npx @tutellus/agentic-architecture diff
 List available presets.
 
 ```bash
-npx @tutellus/agentic-architecture presets
+npx rbartronic presets
 ```
 
 **Available Presets:**
@@ -393,7 +393,7 @@ None required. The CLI reads all configuration from the target project.
 After installation, add to your `.gitignore`:
 
 ```gitignore
-# AI Agentic Architecture
+# rbartronic
 thoughts/checkpoints/
 .claude/settings.local.json
 CLAUDE.local.md

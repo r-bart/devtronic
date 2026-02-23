@@ -1,6 +1,6 @@
 # Tutorial 06: Other Benefits
 
-Additional benefits of AI Agentic Architecture beyond the main workflow.
+Additional benefits of rbartronic beyond the main workflow.
 
 ---
 

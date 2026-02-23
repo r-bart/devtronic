@@ -1,6 +1,6 @@
 # Tutorial 02: Install in Existing Project
 
-How to integrate AI Agentic Architecture into a project that already has code and configuration.
+How to integrate rbartronic into a project that already has code and configuration.
 
 ---
 
@@ -27,7 +27,7 @@ By the end of this tutorial:
 
 ```bash
 cd your-project
-npx @tutellus/agentic-architecture init --preview
+npx rbartronic init --preview
 ```
 
 The `--preview` shows what changes would be made without making them.
@@ -62,7 +62,7 @@ If something is incorrect, you can correct it.
 ### Step 4: Apply Changes
 
 ```bash
-npx @tutellus/agentic-architecture init
+npx rbartronic init
 ```
 
 ### Step 5: Review Changes
@@ -241,7 +241,7 @@ Verify that `.claude/skills/` exists and has `.md` files.
 
 If you also use Cursor:
 ```bash
-npx @tutellus/agentic-architecture add cursor
+npx rbartronic add cursor
 ```
 
 ---

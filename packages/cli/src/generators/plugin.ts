@@ -9,8 +9,8 @@ import {
 } from '../utils/files.js';
 import { generateHooks, generateCheckpointScript, generateStopGuardScript } from './hooks.js';
 
-export const PLUGIN_NAME = 'tut-ai';
-export const MARKETPLACE_NAME = 'tutellus-local';
+export const PLUGIN_NAME = 'rbartronic';
+export const MARKETPLACE_NAME = 'rbartronic-local';
 export const PLUGIN_DIR = '.claude-plugins';
 
 export interface PluginGenerationResult {
@@ -21,7 +21,7 @@ export interface PluginGenerationResult {
 }
 
 /**
- * Generates plugin.json content for the tut-ai plugin.
+ * Generates plugin.json content for the rbartronic plugin.
  */
 export function generatePluginJson(cliVersion: string): string {
   return JSON.stringify(
@@ -29,12 +29,12 @@ export function generatePluginJson(cliVersion: string): string {
       name: PLUGIN_NAME,
       version: cliVersion,
       description:
-        'AI Agentic Architecture — 16 skills, 7 agents, full workflow hooks by Tutellus',
+        'rbartronic — 16 skills, 7 agents, full workflow hooks by rbart',
       author: {
-        name: 'Tutellus',
-        url: 'https://github.com/nicobistolfi/ai-agentic-architecture',
+        name: 'r-bart',
+        url: 'https://github.com/r-bart/rbartronic',
       },
-      repository: 'https://github.com/nicobistolfi/ai-agentic-architecture',
+      repository: 'https://github.com/r-bart/rbartronic',
       license: 'MIT',
       keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
     },
@@ -51,14 +51,14 @@ export function generateMarketplaceJson(): string {
     {
       name: MARKETPLACE_NAME,
       owner: {
-        name: 'Tutellus',
-        url: 'https://github.com/nicobistolfi/ai-agentic-architecture',
+        name: 'r-bart',
+        url: 'https://github.com/r-bart/rbartronic',
       },
       plugins: [
         {
           name: PLUGIN_NAME,
           source: `./${PLUGIN_NAME}`,
-          description: 'AI Agentic Architecture — 16 skills, 7 agents, full workflow hooks',
+          description: 'rbartronic — 16 skills, 7 agents, full workflow hooks',
         },
       ],
     },
@@ -72,18 +72,18 @@ export function generateMarketplaceJson(): string {
  *
  * Output structure:
  * ```
- * .claude-plugins/                       ← local marketplace root
- * ├── .claude-plugin/
- * │   └── marketplace.json
- * └── tut-ai/                            ← the plugin
- *     ├── .claude-plugin/
- *     │   └── plugin.json
- *     ├── skills/   (16 skills from template)
- *     ├── agents/   (7 agents from template)
- *     ├── hooks/
- *     │   └── hooks.json
- *     └── scripts/
- *         └── checkpoint.sh
+ * .claude-plugins/                       <- local marketplace root
+ * |-- .claude-plugin/
+ * |   \-- marketplace.json
+ * \-- rbartronic/                            <- the plugin
+ *     |-- .claude-plugin/
+ *     |   \-- plugin.json
+ *     |-- skills/   (16 skills from template)
+ *     |-- agents/   (7 agents from template)
+ *     |-- hooks/
+ *     |   \-- hooks.json
+ *     \-- scripts/
+ *         \-- checkpoint.sh
  * ```
  *
  * @param targetDir - Absolute path to the user's project root
@@ -108,7 +108,7 @@ export function generatePlugin(
   const marketplaceRelPath = join(PLUGIN_DIR, '.claude-plugin', 'marketplace.json');
   writeGeneratedFile(targetDir, marketplaceRelPath, marketplaceContent, files);
 
-  // 2. Plugin manifest (.claude-plugins/tut-ai/.claude-plugin/plugin.json)
+  // 2. Plugin manifest (.claude-plugins/rbartronic/.claude-plugin/plugin.json)
   const pluginJsonContent = generatePluginJson(cliVersion);
   const pluginJsonRelPath = join(pluginRoot, '.claude-plugin', 'plugin.json');
   writeGeneratedFile(targetDir, pluginJsonRelPath, pluginJsonContent, files);

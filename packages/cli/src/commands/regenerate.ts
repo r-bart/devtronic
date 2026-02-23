@@ -26,13 +26,13 @@ export async function regenerateCommand(
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' AI Agentic Architecture - Regenerate '));
+  p.intro(chalk.bgCyan.black(' rbartronic - Regenerate '));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
 
   if (!manifest) {
-    p.cancel('No installation found. Run `npx @tutellus/agentic-architecture init` first.');
+    p.cancel('No installation found. Run `npx rbartronic init` first.');
     process.exit(1);
   }
 

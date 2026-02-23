@@ -1,11 +1,11 @@
 ---
 name: setup
-description: Configure AI Agentic Architecture for this project through interactive conversation. Use when setting up AI assistance in an existing project.
+description: Configure rbartronic for this project through interactive conversation. Use when setting up AI assistance in an existing project.
 disable-model-invocation: true
 allowed-tools: Bash, Read, Glob, AskUserQuestion, Write
 ---
 
-# Setup AI Agentic Architecture
+# Setup rbartronic
 
 Interactive configuration of AI agent rules and workflows for this project.
 
@@ -24,7 +24,7 @@ Interactive configuration of AI agent rules and workflows for this project.
 This skill provides a conversational interface to the CLI. After gathering configuration, it executes:
 
 ```bash
-npx @tutellus/agentic-architecture init -y --ide <selected-ides>
+npx rbartronic init -y --ide <selected-ides>
 ```
 
 This ensures:
@@ -140,14 +140,14 @@ Once configuration is confirmed, execute the CLI:
 
 ```bash
 # Build the command based on selections
-npx @tutellus/agentic-architecture init -y --ide claude-code,cursor
+npx rbartronic init -y --ide claude-code,cursor
 ```
 
 If user made adjustments that differ from auto-detection, create a temporary config or guide them to run the CLI interactively:
 
 ```bash
 # For interactive mode with manual configuration
-npx @tutellus/agentic-architecture init --ide claude-code,cursor
+npx rbartronic init --ide claude-code,cursor
 ```
 
 ---
@@ -194,8 +194,8 @@ The CLI has configured the following:
 
 To update to newer template versions:
 ```bash
-npx @tutellus/agentic-architecture update --check  # Check for updates
-npx @tutellus/agentic-architecture update          # Apply updates
+npx rbartronic update --check  # Check for updates
+npx rbartronic update          # Apply updates
 ```
 
 Updates preserve your local modifications.
@@ -209,13 +209,13 @@ For specific operations, you can also suggest:
 
 ```bash
 # Add another IDE later
-npx @tutellus/agentic-architecture add antigravity
+npx rbartronic add antigravity
 
 # Regenerate rules after stack changes
-npx @tutellus/agentic-architecture regenerate --rules
+npx rbartronic regenerate --rules
 
 # Preview what would be generated
-npx @tutellus/agentic-architecture init --preview
+npx rbartronic init --preview
 ```
 
 ---

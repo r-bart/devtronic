@@ -15,7 +15,7 @@ By the end of this tutorial:
 
 ## Prerequisites
 
-- Project with AI Agentic Architecture installed
+- Project with rbartronic installed
 - Something recently implemented (feature, fix, refactor)
 
 ---
@@ -252,7 +252,7 @@ Application: Any case with multiple side effects.
 
 → [Tutorial 06: Benefits](./06-benefits.md)
 
-Other benefits of AI Agentic Architecture.
+Other benefits of rbartronic.
 
 ---
 

@@ -1,4 +1,4 @@
-# AI Agentic Architecture
+# rbartronic
 
 A universal template for AI-assisted development. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
 
@@ -25,10 +25,10 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 
 ```bash
 # Run in your project directory
-npx @tutellus/agentic-architecture init
+npx rbartronic init
 
 # Or specify a target directory
-npx @tutellus/agentic-architecture init /path/to/your/project
+npx rbartronic init /path/to/your/project
 ```
 
 The CLI will:
@@ -40,7 +40,7 @@ The CLI will:
 ### Option B: npm Plugin (Claude Code Only)
 
 ```bash
-npm install @tutellus/agentic-marketplace --save-dev
+npm install agentic-marketplace --save-dev
 ```
 
 Then add to `.claude/settings.json`:
@@ -48,11 +48,11 @@ Then add to `.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "tutellus-local": {
-      "source": { "source": "directory", "path": "./node_modules/@tutellus/agentic-marketplace" }
+    "rbartronic-local": {
+      "source": { "source": "directory", "path": "./node_modules/agentic-marketplace" }
     }
   },
-  "enabledPlugins": { "tut-ai@tutellus-local": true }
+  "enabledPlugins": { "rbartronic@rbartronic-local": true }
 }
 ```
 
@@ -65,13 +65,13 @@ This installs just the plugin (skills, agents, hooks) without generating project
 /scaffold   # For new projects from scratch
 ```
 
-Same functionality through conversation. Use `/scaffold` to create new projects with guided architecture selection (frontend, frontend-tutellus, backend, monorepo).
+Same functionality through conversation. Use `/scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
 
 ### Update Later
 
 ```bash
-npx @tutellus/agentic-architecture update        # Apply updates
-npx @tutellus/agentic-architecture update --check # Check for updates
+npx rbartronic update        # Apply updates
+npx rbartronic update --check # Check for updates
 ```
 
 ### Local Development (before npm publish)
@@ -80,14 +80,14 @@ If the package isn't published to npm yet, you can use it locally:
 
 ```bash
 # 1. Clone and build
-git clone https://github.com/Tutellus/ai-agentic-architecture.git
-cd ai-agentic-architecture/packages/cli
+git clone https://github.com/r-bart/rbartronic.git
+cd rbartronic/packages/cli
 npm install && npm run build
 npm link
 
 # 2. Use in any project
 cd /path/to/your/project
-npx agentic-architecture init
+npx rbartronic init
 ```
 
 ---
@@ -96,7 +96,7 @@ npx agentic-architecture init
 
 | IDE | Config Location | Status |
 |-----|-----------------|--------|
-| Claude Code | `.claude-plugins/tut-ai/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
+| Claude Code | `.claude-plugins/rbartronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
 | Cursor | `.cursor/rules/*.mdc` | Full support |
 | Google Antigravity | `.agent/rules/*.md` | Full support |
 | GitHub Copilot | `.github/copilot-instructions.md` | Full support |
@@ -113,7 +113,7 @@ npx agentic-architecture init
 │                                                                 │
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
-│       ├── Skills    Reusable workflows (/tut-ai:spec, etc.)    │
+│       ├── Skills    Reusable workflows (/rbartronic:spec, etc.)    │
 │       │             16 skills included                          │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
@@ -197,8 +197,8 @@ your-project/
 │
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
-│   └── tut-ai/                         # ← the plugin
-│       ├── skills/                     # 16 skills (/tut-ai:brief, etc.)
+│   └── rbartronic/                         # ← the plugin
+│       ├── skills/                     # 16 skills (/rbartronic:brief, etc.)
 │       ├── agents/                     # 7 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh

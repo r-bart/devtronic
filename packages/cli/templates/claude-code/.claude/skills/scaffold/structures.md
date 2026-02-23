@@ -4,9 +4,9 @@ Reference file for `/scaffold`. Contains folder structures for each architecture
 
 ---
 
-## Frontend Tutellus (DDD + Zustand + Apollo)
+## SPA DDD (DDD + Zustand + Apollo)
 
-Based on Tutellus cividao-frontend patterns:
+Based on cividao-frontend patterns:
 
 ```
 {name}/

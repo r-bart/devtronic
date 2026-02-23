@@ -20,7 +20,7 @@ npm create vite@latest {name} -- --template react-ts
 npx create-next-app@latest {name} --typescript --tailwind --eslint --app --src-dir
 ```
 
-### Frontend Tutellus - React (Vite) + pnpm Monorepo
+### SPA DDD - React (Vite) + pnpm Monorepo
 
 ```bash
 # Create monorepo structure

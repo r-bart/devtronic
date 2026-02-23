@@ -119,7 +119,7 @@ Continue from where I left off.
 
 ### /setup - Interactive Configuration
 
-**Purpose**: Configure AI Agentic Architecture through conversation instead of CLI.
+**Purpose**: Configure rbartronic through conversation instead of CLI.
 
 **When to use**:
 - First time setting up AI assistance in an **existing** project
@@ -127,7 +127,7 @@ Continue from where I left off.
 
 **For new projects**: Use `/scaffold` instead.
 
-**Behind the scenes**: Invokes `npx @tutellus/agentic-architecture init`
+**Behind the scenes**: Invokes `npx rbartronic init`
 
 ---
 
@@ -139,7 +139,7 @@ Continue from where I left off.
 - Starting a brand new project
 - Want guided setup with proper architecture
 
-**Project Types**: frontend, frontend-tutellus, backend, fullstack, monorepo
+**Project Types**: frontend, spa-ddd, backend, fullstack, monorepo
 
 **Architecture Options**: clean, ddd, feature-based, mvc, flat
 

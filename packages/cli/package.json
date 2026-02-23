@@ -1,10 +1,10 @@
 {
-  "name": "@tutellus/agentic-architecture",
+  "name": "rbartronic",
   "version": "1.8.0",
-  "description": "CLI for deploying AI Agentic Architecture template to your projects",
+  "description": "CLI for deploying rbartronic template to your projects",
   "type": "module",
   "bin": {
-    "agentic-architecture": "./dist/index.js"
+    "rbartronic": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -31,16 +31,16 @@
     "template",
     "cli"
   ],
-  "author": "Tutellus",
+  "author": "r-bart",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Tutellus/ai-agentic-architecture.git",
+    "url": "https://github.com/r-bart/rbartronic.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/Tutellus/ai-agentic-architecture#readme",
+  "homepage": "https://github.com/r-bart/rbartronic#readme",
   "bugs": {
-    "url": "https://github.com/Tutellus/ai-agentic-architecture/issues"
+    "url": "https://github.com/r-bart/rbartronic/issues"
   },
   "engines": {
     "node": ">=18.0.0"

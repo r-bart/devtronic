@@ -11,13 +11,13 @@ import {
 export async function statusCommand(): Promise<void> {
   const targetDir = resolve('.');
 
-  p.intro(chalk.bgCyan.black(' AI Agentic Architecture Status '));
+  p.intro(chalk.bgCyan.black(' rbartronic Status '));
 
   const manifest = readManifest(targetDir);
 
   if (!manifest) {
     p.log.warn('No installation found in this directory.');
-    p.log.info('Run `npx @tutellus/agentic-architecture init` to set up.');
+    p.log.info('Run `npx rbartronic init` to set up.');
     p.outro('');
     return;
   }

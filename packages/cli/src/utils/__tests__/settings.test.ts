@@ -74,19 +74,19 @@ describe('writeClaudeSettings', () => {
 
 describe('registerPlugin', () => {
   it('creates marketplace and enables plugin from scratch', () => {
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
     expect(settings.extraKnownMarketplaces).toEqual({
-      'tutellus-local': {
+      'rbartronic-local': {
         source: { source: 'directory', path: '.claude-plugins' },
       },
     });
     expect(settings.enabledPlugins).toEqual({
-      'tut-ai@tutellus-local': true,
+      'rbartronic@rbartronic-local': true,
     });
   });
 
@@ -100,7 +100,7 @@ describe('registerPlugin', () => {
       })
     );
 
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
@@ -108,12 +108,12 @@ describe('registerPlugin', () => {
 
     expect(settings.existingKey).toBe('preserved');
     expect(settings.enabledPlugins['other@marketplace']).toBe(true);
-    expect(settings.enabledPlugins['tut-ai@tutellus-local']).toBe(true);
+    expect(settings.enabledPlugins['rbartronic@rbartronic-local']).toBe(true);
   });
 
   it('is idempotent — does not duplicate on second call', () => {
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
@@ -131,42 +131,42 @@ describe('registerPlugin', () => {
     writeFileSync(
       join(tempDir, '.claude', 'settings.json'),
       JSON.stringify({
-        enabledPlugins: { 'tut-ai@tutellus-local': false },
+        enabledPlugins: { 'rbartronic@rbartronic-local': false },
       })
     );
 
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
     // User explicitly set to false — should not be overwritten
-    expect(settings.enabledPlugins['tut-ai@tutellus-local']).toBe(false);
+    expect(settings.enabledPlugins['rbartronic@rbartronic-local']).toBe(false);
   });
 });
 
 describe('unregisterPlugin', () => {
   it('removes plugin from enabledPlugins', () => {
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
-    unregisterPlugin(tempDir, 'tut-ai', 'tutellus-local');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    unregisterPlugin(tempDir, 'rbartronic', 'rbartronic-local');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
-    expect(settings.enabledPlugins['tut-ai@tutellus-local']).toBeUndefined();
+    expect(settings.enabledPlugins['rbartronic@rbartronic-local']).toBeUndefined();
   });
 
   it('preserves marketplace after unregistering plugin', () => {
-    registerPlugin(tempDir, 'tut-ai', 'tutellus-local', '.claude-plugins');
-    unregisterPlugin(tempDir, 'tut-ai', 'tutellus-local');
+    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    unregisterPlugin(tempDir, 'rbartronic', 'rbartronic-local');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
-    expect(settings.extraKnownMarketplaces['tutellus-local']).toBeDefined();
+    expect(settings.extraKnownMarketplaces['rbartronic-local']).toBeDefined();
   });
 
   it('does nothing when plugin is not registered', () => {
@@ -184,7 +184,7 @@ describe('unregisterPlugin', () => {
 
   it('does nothing when no settings file exists', () => {
     // Should not throw
-    unregisterPlugin(tempDir, 'tut-ai', 'tutellus-local');
+    unregisterPlugin(tempDir, 'rbartronic', 'rbartronic-local');
 
     // Settings file gets created with empty enabledPlugins
     const settings = JSON.parse(

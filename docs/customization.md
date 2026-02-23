@@ -1,6 +1,6 @@
 # Customization Guide
 
-How to customize AI Agentic Architecture for your project.
+How to customize rbartronic for your project.
 
 ---
 

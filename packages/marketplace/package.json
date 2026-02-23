@@ -1,12 +1,12 @@
 {
-  "name": "@tutellus/agentic-marketplace",
+  "name": "agentic-marketplace",
   "version": "1.8.0",
-  "description": "Tutellus AI Agentic Architecture plugin for Claude Code — 16 skills, 7 agents, workflow hooks",
+  "description": "r-bart rbartronic plugin for Claude Code — 16 skills, 7 agents, workflow hooks",
   "license": "MIT",
   "type": "commonjs",
   "files": [
     ".claude-plugin",
-    "tut-ai"
+    "rbartronic"
   ],
   "scripts": {
     "build": "node scripts/build.mjs"
@@ -23,16 +23,16 @@
     "hooks"
   ],
   "author": {
-    "name": "Tutellus",
-    "url": "https://github.com/nicobistolfi/ai-agentic-architecture"
+    "name": "r-bart",
+    "url": "https://github.com/r-bart/rbartronic"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/Tutellus/ai-agentic-architecture.git",
+    "url": "https://github.com/r-bart/rbartronic.git",
     "directory": "packages/marketplace"
   },
-  "homepage": "https://github.com/Tutellus/ai-agentic-architecture#readme",
+  "homepage": "https://github.com/r-bart/rbartronic#readme",
   "bugs": {
-    "url": "https://github.com/Tutellus/ai-agentic-architecture/issues"
+    "url": "https://github.com/r-bart/rbartronic/issues"
   }
 }
