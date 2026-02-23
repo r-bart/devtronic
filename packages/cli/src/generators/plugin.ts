@@ -32,9 +32,9 @@ export function generatePluginJson(cliVersion: string): string {
         'rbartronic — 16 skills, 7 agents, full workflow hooks by rbart',
       author: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/rbartronic',
+        url: 'https://github.com/r-bart/agentic-development',
       },
-      repository: 'https://github.com/r-bart/rbartronic',
+      repository: 'https://github.com/r-bart/agentic-development',
       license: 'MIT',
       keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
     },
@@ -52,7 +52,7 @@ export function generateMarketplaceJson(): string {
       name: MARKETPLACE_NAME,
       owner: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/rbartronic',
+        url: 'https://github.com/r-bart/agentic-development',
       },
       plugins: [
         {

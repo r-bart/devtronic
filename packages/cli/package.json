@@ -35,12 +35,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/r-bart/rbartronic.git",
+    "url": "https://github.com/r-bart/agentic-development.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/r-bart/rbartronic#readme",
+  "homepage": "https://github.com/r-bart/agentic-development#readme",
   "bugs": {
-    "url": "https://github.com/r-bart/rbartronic/issues"
+    "url": "https://github.com/r-bart/agentic-development/issues"
   },
   "engines": {
     "node": ">=18.0.0"

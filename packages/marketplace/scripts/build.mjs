@@ -43,7 +43,7 @@ writeFileSync(
       name: MARKETPLACE_NAME,
       owner: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/rbartronic',
+        url: 'https://github.com/r-bart/agentic-development',
       },
       plugins: [
         {
@@ -71,9 +71,9 @@ writeFileSync(
         'rbartronic — 18 skills, 8 agents, full workflow hooks by rbart',
       author: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/rbartronic',
+        url: 'https://github.com/r-bart/agentic-development',
       },
-      repository: 'https://github.com/r-bart/rbartronic',
+      repository: 'https://github.com/r-bart/agentic-development',
       license: 'MIT',
       keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
     },

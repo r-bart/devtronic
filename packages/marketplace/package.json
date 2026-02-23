@@ -25,15 +25,15 @@
   ],
   "author": {
     "name": "r-bart",
-    "url": "https://github.com/r-bart/rbartronic"
+    "url": "https://github.com/r-bart/agentic-development"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/r-bart/rbartronic.git",
+    "url": "https://github.com/r-bart/agentic-development.git",
     "directory": "packages/marketplace"
   },
-  "homepage": "https://github.com/r-bart/rbartronic#readme",
+  "homepage": "https://github.com/r-bart/agentic-development#readme",
   "bugs": {
-    "url": "https://github.com/r-bart/rbartronic/issues"
+    "url": "https://github.com/r-bart/agentic-development/issues"
   }
 }

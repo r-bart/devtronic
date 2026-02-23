@@ -80,7 +80,7 @@ If the package isn't published to npm yet, you can use it locally:
 
 ```bash
 # 1. Clone and build
-git clone https://github.com/r-bart/rbartronic.git
+git clone https://github.com/r-bart/agentic-development.git
 cd rbartronic/packages/cli
 npm install && npm run build
 npm link
