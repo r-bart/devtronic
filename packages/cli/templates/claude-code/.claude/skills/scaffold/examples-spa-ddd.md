@@ -1,6 +1,6 @@
-# Scaffold - Tutellus DDD Examples
+# Scaffold - SPA-DDD Examples
 
-Example files for the Tutellus frontend (DDD + Zustand + Apollo) scaffold. Based on cividao-frontend patterns.
+Example files for the SPA-DDD frontend (DDD + Zustand + Apollo) scaffold. Based on cividao-frontend patterns.
 
 ---
 
