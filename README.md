@@ -1,4 +1,4 @@
-# rbartronic
+# devtronic
 
 A universal template for AI-assisted development. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
 
@@ -25,10 +25,10 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 
 ```bash
 # Run in your project directory
-npx rbartronic init
+npx devtronic init
 
 # Or specify a target directory
-npx rbartronic init /path/to/your/project
+npx devtronic init /path/to/your/project
 ```
 
 The CLI will:
@@ -48,11 +48,11 @@ Then add to `.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "rbartronic-local": {
+    "devtronic-local": {
       "source": { "source": "directory", "path": "./node_modules/agentic-marketplace" }
     }
   },
-  "enabledPlugins": { "rbartronic@rbartronic-local": true }
+  "enabledPlugins": { "devtronic@devtronic-local": true }
 }
 ```
 
@@ -70,8 +70,8 @@ Same functionality through conversation. Use `/scaffold` to create new projects 
 ### Update Later
 
 ```bash
-npx rbartronic update        # Apply updates
-npx rbartronic update --check # Check for updates
+npx devtronic update        # Apply updates
+npx devtronic update --check # Check for updates
 ```
 
 ### Local Development (before npm publish)
@@ -80,14 +80,14 @@ If the package isn't published to npm yet, you can use it locally:
 
 ```bash
 # 1. Clone and build
-git clone https://github.com/r-bart/agentic-development.git
-cd rbartronic/packages/cli
+git clone https://github.com/r-bart/devtronic.git
+cd devtronic/packages/cli
 npm install && npm run build
 npm link
 
 # 2. Use in any project
 cd /path/to/your/project
-npx rbartronic init
+npx devtronic init
 ```
 
 ---
@@ -96,7 +96,7 @@ npx rbartronic init
 
 | IDE | Config Location | Status |
 |-----|-----------------|--------|
-| Claude Code | `.claude-plugins/rbartronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
+| Claude Code | `.claude-plugins/devtronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
 | Cursor | `.cursor/rules/*.mdc` | Full support |
 | Google Antigravity | `.agent/rules/*.md` | Full support |
 | GitHub Copilot | `.github/copilot-instructions.md` | Full support |
@@ -113,7 +113,7 @@ npx rbartronic init
 │                                                                 │
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
-│       ├── Skills    Reusable workflows (/rbartronic:spec, etc.)    │
+│       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
 │       │             18 skills included                          │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
@@ -197,8 +197,8 @@ your-project/
 │
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
-│   └── rbartronic/                         # ← the plugin
-│       ├── skills/                     # 18 skills (/rbartronic:brief, etc.)
+│   └── devtronic/                         # ← the plugin
+│       ├── skills/                     # 18 skills (/devtronic:brief, etc.)
 │       ├── agents/                     # 8 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh

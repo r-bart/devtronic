@@ -1,6 +1,6 @@
 # Customization Guide
 
-How to customize rbartronic for your project.
+How to customize devtronic for your project.
 
 ---
 

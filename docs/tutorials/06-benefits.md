@@ -1,6 +1,6 @@
 # Tutorial 06: Other Benefits
 
-Additional benefits of rbartronic beyond the main workflow.
+Additional benefits of devtronic beyond the main workflow.
 
 ---
 

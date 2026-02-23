@@ -1,6 +1,6 @@
 # Philosophy
 
-The principles and reasoning behind rbartronic.
+The principles and reasoning behind devtronic.
 
 ---
 

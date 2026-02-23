@@ -1,6 +1,6 @@
 # Tutorial 01: Starting a Project from Scratch
 
-How to use rbartronic to start a project from scratch with professional structure.
+How to use devtronic to start a project from scratch with professional structure.
 
 ---
 
@@ -164,7 +164,7 @@ Open http://localhost:3000 to see your project.
 ```bash
 git init
 git add .
-git commit -m "Initial project setup with rbartronic"
+git commit -m "Initial project setup with devtronic"
 ```
 
 ---

@@ -1,6 +1,6 @@
 # Tutorials
 
-Practical guides for using rbartronic in different situations.
+Practical guides for using devtronic in different situations.
 
 ---
 

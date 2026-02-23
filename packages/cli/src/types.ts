@@ -114,7 +114,7 @@ export interface Manifest {
   files: Record<string, ManifestFile>;
   /** Install mode for Claude Code (standalone = .claude/, plugin = .claude-plugins/) */
   installMode?: InstallMode;
-  /** Relative path to the generated plugin directory (e.g. .claude-plugins/rbartronic) */
+  /** Relative path to the generated plugin directory (e.g. .claude-plugins/devtronic) */
   pluginPath?: string;
 }
 

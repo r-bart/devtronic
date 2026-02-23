@@ -21,13 +21,13 @@ const TEMPLATES_DIR = existsSync(resolve(__dirname, '../templates'))
 export async function diffCommand(): Promise<void> {
   const targetDir = resolve('.');
 
-  p.intro(chalk.bgCyan.black(' rbartronic Diff '));
+  p.intro(chalk.bgCyan.black(' devtronic Diff '));
 
   const manifest = readManifest(targetDir);
 
   if (!manifest) {
     p.log.warn('No installation found in this directory.');
-    p.log.info('Run `npx rbartronic init` to set up.');
+    p.log.info('Run `npx devtronic init` to set up.');
     p.outro('');
     return;
   }
@@ -117,7 +117,7 @@ export async function diffCommand(): Promise<void> {
   }
 
   console.log('');
-  console.log('Run `npx rbartronic update` to apply changes.');
+  console.log('Run `npx devtronic update` to apply changes.');
 
   p.outro('');
 }

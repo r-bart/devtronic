@@ -14,9 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - SPA-DDD scaffold examples (React + Vite + DDD + Zustand + Apollo)
 
 ### Changed
-- Rebranded from `@tutellus/agentic-architecture` to `rbartronic`
+- Rebranded from `@tutellus/agentic-architecture` to `devtronic`
 - Marketplace package renamed to `agentic-marketplace`
-- Plugin namespace changed to `rbartronic:` (e.g. `/rbartronic:spec`)
+- Plugin namespace changed to `devtronic:` (e.g. `/devtronic:spec`)
 - `post-review` skill: architecture check now automated via subagent
 - `create-plan` skill: spec tests integrated as Done Criteria
 - `execute-plan` skill: automatic 3-attempt retry before user escalation

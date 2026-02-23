@@ -1,6 +1,6 @@
 # Integrating with Existing Projects
 
-This guide explains how to integrate rbartronic into a project that already has its own configuration (skills, CLAUDE.md, subagents, rules, etc.).
+This guide explains how to integrate devtronic into a project that already has its own configuration (skills, CLAUDE.md, subagents, rules, etc.).
 
 ## Overview
 
@@ -35,10 +35,10 @@ The CLI is **designed specifically for existing projects**. It detects what you 
 
 ```bash
 # Preview first (no changes)
-npx rbartronic init --preview
+npx devtronic init --preview
 
 # Run initialization
-npx rbartronic init
+npx devtronic init
 
 # Select "Merge intelligently" when prompted for existing configs
 ```
@@ -173,7 +173,7 @@ If you have a skill with the **same filename** as a template skill (e.g., both h
 
 If you want to see what's different, run:
 ```bash
-npx rbartronic diff
+npx devtronic diff
 ```
 
 ---
@@ -247,7 +247,7 @@ This enables:
 ### Check for Updates
 
 ```bash
-npx rbartronic update --check
+npx devtronic update --check
 ```
 
 Shows:
@@ -258,7 +258,7 @@ Shows:
 ### Apply Updates
 
 ```bash
-npx rbartronic update
+npx devtronic update
 ```
 
 The update process:
@@ -270,7 +270,7 @@ The update process:
 ### Preview Updates
 
 ```bash
-npx rbartronic update --dry-run
+npx devtronic update --dry-run
 ```
 
 Shows what would change without making changes.
@@ -285,7 +285,7 @@ You have a detailed `CLAUDE.md` with project-specific rules.
 
 **Recommended approach:**
 ```bash
-npx rbartronic init
+npx devtronic init
 # Select: Merge intelligently for claude-code
 ```
 
@@ -300,7 +300,7 @@ You have both `.cursor/` and `.claude/` configured.
 
 **Recommended approach:**
 ```bash
-npx rbartronic init
+npx devtronic init
 # Select IDEs: Claude Code, Cursor
 # Select: Merge intelligently for each
 ```
@@ -315,7 +315,7 @@ You want the workflow skills but your AGENTS.md is highly customized.
 
 **Recommended approach:**
 ```bash
-npx rbartronic init
+npx devtronic init
 # Select: Keep existing for claude-code
 ```
 
@@ -336,7 +336,7 @@ You want to adopt the full template workflow.
 
 **Recommended approach:**
 ```bash
-npx rbartronic init
+npx devtronic init
 # Select: Replace for all
 ```
 
@@ -368,7 +368,7 @@ git checkout AGENTS.md
 ### Want to See What Would Be Generated
 
 ```bash
-npx rbartronic init --preview
+npx devtronic init --preview
 ```
 
 Shows all files that would be created/modified without making changes.
@@ -378,7 +378,7 @@ Shows all files that would be created/modified without making changes.
 The CLI detected wrong framework/libraries:
 ```bash
 # Run interactively to correct
-npx rbartronic init
+npx devtronic init
 # When shown "Is this correct?", say no and provide corrections
 ```
 

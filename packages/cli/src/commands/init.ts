@@ -83,7 +83,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' rbartronic '));
+  p.intro(chalk.bgCyan.black(' devtronic '));
 
   // Validate target directory
   if (!existsSync(targetDir)) {
@@ -433,7 +433,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     console.log('');
     console.log(chalk.bold('Plugin installed:'));
     console.log(`  Name: ${chalk.cyan(PLUGIN_NAME)} at ${PLUGIN_DIR}/${PLUGIN_NAME}/`);
-    console.log(`  Skills: /rbartronic:brief, /rbartronic:spec, /rbartronic:research, ...`);
+    console.log(`  Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...`);
     console.log(`  Hooks: SessionStart, PostToolUse, Stop, SubagentStop, PreCompact`);
   }
 
@@ -448,7 +448,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   console.log(chalk.dim('     CLAUDE.local.md'));
   console.log(chalk.dim('     .ai-template/'));
   console.log('');
-  console.log(`To update later: ${chalk.cyan('npx rbartronic update')}`);
+  console.log(`To update later: ${chalk.cyan('npx devtronic update')}`);
   } catch (err) {
     spinner.stop('Configuration failed');
     const message = err instanceof Error ? err.message : String(err);
@@ -516,7 +516,7 @@ async function showPreview(
   if (selectedIDEs.includes('claude-code')) {
     console.log(`  ${chalk.magenta('★')} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim('(16 skills, 7 agents, 5 hooks)')}`);
     console.log(chalk.dim(`     └── .claude-plugins/${PLUGIN_NAME}/`));
-    console.log(chalk.dim('     └── Skills: /rbartronic:brief, /rbartronic:spec, /rbartronic:research, ...'));
+    console.log(chalk.dim('     └── Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...'));
     console.log(chalk.dim('     └── Hooks: SessionStart, PostToolUse, Stop, SubagentStop, PreCompact'));
   }
 

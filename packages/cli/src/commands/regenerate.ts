@@ -26,13 +26,13 @@ export async function regenerateCommand(
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' rbartronic - Regenerate '));
+  p.intro(chalk.bgCyan.black(' devtronic - Regenerate '));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
 
   if (!manifest) {
-    p.cancel('No installation found. Run `npx rbartronic init` first.');
+    p.cancel('No installation found. Run `npx devtronic init` first.');
     process.exit(1);
   }
 

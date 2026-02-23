@@ -112,10 +112,10 @@ describe('hasStandaloneSkills', () => {
   it('returns false when manifest has plugin files instead of standalone', () => {
     const manifest = baseManifest({
       installMode: 'plugin',
-      pluginPath: '.claude-plugins/rbartronic',
+      pluginPath: '.claude-plugins/devtronic',
       files: {
-        '.claude-plugins/rbartronic/skills/brief/SKILL.md': createManifestFile('# Brief'),
-        '.claude-plugins/rbartronic/agents/code-reviewer.md': createManifestFile('# Reviewer'),
+        '.claude-plugins/devtronic/skills/brief/SKILL.md': createManifestFile('# Brief'),
+        '.claude-plugins/devtronic/agents/code-reviewer.md': createManifestFile('# Reviewer'),
       },
     });
 

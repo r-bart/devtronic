@@ -146,7 +146,7 @@ If no plan with done criteria exists, use the manual requirements checklist:
 
 ```
 Use the Task tool with:
-  subagent_type: "rbartronic:architecture-checker"
+  subagent_type: "devtronic:architecture-checker"
   model: "sonnet"
   prompt: "Check architecture compliance on these changed files: [file list from Step 1]"
 ```

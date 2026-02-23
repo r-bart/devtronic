@@ -1,17 +1,17 @@
-# Workshop 1: rbartronic
+# Workshop 1: devtronic
 
 > Presentación interna — Equipo de Ingeniería
-> `rbartronic` v1.7.1
+> `devtronic` v1.7.1
 > Febrero 2026
 
 ---
 
 ## Tabla de Contenidos
 
-- [Workshop 1: rbartronic](#workshop-1-ai-rbartronic)
+- [Workshop 1: devtronic](#workshop-1-ai-devtronic)
   - [Tabla de Contenidos](#tabla-de-contenidos)
   - [1. UVP y Motivación](#1-uvp-y-motivación)
-    - [rbartronic — El harness que convierte vibe coding en ingeniería exponencial](#ai-rbartronic--el-harness-que-convierte-vibe-coding-en-ingeniería-exponencial)
+    - [devtronic — El harness que convierte vibe coding en ingeniería exponencial](#ai-devtronic--el-harness-que-convierte-vibe-coding-en-ingeniería-exponencial)
   - [2. Características](#2-características)
     - [2.1 Modular](#21-modular)
       - [Skills + Agentes componibles](#skills--agentes-componibles)
@@ -76,7 +76,7 @@
 
 ## 1. UVP y Motivación
 
-### rbartronic — El harness que convierte vibe coding en ingeniería exponencial
+### devtronic — El harness que convierte vibe coding en ingeniería exponencial
 
 **El problema**: sin estructura, el desarrollo con IA es caótico.
 
@@ -206,7 +206,7 @@ claude mcp add slack        # Contexto de conversaciones
 
 Las mismas buenas prácticas que usamos en código — **DRY, SRP, YAGNI, Separation of Concerns** — aplicadas al sistema de trabajo con agentes IA:
 
-| Principio | En código | En rbartronic |
+| Principio | En código | En devtronic |
 |-----------|-----------|------------------------|
 | **DRY** | No repetir lógica | Skills reutilizables, no reinventar workflows |
 | **SRP** | Una clase, una responsabilidad | Cada skill hace una cosa bien |
@@ -284,7 +284,7 @@ flowchart LR
 - Se **genera automáticamente** vía CLI (detecta framework, arquitectura, stack)
 - Se puede **regenerar** cuando el stack cambia:
   ```bash
-  npx rbartronic regenerate --rules
+  npx devtronic regenerate --rules
   ```
 
 **AGENTS.md vs CLAUDE.md**:
@@ -408,10 +408,10 @@ Se puede referenciar directamente:
 
 ```bash
 # Instalar en proyecto existente
-npx rbartronic init
+npx devtronic init
 
 # Ver qué cambiaría (sin modificar nada)
-npx rbartronic init --preview
+npx devtronic init --preview
 ```
 
 **Detección automática**: framework, arquitectura, stack, scripts, package manager.
@@ -500,10 +500,10 @@ Proceso conversacional guiado:
 
 ```bash
 # Ver qué cambiaría
-npx rbartronic init --preview
+npx devtronic init --preview
 
 # Aplicar
-npx rbartronic init
+npx devtronic init
 ```
 
 **Opción B** — Skill conversacional:
@@ -1052,4 +1052,4 @@ La gestión del contexto sigue siendo clave. Explorar cómo ajustar los workflow
 - [Best Practices for Claude Code](https://code.claude.com/docs/en/best-practices) — Anthropic official docs
 - [Common Workflows](https://code.claude.com/docs/en/common-workflows) — Anthropic official docs
 - [How Anthropic teams use Claude Code](https://www-cdn.anthropic.com/58284b19e702b49db9302d5b6f135ad8871e7658.pdf) — Anthropic PDF
-- Codebase: `rbartronic` v1.7.1
+- Codebase: `devtronic` v1.7.1

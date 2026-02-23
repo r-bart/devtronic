@@ -40,19 +40,19 @@ export async function addCommand(ide: string | undefined, options: AddOptions): 
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' rbartronic - Add IDE '));
+  p.intro(chalk.bgCyan.black(' devtronic - Add IDE '));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
 
   if (!manifest) {
-    p.cancel('No installation found. Run `npx rbartronic init` first.');
+    p.cancel('No installation found. Run `npx devtronic init` first.');
     process.exit(1);
   }
 
   if (!manifest.projectConfig) {
     p.cancel(
-      'Manifest is missing project configuration. Run `npx rbartronic init` to reconfigure.'
+      'Manifest is missing project configuration. Run `npx devtronic init` to reconfigure.'
     );
     process.exit(1);
   }

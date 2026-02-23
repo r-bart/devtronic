@@ -68,9 +68,9 @@ describe('generatePluginJson', () => {
     expect(() => JSON.parse(generatePluginJson('1.8.0'))).not.toThrow();
   });
 
-  it('uses rbartronic as plugin name', () => {
+  it('uses devtronic as plugin name', () => {
     const result = JSON.parse(generatePluginJson('1.8.0'));
-    expect(result.name).toBe('rbartronic');
+    expect(result.name).toBe('devtronic');
   });
 
   it('includes the CLI version', () => {
@@ -92,16 +92,16 @@ describe('generateMarketplaceJson', () => {
     expect(() => JSON.parse(generateMarketplaceJson())).not.toThrow();
   });
 
-  it('uses rbartronic-local as marketplace name', () => {
+  it('uses devtronic-local as marketplace name', () => {
     const result = JSON.parse(generateMarketplaceJson());
-    expect(result.name).toBe('rbartronic-local');
+    expect(result.name).toBe('devtronic-local');
   });
 
-  it('references the rbartronic plugin with relative path', () => {
+  it('references the devtronic plugin with relative path', () => {
     const result = JSON.parse(generateMarketplaceJson());
     expect(result.plugins).toHaveLength(1);
-    expect(result.plugins[0].name).toBe('rbartronic');
-    expect(result.plugins[0].source).toBe('./rbartronic');
+    expect(result.plugins[0].name).toBe('devtronic');
+    expect(result.plugins[0].source).toBe('./devtronic');
   });
 });
 
@@ -119,7 +119,7 @@ describe('generatePlugin', () => {
     expect(content.name).toBe(MARKETPLACE_NAME);
   });
 
-  it('creates plugin.json at .claude-plugins/rbartronic/.claude-plugin/', () => {
+  it('creates plugin.json at .claude-plugins/devtronic/.claude-plugin/', () => {
     const targetDir = join(tempDir, 'project');
     mkdirSync(targetDir);
 
@@ -287,11 +287,11 @@ describe('generatePlugin', () => {
 
 describe('constants', () => {
   it('exports expected plugin name', () => {
-    expect(PLUGIN_NAME).toBe('rbartronic');
+    expect(PLUGIN_NAME).toBe('devtronic');
   });
 
   it('exports expected marketplace name', () => {
-    expect(MARKETPLACE_NAME).toBe('rbartronic-local');
+    expect(MARKETPLACE_NAME).toBe('devtronic-local');
   });
 
   it('exports expected plugin directory', () => {

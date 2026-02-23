@@ -1,6 +1,6 @@
 # Claude Code Plugin Mode
 
-When you select **Claude Code** during `init`, the CLI installs skills, agents, and hooks as a **native Claude Code plugin** called `rbartronic`. This page explains how it works, its architecture, and best practices.
+When you select **Claude Code** during `init`, the CLI installs skills, agents, and hooks as a **native Claude Code plugin** called `devtronic`. This page explains how it works, its architecture, and best practices.
 
 ---
 
@@ -8,7 +8,7 @@ When you select **Claude Code** during `init`, the CLI installs skills, agents, 
 
 Claude Code plugins are a packaging layer that provides:
 
-- **Namespacing** — Skills are invoked as `/rbartronic:brief`, `/rbartronic:spec`, etc., avoiding collisions with other plugins or custom skills
+- **Namespacing** — Skills are invoked as `/devtronic:brief`, `/devtronic:spec`, etc., avoiding collisions with other plugins or custom skills
 - **Workflow hooks** — Automated actions on session start, file edits, stop, subagent completion, and context compaction
 - **Distribution** — The plugin can be installed via npm without the CLI
 - **Isolation** — Plugin files live in `.claude-plugins/`, separate from your project's `.claude/` configuration
@@ -36,7 +36,7 @@ your-project/
 ├── .claude-plugins/                    # Local marketplace root
 │   ├── .claude-plugin/
 │   │   └── marketplace.json            # Marketplace descriptor
-│   └── rbartronic/                         # The plugin
+│   └── devtronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
 │       ├── skills/                     # 18 skills
@@ -81,11 +81,11 @@ Not everything moves into the plugin. These remain outside:
 
 | Content | Path in Plugin | Count |
 |---------|---------------|-------|
-| Skills | `rbartronic/skills/` | 16 |
-| Agents | `rbartronic/agents/` | 7 |
-| Hooks | `rbartronic/hooks/hooks.json` | 5 events |
-| Scripts | `rbartronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |
-| Metadata | `rbartronic/.claude-plugin/plugin.json` | — |
+| Skills | `devtronic/skills/` | 16 |
+| Agents | `devtronic/agents/` | 7 |
+| Hooks | `devtronic/hooks/hooks.json` | 5 events |
+| Scripts | `devtronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |
+| Metadata | `devtronic/.claude-plugin/plugin.json` | — |
 
 ---
 
@@ -162,7 +162,7 @@ The CLI registers the plugin in `.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "rbartronic-local": {
+    "devtronic-local": {
       "source": {
         "source": "directory",
         "path": ".claude-plugins"
@@ -170,7 +170,7 @@ The CLI registers the plugin in `.claude/settings.json`:
     }
   },
   "enabledPlugins": {
-    "rbartronic@rbartronic-local": true
+    "devtronic@devtronic-local": true
   }
 }
 ```
@@ -182,10 +182,10 @@ The CLI registers the plugin in `.claude/settings.json`:
 
 ```bash
 # Via Claude Code CLI
-claude --disable-plugin rbartronic@rbartronic-local
+claude --disable-plugin devtronic@devtronic-local
 
 # Or manually in .claude/settings.json
-"rbartronic@rbartronic-local": false
+"devtronic@devtronic-local": false
 ```
 
 Hooks and skills will stop loading, but files remain on disk for re-enabling.
@@ -197,7 +197,7 @@ Hooks and skills will stop loading, but files remain on disk for re-enabling.
 ### Method 1: CLI (Recommended)
 
 ```bash
-npx rbartronic init
+npx devtronic init
 ```
 
 Select Claude Code when prompted. The CLI:
@@ -219,7 +219,7 @@ Then add to `.claude/settings.json`:
 ```json
 {
   "extraKnownMarketplaces": {
-    "rbartronic-local": {
+    "devtronic-local": {
       "source": {
         "source": "directory",
         "path": "./node_modules/agentic-marketplace"
@@ -227,7 +227,7 @@ Then add to `.claude/settings.json`:
     }
   },
   "enabledPlugins": {
-    "rbartronic@rbartronic-local": true
+    "devtronic@devtronic-local": true
   }
 }
 ```
@@ -252,7 +252,7 @@ Then add to `.claude/settings.json`:
 Users who installed a previous version (standalone skills in `.claude/skills/`) can migrate:
 
 ```bash
-npx rbartronic update
+npx devtronic update
 ```
 
 The CLI detects standalone installations and offers migration:
@@ -260,16 +260,16 @@ The CLI detects standalone installations and offers migration:
 ```
 ┌ Migration Available ──────────────────────────────────────┐
 │ Claude Code skills/agents detected as standalone.         │
-│ The new version uses plugin mode (namespace rbartronic:).     │
+│ The new version uses plugin mode (namespace devtronic:).     │
 └───────────────────────────────────────────────────────────┘
 
-◆ Migrate to plugin mode? (standalone → rbartronic plugin)
+◆ Migrate to plugin mode? (standalone → devtronic plugin)
   Yes / No
 ```
 
 ### What Migration Does
 
-1. **Generates** the rbartronic plugin in `.claude-plugins/`
+1. **Generates** the devtronic plugin in `.claude-plugins/`
 2. **Registers** the plugin in `.claude/settings.json`
 3. **Removes** unmodified standalone files from `.claude/skills/` and `.claude/agents/`
 4. **Preserves** any files the user has customized (compares checksums)
@@ -307,7 +307,7 @@ When the project stack changes (new libraries detected):
 
 ### Customizing Hooks
 
-Edit `.claude-plugins/rbartronic/hooks/hooks.json` to:
+Edit `.claude-plugins/devtronic/hooks/hooks.json` to:
 
 - Change timeouts
 - Modify lint commands
@@ -321,9 +321,9 @@ The manifest tracks your changes, so `update` won't overwrite them.
 You can add skills in two places:
 
 - **Project-scoped**: Add to `.claude/skills/` (not namespaced, e.g., `/my-skill`)
-- **Plugin-scoped**: Add to `.claude-plugins/rbartronic/skills/` (namespaced, e.g., `/rbartronic:my-skill`)
+- **Plugin-scoped**: Add to `.claude-plugins/devtronic/skills/` (namespaced, e.g., `/devtronic:my-skill`)
 
-Use project-scoped for project-specific workflows. Use plugin-scoped only if modifying the rbartronic plugin itself.
+Use project-scoped for project-specific workflows. Use plugin-scoped only if modifying the devtronic plugin itself.
 
 See [Customization Guide](./customization.md) for creating custom skills.
 
@@ -345,10 +345,10 @@ To disable a specific hook without removing the plugin, remove it from `hooks.js
 
 ### Skills Not Appearing
 
-If `/rbartronic:brief` doesn't work after installation:
+If `/devtronic:brief` doesn't work after installation:
 
 1. Check `.claude/settings.json` has the marketplace and plugin entries
-2. Verify `.claude-plugins/rbartronic/.claude-plugin/plugin.json` exists
+2. Verify `.claude-plugins/devtronic/.claude-plugin/plugin.json` exists
 3. Restart Claude Code (plugins load at session start)
 4. Run `claude --list-plugins` to check if the plugin is detected
 
@@ -372,9 +372,9 @@ The installation manifest at `.ai-template/manifest.json` includes:
 {
   "version": "1.8.0",
   "installMode": "plugin",
-  "pluginPath": ".claude-plugins/rbartronic",
+  "pluginPath": ".claude-plugins/devtronic",
   "files": {
-    ".claude-plugins/rbartronic/skills/brief/SKILL.md": {
+    ".claude-plugins/devtronic/skills/brief/SKILL.md": {
       "checksum": "a1b2c3...",
       "originalChecksum": "a1b2c3...",
       "modified": false
@@ -395,7 +395,7 @@ Claude Code recognizes a local marketplace through:
 .claude-plugins/                    ← marketplace root
 ├── .claude-plugin/
 │   └── marketplace.json            ← declares available plugins
-└── rbartronic/                         ← plugin directory
+└── devtronic/                         ← plugin directory
     └── .claude-plugin/
         └── plugin.json             ← plugin metadata
 ```
@@ -404,9 +404,9 @@ The `marketplace.json` references plugins by relative path:
 
 ```json
 {
-  "name": "rbartronic-local",
+  "name": "devtronic-local",
   "plugins": [
-    { "name": "rbartronic", "source": "./rbartronic" }
+    { "name": "devtronic", "source": "./devtronic" }
   ]
 }
 ```

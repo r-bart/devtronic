@@ -9,8 +9,8 @@ import {
 } from '../utils/files.js';
 import { generateHooks, generateCheckpointScript, generateStopGuardScript } from './hooks.js';
 
-export const PLUGIN_NAME = 'rbartronic';
-export const MARKETPLACE_NAME = 'rbartronic-local';
+export const PLUGIN_NAME = 'devtronic';
+export const MARKETPLACE_NAME = 'devtronic-local';
 export const PLUGIN_DIR = '.claude-plugins';
 
 export interface PluginGenerationResult {
@@ -21,7 +21,7 @@ export interface PluginGenerationResult {
 }
 
 /**
- * Generates plugin.json content for the rbartronic plugin.
+ * Generates plugin.json content for the devtronic plugin.
  */
 export function generatePluginJson(cliVersion: string): string {
   return JSON.stringify(
@@ -29,12 +29,12 @@ export function generatePluginJson(cliVersion: string): string {
       name: PLUGIN_NAME,
       version: cliVersion,
       description:
-        'rbartronic — 16 skills, 7 agents, full workflow hooks by rbart',
+        'devtronic — 16 skills, 7 agents, full workflow hooks by rbart',
       author: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/agentic-development',
+        url: 'https://github.com/r-bart/devtronic',
       },
-      repository: 'https://github.com/r-bart/agentic-development',
+      repository: 'https://github.com/r-bart/devtronic',
       license: 'MIT',
       keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
     },
@@ -52,13 +52,13 @@ export function generateMarketplaceJson(): string {
       name: MARKETPLACE_NAME,
       owner: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/agentic-development',
+        url: 'https://github.com/r-bart/devtronic',
       },
       plugins: [
         {
           name: PLUGIN_NAME,
           source: `./${PLUGIN_NAME}`,
-          description: 'rbartronic — 16 skills, 7 agents, full workflow hooks',
+          description: 'devtronic — 16 skills, 7 agents, full workflow hooks',
         },
       ],
     },
@@ -75,7 +75,7 @@ export function generateMarketplaceJson(): string {
  * .claude-plugins/                       <- local marketplace root
  * |-- .claude-plugin/
  * |   \-- marketplace.json
- * \-- rbartronic/                            <- the plugin
+ * \-- devtronic/                            <- the plugin
  *     |-- .claude-plugin/
  *     |   \-- plugin.json
  *     |-- skills/   (16 skills from template)
@@ -108,7 +108,7 @@ export function generatePlugin(
   const marketplaceRelPath = join(PLUGIN_DIR, '.claude-plugin', 'marketplace.json');
   writeGeneratedFile(targetDir, marketplaceRelPath, marketplaceContent, files);
 
-  // 2. Plugin manifest (.claude-plugins/rbartronic/.claude-plugin/plugin.json)
+  // 2. Plugin manifest (.claude-plugins/devtronic/.claude-plugin/plugin.json)
   const pluginJsonContent = generatePluginJson(cliVersion);
   const pluginJsonRelPath = join(pluginRoot, '.claude-plugin', 'plugin.json');
   writeGeneratedFile(targetDir, pluginJsonRelPath, pluginJsonContent, files);

@@ -74,19 +74,19 @@ describe('writeClaudeSettings', () => {
 
 describe('registerPlugin', () => {
   it('creates marketplace and enables plugin from scratch', () => {
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
     expect(settings.extraKnownMarketplaces).toEqual({
-      'rbartronic-local': {
+      'devtronic-local': {
         source: { source: 'directory', path: '.claude-plugins' },
       },
     });
     expect(settings.enabledPlugins).toEqual({
-      'rbartronic@rbartronic-local': true,
+      'devtronic@devtronic-local': true,
     });
   });
 
@@ -100,7 +100,7 @@ describe('registerPlugin', () => {
       })
     );
 
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
@@ -108,12 +108,12 @@ describe('registerPlugin', () => {
 
     expect(settings.existingKey).toBe('preserved');
     expect(settings.enabledPlugins['other@marketplace']).toBe(true);
-    expect(settings.enabledPlugins['rbartronic@rbartronic-local']).toBe(true);
+    expect(settings.enabledPlugins['devtronic@devtronic-local']).toBe(true);
   });
 
   it('is idempotent — does not duplicate on second call', () => {
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
@@ -131,42 +131,42 @@ describe('registerPlugin', () => {
     writeFileSync(
       join(tempDir, '.claude', 'settings.json'),
       JSON.stringify({
-        enabledPlugins: { 'rbartronic@rbartronic-local': false },
+        enabledPlugins: { 'devtronic@devtronic-local': false },
       })
     );
 
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
     // User explicitly set to false — should not be overwritten
-    expect(settings.enabledPlugins['rbartronic@rbartronic-local']).toBe(false);
+    expect(settings.enabledPlugins['devtronic@devtronic-local']).toBe(false);
   });
 });
 
 describe('unregisterPlugin', () => {
   it('removes plugin from enabledPlugins', () => {
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
-    unregisterPlugin(tempDir, 'rbartronic', 'rbartronic-local');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
+    unregisterPlugin(tempDir, 'devtronic', 'devtronic-local');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
-    expect(settings.enabledPlugins['rbartronic@rbartronic-local']).toBeUndefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-local']).toBeUndefined();
   });
 
   it('preserves marketplace after unregistering plugin', () => {
-    registerPlugin(tempDir, 'rbartronic', 'rbartronic-local', '.claude-plugins');
-    unregisterPlugin(tempDir, 'rbartronic', 'rbartronic-local');
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
+    unregisterPlugin(tempDir, 'devtronic', 'devtronic-local');
 
     const settings = JSON.parse(
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
 
-    expect(settings.extraKnownMarketplaces['rbartronic-local']).toBeDefined();
+    expect(settings.extraKnownMarketplaces['devtronic-local']).toBeDefined();
   });
 
   it('does nothing when plugin is not registered', () => {
@@ -184,7 +184,7 @@ describe('unregisterPlugin', () => {
 
   it('does nothing when no settings file exists', () => {
     // Should not throw
-    unregisterPlugin(tempDir, 'rbartronic', 'rbartronic-local');
+    unregisterPlugin(tempDir, 'devtronic', 'devtronic-local');
 
     // Settings file gets created with empty enabledPlugins
     const settings = JSON.parse(

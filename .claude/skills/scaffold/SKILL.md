@@ -171,7 +171,7 @@ If user selected "yes" to examples, create example files from:
 After structure is created, configure AI agents:
 
 ```bash
-cd {name} && npx rbartronic init -y --ide claude-code
+cd {name} && npx devtronic init -y --ide claude-code
 ```
 
 This creates:

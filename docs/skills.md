@@ -119,7 +119,7 @@ Continue from where I left off.
 
 ### /setup - Interactive Configuration
 
-**Purpose**: Configure rbartronic through conversation instead of CLI.
+**Purpose**: Configure devtronic through conversation instead of CLI.
 
 **When to use**:
 - First time setting up AI assistance in an **existing** project
@@ -127,7 +127,7 @@ Continue from where I left off.
 
 **For new projects**: Use `/scaffold` instead.
 
-**Behind the scenes**: Invokes `npx rbartronic init`
+**Behind the scenes**: Invokes `npx devtronic init`
 
 ---
 

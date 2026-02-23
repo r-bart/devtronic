@@ -16,7 +16,7 @@ export interface RemovalInfo {
  * Key is the relative path from project root.
  *
  * Note: In v1.8.0, .claude/skills/* and .claude/agents/* are migrated to the
- * rbartronic plugin (.claude-plugins/rbartronic/). This migration is handled directly
+ * devtronic plugin (.claude-plugins/devtronic/). This migration is handled directly
  * by migrateToPlugin() in update.ts, not through this removals registry.
  */
 export const REMOVED_FILES: Record<string, RemovalInfo> = {

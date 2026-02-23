@@ -1,6 +1,6 @@
 # Tutorial 04: Error Debugging
 
-How to approach error debugging in a structured way with rbartronic.
+How to approach error debugging in a structured way with devtronic.
 
 ---
 
@@ -15,7 +15,7 @@ By the end of this tutorial:
 
 ## Prerequisites
 
-- Project with rbartronic installed
+- Project with devtronic installed
 - An error to debug (or follow the example)
 
 ---

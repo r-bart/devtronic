@@ -1,10 +1,10 @@
 {
-  "name": "rbartronic",
+  "name": "devtronic",
   "version": "1.8.0",
-  "description": "CLI for deploying rbartronic template to your projects",
+  "description": "CLI for deploying devtronic template to your projects",
   "type": "module",
   "bin": {
-    "rbartronic": "./dist/index.js"
+    "devtronic": "./dist/index.js"
   },
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -35,12 +35,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/r-bart/agentic-development.git",
+    "url": "https://github.com/r-bart/devtronic.git",
     "directory": "packages/cli"
   },
-  "homepage": "https://github.com/r-bart/agentic-development#readme",
+  "homepage": "https://github.com/r-bart/devtronic#readme",
   "bugs": {
-    "url": "https://github.com/r-bart/agentic-development/issues"
+    "url": "https://github.com/r-bart/devtronic/issues"
   },
   "engines": {
     "node": ">=18.0.0"

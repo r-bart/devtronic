@@ -1,6 +1,6 @@
 # Tutorial 02: Install in Existing Project
 
-How to integrate rbartronic into a project that already has code and configuration.
+How to integrate devtronic into a project that already has code and configuration.
 
 ---
 
@@ -27,7 +27,7 @@ By the end of this tutorial:
 
 ```bash
 cd your-project
-npx rbartronic init --preview
+npx devtronic init --preview
 ```
 
 The `--preview` shows what changes would be made without making them.
@@ -62,7 +62,7 @@ If something is incorrect, you can correct it.
 ### Step 4: Apply Changes
 
 ```bash
-npx rbartronic init
+npx devtronic init
 ```
 
 ### Step 5: Review Changes
@@ -241,7 +241,7 @@ Verify that `.claude/skills/` exists and has `.md` files.
 
 If you also use Cursor:
 ```bash
-npx rbartronic add cursor
+npx devtronic add cursor
 ```
 
 ---

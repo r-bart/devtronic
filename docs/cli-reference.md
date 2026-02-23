@@ -1,6 +1,6 @@
 # CLI Reference
 
-Complete reference for the `rbartronic` CLI.
+Complete reference for the `devtronic` CLI.
 
 ---
 
@@ -9,14 +9,14 @@ Complete reference for the `rbartronic` CLI.
 The CLI can be run directly with npx (no installation required):
 
 ```bash
-npx rbartronic [command]
+npx devtronic [command]
 ```
 
 Or install globally:
 
 ```bash
-npm install -g rbartronic
-rbartronic [command]
+npm install -g devtronic
+devtronic [command]
 ```
 
 ---
@@ -25,10 +25,10 @@ rbartronic [command]
 
 ### init
 
-Initialize rbartronic in a project.
+Initialize devtronic in a project.
 
 ```bash
-npx rbartronic init [path] [options]
+npx devtronic init [path] [options]
 ```
 
 **Arguments:**
@@ -46,19 +46,19 @@ npx rbartronic init [path] [options]
 
 ```bash
 # Interactive initialization
-npx rbartronic init
+npx devtronic init
 
 # Initialize specific directory
-npx rbartronic init /path/to/project
+npx devtronic init /path/to/project
 
 # Specific IDEs without prompts
-npx rbartronic init --ide claude-code,cursor -y
+npx devtronic init --ide claude-code,cursor -y
 
 # Preview mode (no changes)
-npx rbartronic init --preview
+npx devtronic init --preview
 
 # Use a preset
-npx rbartronic init --preset nextjs-clean
+npx devtronic init --preset nextjs-clean
 ```
 
 **Process:**
@@ -76,7 +76,7 @@ npx rbartronic init --preset nextjs-clean
 Update to the latest template version.
 
 ```bash
-npx rbartronic update [options]
+npx devtronic update [options]
 ```
 
 **Options:**
@@ -89,13 +89,13 @@ npx rbartronic update [options]
 
 ```bash
 # Check for updates
-npx rbartronic update --check
+npx devtronic update --check
 
 # Apply updates
-npx rbartronic update
+npx devtronic update
 
 # Preview updates
-npx rbartronic update --dry-run
+npx devtronic update --dry-run
 ```
 
 **Features:**
@@ -111,7 +111,7 @@ npx rbartronic update --dry-run
 Add another IDE configuration to an existing installation.
 
 ```bash
-npx rbartronic add [ide]
+npx devtronic add [ide]
 ```
 
 **Arguments:**
@@ -127,11 +127,11 @@ npx rbartronic add [ide]
 
 ```bash
 # Interactive selection
-npx rbartronic add
+npx devtronic add
 
 # Add specific IDE
-npx rbartronic add cursor
-npx rbartronic add antigravity
+npx devtronic add cursor
+npx devtronic add antigravity
 ```
 
 ---
@@ -141,7 +141,7 @@ npx rbartronic add antigravity
 Regenerate configuration files.
 
 ```bash
-npx rbartronic regenerate [target] [options]
+npx devtronic regenerate [target] [options]
 ```
 
 **Arguments:**
@@ -157,13 +157,13 @@ npx rbartronic regenerate [target] [options]
 
 ```bash
 # Regenerate AGENTS.md with current stack
-npx rbartronic regenerate AGENTS.md
+npx devtronic regenerate AGENTS.md
 
 # Regenerate all architecture rules
-npx rbartronic regenerate --rules
+npx devtronic regenerate --rules
 
 # Regenerate everything
-npx rbartronic regenerate --all
+npx devtronic regenerate --all
 ```
 
 **Use when:**
@@ -178,7 +178,7 @@ npx rbartronic regenerate --all
 Show installation status.
 
 ```bash
-npx rbartronic status
+npx devtronic status
 ```
 
 **Shows:**
@@ -195,7 +195,7 @@ npx rbartronic status
 Show differences between current files and template.
 
 ```bash
-npx rbartronic diff
+npx devtronic diff
 ```
 
 **Shows:**
@@ -210,7 +210,7 @@ npx rbartronic diff
 List available presets.
 
 ```bash
-npx rbartronic presets
+npx devtronic presets
 ```
 
 **Available Presets:**
@@ -393,7 +393,7 @@ None required. The CLI reads all configuration from the target project.
 After installation, add to your `.gitignore`:
 
 ```gitignore
-# rbartronic
+# devtronic
 thoughts/checkpoints/
 .claude/settings.local.json
 CLAUDE.local.md

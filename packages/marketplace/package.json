@@ -1,12 +1,12 @@
 {
   "name": "agentic-marketplace",
   "version": "1.8.0",
-  "description": "r-bart rbartronic plugin for Claude Code — 18 skills, 8 agents, workflow hooks",
+  "description": "r-bart devtronic plugin for Claude Code — 18 skills, 8 agents, workflow hooks",
   "license": "MIT",
   "type": "commonjs",
   "files": [
     ".claude-plugin",
-    "rbartronic"
+    "devtronic"
   ],
   "scripts": {
     "build": "node scripts/build.mjs",
@@ -25,15 +25,15 @@
   ],
   "author": {
     "name": "r-bart",
-    "url": "https://github.com/r-bart/agentic-development"
+    "url": "https://github.com/r-bart/devtronic"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/r-bart/agentic-development.git",
+    "url": "https://github.com/r-bart/devtronic.git",
     "directory": "packages/marketplace"
   },
-  "homepage": "https://github.com/r-bart/agentic-development#readme",
+  "homepage": "https://github.com/r-bart/devtronic#readme",
   "bugs": {
-    "url": "https://github.com/r-bart/agentic-development/issues"
+    "url": "https://github.com/r-bart/devtronic/issues"
   }
 }

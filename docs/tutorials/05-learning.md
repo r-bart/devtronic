@@ -15,7 +15,7 @@ By the end of this tutorial:
 
 ## Prerequisites
 
-- Project with rbartronic installed
+- Project with devtronic installed
 - Something recently implemented (feature, fix, refactor)
 
 ---
@@ -252,7 +252,7 @@ Application: Any case with multiple side effects.
 
 → [Tutorial 06: Benefits](./06-benefits.md)
 
-Other benefits of rbartronic.
+Other benefits of devtronic.
 
 ---
 

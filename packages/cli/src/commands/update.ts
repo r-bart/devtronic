@@ -44,13 +44,13 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   const targetDir = resolve('.');
 
-  p.intro(chalk.bgCyan.black(' rbartronic Update '));
+  p.intro(chalk.bgCyan.black(' devtronic Update '));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
 
   if (!manifest) {
-    p.cancel('No installation found. Run `npx rbartronic init` first.');
+    p.cancel('No installation found. Run `npx devtronic init` first.');
     process.exit(1);
   }
 
@@ -92,13 +92,13 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (shouldMigrate) {
     p.note(
       'Claude Code skills/agents detected as standalone.\n' +
-        'The new version uses plugin mode (namespace rbartronic:).',
+        'The new version uses plugin mode (namespace devtronic:).',
       'Migration Available'
     );
 
     if (!options.check) {
       const migrate = await p.confirm({
-        message: 'Migrate to plugin mode? (standalone → rbartronic plugin)',
+        message: 'Migrate to plugin mode? (standalone → devtronic plugin)',
         initialValue: true,
       });
 
@@ -113,7 +113,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     if (installedVersion === currentVersion && stackChanges.length === 0 && !shouldMigrate) {
       p.log.success('Already up to date!');
     } else if (shouldMigrate) {
-      p.log.info('Plugin migration available: standalone → rbartronic plugin');
+      p.log.info('Plugin migration available: standalone → devtronic plugin');
     } else if (installedVersion !== currentVersion) {
       p.log.info(`Update available: ${installedVersion} → ${currentVersion}`);
     }
@@ -666,7 +666,7 @@ async function regenerateWithNewStack(
       }
       manifest.files[relPath] = newEntry;
     }
-    regeneratedFiles.push('Plugin hooks & scripts (rbartronic)');
+    regeneratedFiles.push('Plugin hooks & scripts (devtronic)');
   }
 
   // Update manifest
@@ -706,7 +706,7 @@ export function hasStandaloneSkills(manifest: Manifest): boolean {
 
 /**
  * Migrates a standalone Claude Code installation to plugin mode.
- * - Generates rbartronic plugin in .claude-plugins/
+ * - Generates devtronic plugin in .claude-plugins/
  * - Registers plugin in .claude/settings.json
  * - Removes unmodified standalone skills/agents
  * - Preserves user-modified files
@@ -718,7 +718,7 @@ async function migrateToPlugin(
   dryRun?: boolean
 ): Promise<void> {
   if (dryRun) {
-    p.log.info('Would migrate standalone skills/agents to rbartronic plugin.');
+    p.log.info('Would migrate standalone skills/agents to devtronic plugin.');
     p.outro('Dry run complete — no changes made');
     return;
   }
@@ -795,8 +795,8 @@ async function migrateToPlugin(
     );
   }
   p.note(
-    `  Plugin: ${chalk.cyan('rbartronic')} at .claude-plugins/rbartronic/\n` +
-      `  Skills: /rbartronic:brief, /rbartronic:spec, ...\n` +
+    `  Plugin: ${chalk.cyan('devtronic')} at .claude-plugins/devtronic/\n` +
+      `  Skills: /devtronic:brief, /devtronic:spec, ...\n` +
       `  Hooks: 5 workflow hooks enabled`,
     'Plugin Generated'
   );

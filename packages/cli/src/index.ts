@@ -27,13 +27,13 @@ function getVersion(): string {
 const program = new Command();
 
 program
-  .name('rbartronic')
-  .description('CLI for deploying rbartronic template to your projects')
+  .name('devtronic')
+  .description('CLI for deploying devtronic template to your projects')
   .version(getVersion());
 
 program
   .command('init')
-  .description('Initialize rbartronic in your project')
+  .description('Initialize devtronic in your project')
   .argument('[path]', 'Target directory (default: current directory)')
   .option('--ide <ides>', 'Comma-separated list of IDEs to configure')
   .option('-y, --yes', 'Skip prompts and use defaults')
@@ -121,7 +121,7 @@ program
       }
       console.log('');
     }
-    console.log('Usage: npx rbartronic init --preset <name>\n');
+    console.log('Usage: npx devtronic init --preset <name>\n');
   });
 
 program.parseAsync().catch((err) => {
