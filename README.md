@@ -7,8 +7,8 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 16 skills |
-| [Agents Reference](./docs/agents.md) | Detailed documentation of all 7 agents |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 17 skills |
+| [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
 | [Existing Projects](./docs/existing-projects.md) | Integration with existing configurations |
@@ -114,10 +114,10 @@ npx rbartronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/rbartronic:spec, etc.)    │
-│       │             16 skills included                          │
+│       │             17 skills included                          │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
-│       │             7 agents included                           │
+│       │             8 agents included                           │
 │       │                                                         │
 │       ├── Rules     Quality standards (IDE-specific format)    │
 │       │                                                         │
@@ -198,8 +198,8 @@ your-project/
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
 │   └── rbartronic/                         # ← the plugin
-│       ├── skills/                     # 16 skills (/rbartronic:brief, etc.)
-│       ├── agents/                     # 7 agents
+│       ├── skills/                     # 17 skills (/rbartronic:brief, etc.)
+│       ├── agents/                     # 8 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh
 │

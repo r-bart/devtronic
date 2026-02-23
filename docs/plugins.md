@@ -39,14 +39,14 @@ your-project/
 │   └── rbartronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
-│       ├── skills/                     # 16 skills
+│       ├── skills/                     # 17 skills
 │       │   ├── brief/SKILL.md
 │       │   ├── spec/SKILL.md
 │       │   ├── scaffold/
 │       │   │   ├── SKILL.md
 │       │   │   └── (5 supporting files)
 │       │   └── ...
-│       ├── agents/                     # 7 agents
+│       ├── agents/                     # 8 agents
 │       │   ├── code-reviewer.md
 │       │   ├── commit-changes.md
 │       │   ├── dependency-checker.md
