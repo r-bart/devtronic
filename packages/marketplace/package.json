@@ -1,6 +1,6 @@
 {
   "name": "agentic-marketplace",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "r-bart devtronic plugin for Claude Code — 18 skills, 8 agents, workflow hooks",
   "license": "MIT",
   "type": "commonjs",

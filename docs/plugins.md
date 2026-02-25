@@ -370,7 +370,7 @@ The installation manifest at `.ai-template/manifest.json` includes:
 
 ```json
 {
-  "version": "1.8.0",
+  "version": "1.9.0",
   "installMode": "plugin",
   "pluginPath": ".claude-plugins/devtronic",
   "files": {
