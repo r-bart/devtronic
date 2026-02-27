@@ -1,6 +1,6 @@
 ---
 name: brief
-description: Quick contextual briefing at session start. Scans docs, code, and git for a topic and displays an executive summary without creating files.
+description: Quick contextual briefing with pre-flight validation. Scans docs, code, git, and runs health checks before starting work.
 disable-model-invocation: true
 allowed-tools: Task, Glob, Grep, Read, Bash
 argument-hint: "[topic]"
@@ -36,6 +36,16 @@ Fast contextual briefing when starting work on a feature. Displays relevant docs
 ## Process
 
 ```
+0. READ PERSISTENT STATE
+   ├── thoughts/STATE.md (current position)
+   └── thoughts/SUMMARY.md (last session recap)
+
+0.5. PRE-FLIGHT VALIDATION
+     ├── Quality scripts exist? (typecheck, lint, test)
+     ├── Quality passes? (quick run)
+     ├── Stale state? (STATE.md older than latest commit)
+     └── Referenced specs/plans exist?
+
 1. PARSE INPUT
    └── Extract keywords + generate synonyms
 
@@ -56,6 +66,119 @@ Fast contextual briefing when starting work on a feature. Displays relevant docs
 
 ---
 
+## Step 0: Read Persistent State (ALWAYS first)
+
+Before parsing input or launching scans, check for persistent state:
+
+1. Read `thoughts/STATE.md` if it exists
+2. Read `thoughts/SUMMARY.md` if it exists
+
+### If STATE.md exists:
+
+Display prominently at the top of the briefing output:
+
+---
+
+**Current State** (from STATE.md):
+- **Active Feature**: [from file]
+- **Workflow Position**: [e.g., "implementing Phase 2"]
+- **Branch**: [from file]
+- **Blockers**: [from file or "None"]
+
+**Last Session** (from SUMMARY.md):
+[What was done + what's pending]
+
+---
+
+[Then continue with regular scan results...]
+
+### If neither file exists:
+
+Proceed with normal flow. At the end suggest:
+> No persistent state found. Run `/checkpoint` after this session to enable session continuity.
+
+---
+
+## Step 0.5: Pre-Flight Validation
+
+Run quick health checks **in parallel** before diving into topic scans. This catches problems early so you don't discover broken builds mid-implementation.
+
+### Checks to Run
+
+Launch these checks in parallel (via Bash tool):
+
+#### 1. Quality Scripts Exist
+
+```bash
+# Check package.json has the expected scripts
+node -e "const p=require('./package.json'); const s=p.scripts||{}; const checks=['typecheck','lint','test'].map(k=>({name:k,exists:!!s[k]})); console.log(JSON.stringify(checks))"
+```
+
+#### 2. Quality Passes (quick run)
+
+```bash
+# Detect PM and run quality checks
+# Use the project's quality command from CLAUDE.md, or fall back:
+<pm> run typecheck 2>&1 | tail -5
+<pm> run lint 2>&1 | tail -5
+```
+
+Skip `test` in pre-flight (too slow). Only run typecheck + lint.
+
+#### 3. Stale State Detection
+
+```bash
+# Compare STATE.md timestamp with latest commit
+git log -1 --format="%ci" 2>/dev/null
+stat -f "%Sm" thoughts/STATE.md 2>/dev/null || echo "no STATE.md"
+```
+
+If STATE.md is older than the latest commit on the current branch, flag it:
+> ⚠ STATE.md may be stale (last commit is newer). Consider running `/checkpoint` after this session.
+
+#### 4. Referenced Files Exist
+
+If STATE.md references an `Active Plan` path, verify the file exists. If it doesn't:
+> ⚠ Active plan referenced in STATE.md not found: `thoughts/plans/[file].md`
+
+### Pre-Flight Output
+
+Display as a compact block before the main briefing:
+
+```markdown
+## Pre-Flight
+
+| Check | Status |
+|-------|--------|
+| typecheck | ✅ Pass |
+| lint | ✅ Pass |
+| State freshness | ✅ Current |
+| Referenced files | ✅ All found |
+```
+
+Or with issues:
+
+```markdown
+## Pre-Flight
+
+| Check | Status |
+|-------|--------|
+| typecheck | ❌ 3 errors |
+| lint | ✅ Pass |
+| State freshness | ⚠️ Stale |
+| Referenced files | ⚠️ Missing plan |
+
+> Fix type errors before starting. Run: `<pm> run typecheck`
+```
+
+### When to Skip Pre-Flight
+
+- If the user passes `--skip-preflight` in arguments
+- If no `package.json` exists (not a Node project — skip quality checks)
+- Still check state freshness and referenced files regardless
+
+---
+
 ## Step 1: Parse Input
 
 Parse the user's input from `$ARGUMENTS` to extract the main topic and any qualifiers:
@@ -65,6 +188,20 @@ Input: "telemetry sync"
 Topic: telemetry
 Qualifier: sync (narrows search)
 ```
+
+---
+
+## Model Selection
+
+Before spawning Task subagents, check `thoughts/CONFIG.md` for model profile:
+
+| Profile | Subagent model | Description |
+|---------|---------------|-------------|
+| quality | opus | Highest quality, most expensive |
+| balanced | sonnet | Good balance (default) |
+| budget | haiku | Fastest, cheapest |
+
+If no CONFIG.md or no `profile:` line, default to **balanced** (sonnet for subagents).
 
 ---
 

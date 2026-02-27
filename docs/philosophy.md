@@ -25,7 +25,9 @@ Human review at earlier stages has higher leverage. That's why we:
 1. **Spec first** - Validate requirements before technical work
 2. **Research second** - Understand the codebase before designing
 3. **Plan third** - Approve approach before implementation
-4. **Implement last** - When everything is clear
+4. **Implement fourth** - When everything is clear
+5. **Summarize** - Document what changed and why
+6. **Review last** - Verify quality before merging
 
 ---
 

@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, chmodSync } from 'node:fs';
+import { existsSync, chmodSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
@@ -42,6 +42,8 @@ import {
   PLUGIN_DIR,
 } from '../generators/plugin.js';
 import { registerPlugin } from '../utils/settings.js';
+import { introTitle, showLogo, symbols, formatKV } from '../utils/ui.js';
+import { getCliVersion } from '../utils/version.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 // When bundled, __dirname is /packages/cli/dist, so templates is ../templates
@@ -83,7 +85,8 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' devtronic '));
+  showLogo();
+  p.intro(introTitle());
 
   // Validate target directory
   if (!existsSync(targetDir)) {
@@ -220,7 +223,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   spinner.start('Generating personalized configuration...');
 
   try {
-  // Generate dynamic rules based on confirmed config
+  // Generate dynamic rules based on confirmed config (null when architecture is 'none')
   const generatedRules = generateArchitectureRules(projectConfig);
 
   const manifest: Manifest = {
@@ -265,7 +268,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     manifest.installMode = 'plugin';
     manifest.pluginPath = pluginResult.pluginPath;
 
-    generatedFiles.push(`Plugin ${PLUGIN_NAME} (18 skills, 8 agents, 5 hooks)`);
+    generatedFiles.push(`Plugin ${PLUGIN_NAME} (19 skills, 8 agents, 5 hooks)`);
   }
 
   // Copy IDE templates (except dynamic rule files)
@@ -327,8 +330,8 @@ export async function initCommand(options: InitOptions): Promise<void> {
       manifest.files[file] = createManifestEntry(sourceContent);
     }
 
-    // Generate dynamic architecture rules for this IDE
-    const ruleContent = getRuleContentForIDE(ide, generatedRules);
+    // Generate dynamic architecture rules for this IDE (skip when 'none')
+    const ruleContent = generatedRules ? getRuleContentForIDE(ide, generatedRules) : null;
     if (ruleContent) {
       const rulePath = dynamicFiles[0]; // Each IDE has one architecture rule file
       if (rulePath) {
@@ -400,55 +403,61 @@ export async function initCommand(options: InitOptions): Promise<void> {
   // Summary
   if (generatedFiles.length > 0) {
     p.note(
-      generatedFiles.map((f) => `  ${chalk.magenta('★')} ${f}`).join('\n'),
+      generatedFiles.map((f) => `  ${symbols.star} ${f}`).join('\n'),
       'Generated (personalized)'
     );
   }
 
   if (appliedFiles.length > 0) {
     p.note(
-      appliedFiles.map((f) => `  ${chalk.green('✓')} ${f}`).join('\n'),
+      appliedFiles.map((f) => `  ${symbols.pass} ${f}`).join('\n'),
       'Created/Updated'
     );
   }
 
   if (mergedFiles.length > 0) {
     p.note(
-      mergedFiles.map((f) => `  ${chalk.blue('⚡')} ${f}`).join('\n'),
+      mergedFiles.map((f) => `  ${symbols.merged} ${f}`).join('\n'),
       'Merged'
     );
   }
 
   if (skippedFiles.length > 0) {
     p.note(
-      skippedFiles.map((f) => `  ${chalk.yellow('⏭')} ${f}`).join('\n'),
+      skippedFiles.map((f) => `  ${symbols.skipped} ${f}`).join('\n'),
       'Skipped (existing)'
     );
   }
 
-  p.outro(chalk.green('Setup complete!'));
-
   // Show plugin details if applicable
   if (usePluginMode) {
-    console.log('');
-    console.log(chalk.bold('Plugin installed:'));
-    console.log(`  Name: ${chalk.cyan(PLUGIN_NAME)} at ${PLUGIN_DIR}/${PLUGIN_NAME}/`);
-    console.log(`  Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...`);
-    console.log(`  Hooks: SessionStart, PostToolUse, Stop, SubagentStop, PreCompact`);
+    p.note(
+      [
+        `  Name:   ${chalk.cyan(PLUGIN_NAME)} at ${PLUGIN_DIR}/${PLUGIN_NAME}/`,
+        `  Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...`,
+        `  Hooks:  SessionStart, PostToolUse, Stop, SubagentStop, PreCompact`,
+      ].join('\n'),
+      'Plugin Installed'
+    );
   }
 
   // Show next steps
-  console.log('');
-  console.log(chalk.bold('Next steps:'));
-  console.log('  1. Review the generated CLAUDE.md and rules');
-  console.log('  2. Customize further as needed for your project');
-  console.log('  3. Add to .gitignore:');
-  console.log(chalk.dim('     thoughts/checkpoints/'));
-  console.log(chalk.dim('     .claude/settings.local.json'));
-  console.log(chalk.dim('     CLAUDE.local.md'));
-  console.log(chalk.dim('     .ai-template/'));
-  console.log('');
-  console.log(`To update later: ${chalk.cyan('npx devtronic update')}`);
+  p.note(
+    [
+      `  1. Review the generated CLAUDE.md and rules`,
+      `  2. Customize further as needed for your project`,
+      `  3. Add to .gitignore:`,
+      chalk.dim('     thoughts/checkpoints/'),
+      chalk.dim('     .claude/settings.local.json'),
+      chalk.dim('     CLAUDE.local.md'),
+      chalk.dim('     .ai-template/'),
+      ``,
+      `  To update later: ${chalk.cyan('npx devtronic update')}`,
+    ].join('\n'),
+    'Next Steps'
+  );
+
+  p.outro(chalk.green('Setup complete!'));
   } catch (err) {
     spinner.stop('Configuration failed');
     const message = err instanceof Error ? err.message : String(err);
@@ -467,30 +476,24 @@ async function showPreview(
   projectConfig: ProjectConfig,
   analysis: ReturnType<typeof analyzeProject>
 ): Promise<void> {
-  console.log('');
-  console.log(chalk.bold.underline('Preview: What would be generated'));
-  console.log('');
-
   // Show detected configuration
-  console.log(chalk.bold('Configuration:'));
-  console.log(`  Architecture: ${chalk.cyan(projectConfig.architecture)}`);
+  const configLines = [formatKV('Architecture:', chalk.cyan(projectConfig.architecture))];
   if (projectConfig.layers.length > 0) {
-    console.log(`  Layers: ${chalk.cyan(projectConfig.layers.join(', '))}`);
+    configLines.push(formatKV('Layers:', chalk.cyan(projectConfig.layers.join(', '))));
   }
   if (projectConfig.stateManagement.length > 0) {
-    console.log(`  State: ${chalk.cyan(projectConfig.stateManagement.join(', '))}`);
+    configLines.push(formatKV('State:', chalk.cyan(projectConfig.stateManagement.join(', '))));
   }
   if (projectConfig.dataFetching.length > 0) {
-    console.log(`  Data: ${chalk.cyan(projectConfig.dataFetching.join(', '))}`);
+    configLines.push(formatKV('Data:', chalk.cyan(projectConfig.dataFetching.join(', '))));
   }
   if (projectConfig.orm.length > 0) {
-    console.log(`  ORM: ${chalk.cyan(projectConfig.orm.join(', '))}`);
+    configLines.push(formatKV('ORM:', chalk.cyan(projectConfig.orm.join(', '))));
   }
-  console.log('');
+  p.note(configLines.join('\n'), 'Configuration');
 
-  // Show files that would be generated
-  console.log(chalk.bold('Files to generate:'));
-  console.log('');
+  // Build file list
+  const fileLines: string[] = [];
 
   // CLAUDE.md preview
   const claudeMdContent = generateClaudeMd(
@@ -499,8 +502,7 @@ async function showPreview(
     analysis.packageManager
   );
   const claudeMdLines = claudeMdContent.split('\n').length;
-  console.log(`  ${chalk.magenta('★')} CLAUDE.md ${chalk.dim(`(${claudeMdLines} lines)`)}`);
-  console.log(chalk.dim('     └── Primary Claude Code context (self-improving)'));
+  fileLines.push(`  ${symbols.star} CLAUDE.md ${chalk.dim(`(${claudeMdLines} lines)`)}`);
 
   // AGENTS.md preview
   const agentsMdContent = generateAgentsMdFromConfig(
@@ -509,36 +511,31 @@ async function showPreview(
     analysis.packageManager
   );
   const agentsMdLines = agentsMdContent.split('\n').length;
-  console.log(`  ${chalk.magenta('★')} AGENTS.md ${chalk.dim(`(${agentsMdLines} lines)`)}`);
-  console.log(chalk.dim('     └── Universal AI context (no Claude-specific content)'));
+  fileLines.push(`  ${symbols.star} AGENTS.md ${chalk.dim(`(${agentsMdLines} lines)`)}`);
 
   // Plugin preview for Claude Code
   if (selectedIDEs.includes('claude-code')) {
-    console.log(`  ${chalk.magenta('★')} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim('(18 skills, 8 agents, 5 hooks)')}`);
-    console.log(chalk.dim(`     └── .claude-plugins/${PLUGIN_NAME}/`));
-    console.log(chalk.dim('     └── Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...'));
-    console.log(chalk.dim('     └── Hooks: SessionStart, PostToolUse, Stop, SubagentStop, PreCompact'));
+    fileLines.push(`  ${symbols.star} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim('(19 skills, 8 agents, 5 hooks)')}`);
   }
 
-  // Architecture rules preview
+  // Architecture rules preview (null when 'none')
   const generatedRules = generateArchitectureRules(projectConfig);
 
   for (const ide of selectedIDEs) {
-    const ruleContent = getRuleContentForIDE(ide, generatedRules);
+    const ruleContent = generatedRules ? getRuleContentForIDE(ide, generatedRules) : null;
     const ruleLines = ruleContent ? ruleContent.split('\n').length : 0;
     const rulePath = DYNAMIC_RULE_FILES[ide]?.[0];
 
     if (rulePath && ruleContent) {
-      console.log(`  ${chalk.magenta('★')} ${rulePath} ${chalk.dim(`(${ruleLines} lines)`)}`);
+      fileLines.push(`  ${symbols.star} ${rulePath} ${chalk.dim(`(${ruleLines} lines)`)}`);
     }
 
-    // Show template files (for non-plugin IDEs, or only rules for claude-code)
+    // Show template files
     const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (existsSync(templateDir)) {
       const files = getAllFilesRecursive(templateDir);
       let templateFiles = files.filter((f) => !DYNAMIC_RULE_FILES[ide]?.includes(f));
 
-      // In plugin mode, skills and agents are in the plugin — don't list as standalone templates
       if (ide === 'claude-code') {
         templateFiles = templateFiles.filter(
           (f) => !f.startsWith('.claude/skills/') && !f.startsWith('.claude/agents/')
@@ -546,40 +543,30 @@ async function showPreview(
       }
 
       if (templateFiles.length > 0) {
-        console.log(`  ${chalk.green('✓')} ${ide} templates ${chalk.dim(`(${templateFiles.length} files)`)}`);
-        // Show first 3 files
-        templateFiles.slice(0, 3).forEach((f) => {
-          console.log(chalk.dim(`     └── ${f}`));
-        });
-        if (templateFiles.length > 3) {
-          console.log(chalk.dim(`     └── ... and ${templateFiles.length - 3} more`));
-        }
+        fileLines.push(`  ${symbols.pass} ${ide} templates ${chalk.dim(`(${templateFiles.length} files)`)}`);
       }
     }
   }
 
   // Thoughts directory
-  console.log(`  ${chalk.green('✓')} thoughts/ ${chalk.dim(`(${THOUGHTS_DIRS.length} directories)`)}`);
-  console.log(chalk.dim(`     └── ${THOUGHTS_DIRS.map((d) => d.replace('thoughts/', '')).join(', ')}`));
+  fileLines.push(`  ${symbols.pass} thoughts/ ${chalk.dim(`(${THOUGHTS_DIRS.length} directories)`)}`);
 
-  console.log('');
+  p.note(fileLines.join('\n'), 'Files to Generate');
 
-  // Show architecture rules preview content
-  console.log(chalk.bold('Architecture Rules Preview:'));
-  console.log(chalk.dim('─'.repeat(50)));
+  // Show architecture rules preview (skip when 'none')
+  if (generatedRules) {
+    const previewContent = generatedRules.claudeCode
+      .split('\n')
+      .slice(0, 20)
+      .map((line) => chalk.dim(line))
+      .join('\n');
+    p.note(previewContent + '\n' + chalk.dim('...'), 'Architecture Rules Preview');
+  } else {
+    p.note(chalk.dim('No architecture rules — quality checks only.'), 'Architecture Rules Preview');
+  }
 
-  const previewContent = generatedRules.claudeCode
-    .split('\n')
-    .slice(0, 25)
-    .map((line) => chalk.dim(line))
-    .join('\n');
-  console.log(previewContent);
-  console.log(chalk.dim('...'));
-  console.log(chalk.dim('─'.repeat(50)));
-
-  console.log('');
-  console.log(chalk.yellow('This is a preview. No files were created.'));
-  console.log(`Run without ${chalk.cyan('--preview')} to apply changes.`);
+  p.log.warn('This is a preview. No files were created.');
+  p.log.info(`Run without ${chalk.cyan('--preview')} to apply changes.`);
 
   p.outro('Preview complete');
 }
@@ -617,15 +604,5 @@ function buildProjectConfigFromPreset(
   };
 }
 
-function getCliVersion(): string {
-  try {
-    const packageJsonPath = resolve(__dirname, '../../package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-    return packageJson.version || '1.0.0';
-  } catch {
-    return '1.0.0';
-  }
-}
-
 // Re-export for use by other commands
-export { TEMPLATES_DIR, IDE_TEMPLATE_MAP, DYNAMIC_RULE_FILES, THOUGHTS_DIRS, getCliVersion };
+export { TEMPLATES_DIR, IDE_TEMPLATE_MAP, DYNAMIC_RULE_FILES, THOUGHTS_DIRS };

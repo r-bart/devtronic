@@ -7,13 +7,18 @@ import {
   readFile,
   calculateChecksum,
 } from '../utils/files.js';
+import { introTitle, formatKV, symbols } from '../utils/ui.js';
+import { getCliVersion, getLatestVersion, compareSemver } from '../utils/version.js';
 
 export async function statusCommand(): Promise<void> {
   const targetDir = resolve('.');
 
-  p.intro(chalk.bgCyan.black(' devtronic Status '));
+  p.intro(introTitle('Status'));
 
   const manifest = readManifest(targetDir);
+
+  // Start non-blocking version check early
+  const latestPromise = getLatestVersion('devtronic');
 
   if (!manifest) {
     p.log.warn('No installation found in this directory.');
@@ -25,9 +30,9 @@ export async function statusCommand(): Promise<void> {
   // Basic info
   p.note(
     [
-      `${chalk.bold('Version:')}     ${manifest.version}`,
-      `${chalk.bold('Installed:')}   ${manifest.implantedAt}`,
-      `${chalk.bold('IDEs:')}        ${manifest.selectedIDEs.join(', ')}`,
+      formatKV('Version:', manifest.version),
+      formatKV('Installed:', manifest.implantedAt),
+      formatKV('IDEs:', manifest.selectedIDEs.join(', ')),
     ].join('\n'),
     'Installation Info'
   );
@@ -59,16 +64,16 @@ export async function statusCommand(): Promise<void> {
 
   // Summary
   const summaryLines = [
-    `${chalk.green('●')} ${okFiles.length} unchanged`,
-    `${chalk.yellow('●')} ${modifiedFiles.length} modified`,
-    `${chalk.red('●')} ${missingFiles.length} missing`,
+    `${symbols.pass} ${okFiles.length} unchanged`,
+    `${symbols.warn} ${modifiedFiles.length} modified`,
+    `${symbols.fail} ${missingFiles.length} missing`,
   ];
   p.note(summaryLines.join('\n'), 'File Status');
 
   // Show modified files
   if (modifiedFiles.length > 0) {
     p.note(
-      modifiedFiles.map((f) => `  ${chalk.yellow('●')} ${f.path}`).join('\n'),
+      modifiedFiles.map((f) => `  ${symbols.warn} ${f.path}`).join('\n'),
       'Modified Files'
     );
   }
@@ -76,8 +81,17 @@ export async function statusCommand(): Promise<void> {
   // Show missing files
   if (missingFiles.length > 0) {
     p.note(
-      missingFiles.map((f) => `  ${chalk.red('●')} ${f.path}`).join('\n'),
+      missingFiles.map((f) => `  ${symbols.fail} ${f.path}`).join('\n'),
       'Missing Files'
+    );
+  }
+
+  // Check for newer version
+  const currentVersion = getCliVersion();
+  const latest = await latestPromise;
+  if (latest && compareSemver(currentVersion, latest) < 0) {
+    p.log.warn(
+      `Update available: ${currentVersion} ${chalk.dim('→')} ${chalk.cyan(latest)}\n  Run ${chalk.cyan('npx devtronic@latest init')} to upgrade.`
     );
   }
 

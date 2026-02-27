@@ -22,9 +22,10 @@ import {
   TEMPLATES_DIR,
   IDE_TEMPLATE_MAP,
   DYNAMIC_RULE_FILES,
-  getCliVersion,
 } from './init.js';
+import { getCliVersion } from '../utils/version.js';
 import { getRuleContentForIDE } from '../utils/rules.js';
+import { introTitle, symbols } from '../utils/ui.js';
 
 const ALL_IDES: { value: IDE; label: string }[] = [
   { value: 'claude-code', label: 'Claude Code' },
@@ -40,7 +41,7 @@ export async function addCommand(ide: string | undefined, options: AddOptions): 
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' devtronic - Add IDE '));
+  p.intro(introTitle('Add IDE'));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
@@ -141,7 +142,7 @@ export async function addCommand(ide: string | undefined, options: AddOptions): 
   const mergedFiles: string[] = [];
   const generatedFiles: string[] = [];
 
-  // Generate architecture rules
+  // Generate architecture rules (null when 'none')
   const generatedRules = generateArchitectureRules(manifest.projectConfig);
 
   // Copy IDE template files
@@ -192,8 +193,8 @@ export async function addCommand(ide: string | undefined, options: AddOptions): 
     manifest.files[file] = createManifestEntry(sourceContent);
   }
 
-  // Generate dynamic architecture rules
-  const ruleContent = getRuleContentForIDE(selectedIDE, generatedRules);
+  // Generate dynamic architecture rules (skip when 'none')
+  const ruleContent = generatedRules ? getRuleContentForIDE(selectedIDE, generatedRules) : null;
   if (ruleContent) {
     const rulePath = dynamicFiles[0];
     if (rulePath) {
@@ -229,28 +230,28 @@ export async function addCommand(ide: string | undefined, options: AddOptions): 
   // Summary
   if (generatedFiles.length > 0) {
     p.note(
-      generatedFiles.map((f) => `  ${chalk.magenta('★')} ${f}`).join('\n'),
+      generatedFiles.map((f) => `  ${symbols.star} ${f}`).join('\n'),
       'Generated (personalized)'
     );
   }
 
   if (appliedFiles.length > 0) {
     p.note(
-      appliedFiles.map((f) => `  ${chalk.green('✓')} ${f}`).join('\n'),
+      appliedFiles.map((f) => `  ${symbols.pass} ${f}`).join('\n'),
       'Created/Updated'
     );
   }
 
   if (mergedFiles.length > 0) {
     p.note(
-      mergedFiles.map((f) => `  ${chalk.blue('⚡')} ${f}`).join('\n'),
+      mergedFiles.map((f) => `  ${symbols.merged} ${f}`).join('\n'),
       'Merged'
     );
   }
 
   if (skippedFiles.length > 0) {
     p.note(
-      skippedFiles.map((f) => `  ${chalk.yellow('⏭')} ${f}`).join('\n'),
+      skippedFiles.map((f) => `  ${symbols.skipped} ${f}`).join('\n'),
       'Skipped (existing)'
     );
   }

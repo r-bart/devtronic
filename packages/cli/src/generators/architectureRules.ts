@@ -16,7 +16,11 @@ export interface GeneratedRules {
   copilot: string;
 }
 
-export function generateArchitectureRules(config: ProjectConfig): GeneratedRules {
+export function generateArchitectureRules(config: ProjectConfig): GeneratedRules | null {
+  if (config.architecture === 'none') {
+    return null;
+  }
+
   const content = generateRulesContent(config);
 
   return {
@@ -87,6 +91,48 @@ const user = await db.user.findUnique(...)
 const user = await getUserUseCase.execute(id)
 \`\`\``;
 
+    case 'layered':
+      return `# Architecture: Layered
+
+## Layer Rule
+
+\`\`\`
+Routes/Controllers → Services → Repositories → Database
+\`\`\`
+
+**Each layer only calls the one below it.** No skipping layers.
+
+## Responsibilities
+
+- **Routes/Controllers**: Handle HTTP, validate input, delegate to services
+- **Services**: Business logic, orchestrate repositories, enforce rules
+- **Repositories**: Data access, queries, database operations
+- **Middleware**: Cross-cutting concerns (auth, logging, error handling)
+
+## Rules
+
+- Controllers should be thin — validate input, call service, return response
+- Services contain ALL business logic — never in controllers or repositories
+- Repositories are the only layer that touches the database
+- Services should NOT know about HTTP (no req/res objects)
+
+## Common Violations to Avoid
+
+\`\`\`typescript
+// ❌ Business logic in controller
+app.post('/users', async (req, res) => {
+  if (await db.user.findByEmail(req.body.email)) throw new Error('exists');
+  const hashed = await hash(req.body.password);
+  await db.user.create({ email: req.body.email, password: hashed });
+});
+
+// ✅ Controller delegates to service
+app.post('/users', async (req, res) => {
+  const user = await userService.create(req.body);
+  res.json(user);
+});
+\`\`\``;
+
     case 'mvc':
       return `# Architecture: MVC
 
@@ -148,6 +194,11 @@ function generateLayersSection(config: ProjectConfig): string {
     application: 'Use Cases, DTOs, Application Services',
     infrastructure: 'Repository Implementations, External Services, Database',
     presentation: 'UI Components, Pages, Controllers',
+    routes: 'HTTP Routes and Request Handlers',
+    controllers: 'Request Handlers, Input Validation',
+    services: 'Business Logic, Orchestration',
+    repositories: 'Data Access, Database Queries',
+    middleware: 'Auth, Logging, Error Handling',
     ui: 'User Interface Components',
     api: 'API Routes and Handlers',
     core: 'Core Business Logic',

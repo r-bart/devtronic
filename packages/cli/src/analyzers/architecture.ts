@@ -3,6 +3,7 @@ import { join } from 'node:path';
 import type { ArchitectureInfo, ArchitecturePattern } from '../types.js';
 
 const CLEAN_ARCHITECTURE_DIRS = ['domain', 'application', 'infrastructure', 'presentation'];
+const LAYERED_DIRS = ['routes', 'controllers', 'services', 'repositories', 'middleware'];
 const MVC_DIRS = ['models', 'views', 'controllers'];
 const FEATURE_DIRS = ['features', 'modules'];
 const TEST_DIRS = ['tests', 'test', '__tests__', 'spec', 'specs'];
@@ -18,6 +19,18 @@ export function detectArchitecture(targetDir: string): ArchitectureInfo {
     return {
       pattern: 'clean',
       layers: cleanLayers,
+      hasTests: hasTests(targetDir),
+    };
+  }
+
+  // Check for Layered (routes/controllers + services + repositories)
+  const layeredDirs = LAYERED_DIRS.filter((dir) =>
+    existsSync(join(srcDir, dir))
+  );
+  if (layeredDirs.length >= 2) {
+    return {
+      pattern: 'layered',
+      layers: layeredDirs,
       hasTests: hasTests(targetDir),
     };
   }
@@ -77,11 +90,15 @@ export function getArchitectureDescription(pattern: ArchitecturePattern): string
   switch (pattern) {
     case 'clean':
       return 'Clean Architecture (Domain-driven)';
+    case 'layered':
+      return 'Layered (routes → services → data)';
     case 'mvc':
       return 'MVC (Model-View-Controller)';
     case 'feature-based':
       return 'Feature-based (Modular)';
     case 'flat':
       return 'Flat (No specific pattern detected)';
+    case 'none':
+      return 'None (no architecture rules)';
   }
 }

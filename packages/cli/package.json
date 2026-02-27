@@ -1,6 +1,6 @@
 {
   "name": "devtronic",
-  "version": "1.9.0",
+  "version": "1.0.0",
   "description": "CLI for deploying devtronic template to your projects",
   "type": "module",
   "bin": {

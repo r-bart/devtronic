@@ -15,7 +15,10 @@ export interface RemovalInfo {
  * Registry of files removed from templates.
  * Key is the relative path from project root.
  *
- * Note: In v1.8.0, .claude/skills/* and .claude/agents/* are migrated to the
+ * Note: Versioning was reset to 1.0.0 for open-source launch.
+ * Historical version numbers below (e.g. 1.6.0, 1.7.1) are from the pre-reset era.
+ *
+ * In v1.8.0 (pre-reset), .claude/skills/* and .claude/agents/* were migrated to the
  * devtronic plugin (.claude-plugins/devtronic/). This migration is handled directly
  * by migrateToPlugin() in update.ts, not through this removals registry.
  */

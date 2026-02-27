@@ -7,7 +7,7 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 18 skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
@@ -114,7 +114,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             18 skills included                          │
+│       │             19 skills included                          │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             8 agents included                           │
@@ -134,7 +134,7 @@ npx devtronic init
 ## Core Workflow
 
 ```
-/brief [topic]        →  Quick orientation (what exists?)
+/brief [topic]        →  Orientation + pre-flight checks
         │
 /spec [idea]          →  Define WHAT to build (PRD)
         │
@@ -143,6 +143,8 @@ npx devtronic init
 /create-plan [feature] →  Design implementation phases
         │
 [implement]           →  Code task by task
+        │
+/summary              →  Document what changed and why
         │
 /post-review          →  Final quality check
 ```
@@ -153,7 +155,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 
 ## What's Included
 
-### Skills (18)
+### Skills (19)
 
 | Category | Skills |
 |----------|--------|
@@ -162,7 +164,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 | **Development** | `/scaffold`, `/setup`, `/investigate`, `/worktree` |
 | **Execution** | `/quick`, `/execute-plan` |
 | **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
-| **Session & Meta** | `/checkpoint`, `/backlog`, `/learn`, `/create-skill` |
+| **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 
@@ -199,7 +201,7 @@ your-project/
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
 │   └── devtronic/                         # ← the plugin
-│       ├── skills/                     # 18 skills (/devtronic:brief, etc.)
+│       ├── skills/                     # 19 skills (/devtronic:brief, etc.)
 │       ├── agents/                     # 8 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh
@@ -214,6 +216,7 @@ your-project/
     ├── specs/                          # PRDs from /spec
     ├── research/                       # Research from /research
     ├── plans/                          # Plans from /create-plan
+    ├── summaries/                      # Change summaries from /summary
     ├── checkpoints/                    # Auto-checkpoints before compaction
     ├── notes/                          # Project notes
     ├── debug/                          # Debug analysis
@@ -270,6 +273,10 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |
+| `info` | Version, config, and install summary |
+| `list [skills\|agents]` | List installed skills and agents |
+| `config` | View or manage project configuration |
+| `doctor [--fix]` | Run health diagnostics |
 
 See [CLI Reference](./docs/cli-reference.md) for full documentation.
 

@@ -5,10 +5,12 @@ import { getArchitectureDescription } from '../analyzers/architecture.js';
 import { generateQualityCommands } from '../generators/rules.js';
 
 const ARCHITECTURE_OPTIONS: Array<{ value: ArchitecturePattern; label: string; hint: string }> = [
-  { value: 'clean', label: 'Clean Architecture', hint: 'Domain-driven, layered' },
-  { value: 'mvc', label: 'MVC', hint: 'Model-View-Controller' },
-  { value: 'feature-based', label: 'Feature-based', hint: 'Modular by feature' },
-  { value: 'flat', label: 'Flat', hint: 'No specific pattern' },
+  { value: 'clean', label: 'Clean + DDD', hint: 'Strict boundaries, domain-driven — backend APIs, enterprise' },
+  { value: 'layered', label: 'Layered', hint: 'Simple layers (routes → services → data) — backend, full-stack' },
+  { value: 'feature-based', label: 'Feature-based', hint: 'Co-located modules, independent features — frontend apps' },
+  { value: 'mvc', label: 'MVC', hint: 'Model-View-Controller — traditional backend, REST APIs' },
+  { value: 'flat', label: 'Minimal', hint: 'Basic guidelines, no strict layers — prototypes, small projects' },
+  { value: 'none', label: 'None', hint: 'No architecture rules — bring your own' },
 ];
 
 const LAYER_OPTIONS = [
@@ -241,7 +243,7 @@ export async function promptForProjectConfig(
   if (p.isCancel(architecture)) return architecture;
 
   let layers: string[] = [];
-  if (architecture === 'clean' || architecture === 'mvc' || architecture === 'feature-based') {
+  if (architecture !== 'none' && architecture !== 'flat') {
     const layersResult = await promptForLayers(analysis.architecture.layers);
     if (p.isCancel(layersResult)) return layersResult;
     layers = layersResult;

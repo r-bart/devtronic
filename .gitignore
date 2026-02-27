@@ -17,6 +17,9 @@ Thumbs.db
 CLAUDE.local.md
 *.local.md
 
+# Build output
+dist/
+
 # Test coverage
 coverage/
 

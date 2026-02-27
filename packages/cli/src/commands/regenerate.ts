@@ -15,8 +15,10 @@ import {
 import { ensureInteractive } from '../utils/tty.js';
 import { generateAgentsMdFromConfig, generateClaudeMd } from '../generators/rules.js';
 import { generateArchitectureRules } from '../generators/architectureRules.js';
-import { DYNAMIC_RULE_FILES, getCliVersion } from './init.js';
+import { DYNAMIC_RULE_FILES } from './init.js';
+import { getCliVersion } from '../utils/version.js';
 import { getRuleContentForIDE } from '../utils/rules.js';
+import { introTitle, symbols } from '../utils/ui.js';
 
 export async function regenerateCommand(
   target: string | undefined,
@@ -26,7 +28,7 @@ export async function regenerateCommand(
 
   const targetDir = resolve(options.path || '.');
 
-  p.intro(chalk.bgCyan.black(' devtronic - Regenerate '));
+  p.intro(introTitle('Regenerate'));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
@@ -177,21 +179,25 @@ export async function regenerateCommand(
     manifest.files['AGENTS.md'] = createManifestEntry(agentsMdContent);
   }
 
-  // Regenerate architecture rules
+  // Regenerate architecture rules (skip when 'none')
   if (regenerateRules) {
     const generatedRules = generateArchitectureRules(projectConfig);
 
-    for (const ide of manifest.selectedIDEs) {
-      const ruleContent = getRuleContentForIDE(ide, generatedRules);
-      const rulePath = DYNAMIC_RULE_FILES[ide]?.[0];
+    if (generatedRules) {
+      for (const ide of manifest.selectedIDEs) {
+        const ruleContent = getRuleContentForIDE(ide, generatedRules);
+        const rulePath = DYNAMIC_RULE_FILES[ide]?.[0];
 
-      if (ruleContent && rulePath) {
-        const destPath = join(targetDir, rulePath);
-        ensureDir(dirname(destPath));
-        writeFile(destPath, ruleContent);
-        regeneratedFiles.push(rulePath);
-        manifest.files[rulePath] = createManifestEntry(ruleContent);
+        if (ruleContent && rulePath) {
+          const destPath = join(targetDir, rulePath);
+          ensureDir(dirname(destPath));
+          writeFile(destPath, ruleContent);
+          regeneratedFiles.push(rulePath);
+          manifest.files[rulePath] = createManifestEntry(ruleContent);
+        }
       }
+    } else {
+      p.log.info('Architecture is set to "none" — skipping rule generation.');
     }
   }
 
@@ -204,22 +210,21 @@ export async function regenerateCommand(
 
   // Summary
   p.note(
-    regeneratedFiles.map((f) => `  ${chalk.magenta('★')} ${f}`).join('\n'),
+    regeneratedFiles.map((f) => `  ${symbols.star} ${f}`).join('\n'),
     'Regenerated'
   );
 
-  p.outro(chalk.green('Regeneration complete!'));
-
-  console.log('');
-  console.log(chalk.bold('Summary:'));
-  console.log(`  Architecture: ${chalk.cyan(projectConfig.architecture)}`);
+  const summaryLines = [`  Architecture: ${chalk.cyan(projectConfig.architecture)}`];
   if (projectConfig.layers.length > 0) {
-    console.log(`  Layers: ${chalk.cyan(projectConfig.layers.join(', '))}`);
+    summaryLines.push(`  Layers:       ${chalk.cyan(projectConfig.layers.join(', '))}`);
   }
   if (projectConfig.stateManagement.length > 0) {
-    console.log(`  State: ${chalk.cyan(projectConfig.stateManagement.join(', '))}`);
+    summaryLines.push(`  State:        ${chalk.cyan(projectConfig.stateManagement.join(', '))}`);
   }
   if (projectConfig.orm.length > 0) {
-    console.log(`  ORM: ${chalk.cyan(projectConfig.orm.join(', '))}`);
+    summaryLines.push(`  ORM:          ${chalk.cyan(projectConfig.orm.join(', '))}`);
   }
+  p.note(summaryLines.join('\n'), 'Configuration');
+
+  p.outro(chalk.green('Regeneration complete!'));
 }

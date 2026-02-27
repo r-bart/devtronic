@@ -1,6 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-import { existsSync, readFileSync, unlinkSync, lstatSync, readdirSync, rmdirSync, chmodSync } from 'node:fs';
+import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, chmodSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { UpdateOptions, Manifest, ProjectConfig } from '../types.js';
@@ -19,7 +18,7 @@ import {
 import { ensureInteractive } from '../utils/tty.js';
 import { generateAgentsMdFromConfig } from '../generators/rules.js';
 import { generateArchitectureRules } from '../generators/architectureRules.js';
-import { DYNAMIC_RULE_FILES } from './init.js';
+import { DYNAMIC_RULE_FILES, TEMPLATES_DIR, IDE_TEMPLATE_MAP } from './init.js';
 import { getRuleContentForIDE } from '../utils/rules.js';
 import { REMOVED_FILES, type RemovalInfo } from '../data/removals.js';
 import {
@@ -29,13 +28,8 @@ import {
   PLUGIN_DIR,
 } from '../generators/plugin.js';
 import { registerPlugin } from '../utils/settings.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// When bundled, __dirname is /packages/cli/dist, so templates is ../templates
-// When running from src, __dirname is /packages/cli/src/commands, so templates is ../../templates
-const TEMPLATES_DIR = existsSync(resolve(__dirname, '../templates'))
-  ? resolve(__dirname, '../templates')
-  : resolve(__dirname, '../../templates');
+import { getCliVersion } from '../utils/version.js';
+import { introTitle, symbols, formatKV } from '../utils/ui.js';
 
 export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (!options.check && !options.dryRun) {
@@ -44,7 +38,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   const targetDir = resolve('.');
 
-  p.intro(chalk.bgCyan.black(' devtronic Update '));
+  p.intro(introTitle('Update'));
 
   // Check for existing manifest
   const manifest = readManifest(targetDir);
@@ -66,7 +60,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   if (stackChanges.length > 0) {
     p.note(
-      stackChanges.map((c) => `  ${chalk.yellow('⚠')} ${c}`).join('\n'),
+      stackChanges.map((c) => `  ${symbols.warn} ${c}`).join('\n'),
       'Stack Changes Detected'
     );
 
@@ -142,7 +136,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   // Check which template files have updates
   for (const ide of manifest.selectedIDEs) {
-    const templateDir = join(TEMPLATES_DIR, ide);
+    const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (!existsSync(templateDir)) continue;
 
     const files = getAllFilesRecursive(templateDir);
@@ -168,7 +162,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     let foundInAnyTemplate = false;
 
     for (const ide of manifest.selectedIDEs) {
-      const templateDir = join(TEMPLATES_DIR, ide);
+      const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
       if (existsSync(join(templateDir, relativePath))) {
         foundInAnyTemplate = true;
         break;
@@ -188,7 +182,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   if (modifiedFiles.length > 0) {
     p.note(
-      modifiedFiles.map((f) => `  ${chalk.yellow('●')} ${f}`).join('\n'),
+      modifiedFiles.map((f) => `  ${symbols.info} ${f}`).join('\n'),
       'Locally Modified Files (will be preserved)'
     );
   }
@@ -204,7 +198,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   if (filesToUpdate.length > 0) {
     p.note(
-      filesToUpdate.map((f) => `  ${chalk.blue('↑')} ${f}`).join('\n'),
+      filesToUpdate.map((f) => `  ${symbols.updated} ${f}`).join('\n'),
       'Files to Update'
     );
   }
@@ -212,7 +206,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   const conflictFiles = outdatedFiles.filter((f) => modifiedFiles.includes(f));
   if (conflictFiles.length > 0) {
     p.note(
-      conflictFiles.map((f) => `  ${chalk.red('⚠')} ${f}`).join('\n'),
+      conflictFiles.map((f) => `  ${symbols.warn} ${f}`).join('\n'),
       'Conflicts (modified locally + template updated)'
     );
   }
@@ -224,7 +218,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (removedFromTemplate.length > 0) {
     const removalDetails = removedFromTemplate
       .map((r) => {
-        const icon = chalk.red('✗');
+        const icon = symbols.fail;
         const reason = r.info?.reason ? chalk.dim(` - ${r.info.reason}`) : '';
         return `  ${icon} ${r.path}${reason}`;
       })
@@ -326,7 +320,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   };
 
   for (const ide of manifest.selectedIDEs) {
-    const templateDir = join(TEMPLATES_DIR, ide);
+    const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (!existsSync(templateDir)) continue;
 
     const isPluginMode = ide === 'claude-code' && manifest.installMode === 'plugin';
@@ -564,13 +558,15 @@ async function regenerateWithNewStack(
   };
 
   // Show what will change
-  console.log('');
-  console.log(chalk.bold('New configuration:'));
-  console.log(`  State: ${chalk.cyan(newConfig.stateManagement.join(', ') || 'none')}`);
-  console.log(`  Data: ${chalk.cyan(newConfig.dataFetching.join(', ') || 'none')}`);
-  console.log(`  ORM: ${chalk.cyan(newConfig.orm.join(', ') || 'none')}`);
-  console.log(`  Testing: ${chalk.cyan(newConfig.testing.join(', ') || 'none')}`);
-  console.log('');
+  p.note(
+    [
+      formatKV('State:', newConfig.stateManagement.join(', ') || chalk.dim('none')),
+      formatKV('Data:', newConfig.dataFetching.join(', ') || chalk.dim('none')),
+      formatKV('ORM:', newConfig.orm.join(', ') || chalk.dim('none')),
+      formatKV('Testing:', newConfig.testing.join(', ') || chalk.dim('none')),
+    ].join('\n'),
+    'New Configuration'
+  );
 
   if (dryRun) {
     p.log.info('Dry run - no changes made');
@@ -609,19 +605,21 @@ async function regenerateWithNewStack(
     }
   }
 
-  // Regenerate architecture rules
+  // Regenerate architecture rules (skip when 'none')
   const generatedRules = generateArchitectureRules(newConfig);
 
-  for (const ide of manifest.selectedIDEs) {
-    const ruleContent = getRuleContentForIDE(ide, generatedRules);
-    const rulePath = DYNAMIC_RULE_FILES[ide]?.[0];
+  if (generatedRules) {
+    for (const ide of manifest.selectedIDEs) {
+      const ruleContent = getRuleContentForIDE(ide, generatedRules);
+      const rulePath = DYNAMIC_RULE_FILES[ide]?.[0];
 
-    if (ruleContent && rulePath) {
-      const destPath = join(targetDir, rulePath);
-      ensureDir(dirname(destPath));
-      writeFile(destPath, ruleContent);
-      regeneratedFiles.push(rulePath);
-      manifest.files[rulePath] = createManifestEntry(ruleContent);
+      if (ruleContent && rulePath) {
+        const destPath = join(targetDir, rulePath);
+        ensureDir(dirname(destPath));
+        writeFile(destPath, ruleContent);
+        regeneratedFiles.push(rulePath);
+        manifest.files[rulePath] = createManifestEntry(ruleContent);
+      }
     }
   }
 
@@ -678,21 +676,11 @@ async function regenerateWithNewStack(
   spinner.stop('Regeneration complete');
 
   p.note(
-    regeneratedFiles.map((f) => `  ${chalk.magenta('★')} ${f}`).join('\n'),
+    regeneratedFiles.map((f) => `  ${symbols.star} ${f}`).join('\n'),
     'Regenerated'
   );
 
   p.outro(chalk.green('Updated with new stack!'));
-}
-
-function getCliVersion(): string {
-  try {
-    const packageJsonPath = resolve(__dirname, '../../package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-    return packageJson.version || '1.0.0';
-  } catch {
-    return '1.0.0';
-  }
 }
 
 /**
@@ -784,13 +772,13 @@ async function migrateToPlugin(
   // 6. Output summary
   if (removed.length > 0) {
     p.note(
-      removed.map((f) => `  ${chalk.red('✗')} ${f}`).join('\n'),
+      removed.map((f) => `  ${symbols.fail} ${f}`).join('\n'),
       'Standalone files removed'
     );
   }
   if (preserved.length > 0) {
     p.note(
-      preserved.map((f) => `  ${chalk.yellow('●')} ${f} (modified — preserved)`).join('\n'),
+      preserved.map((f) => `  ${symbols.info} ${f} (modified — preserved)`).join('\n'),
       'User-modified files preserved'
     );
   }

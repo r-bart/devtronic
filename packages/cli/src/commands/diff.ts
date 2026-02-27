@@ -1,5 +1,4 @@
-import { resolve, join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { resolve, join } from 'node:path';
 import { existsSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
@@ -10,18 +9,13 @@ import {
   calculateChecksum,
   getAllFilesRecursive,
 } from '../utils/files.js';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-// When bundled, __dirname is /packages/cli/dist, so templates is ../templates
-// When running from src, __dirname is /packages/cli/src/commands, so templates is ../../templates
-const TEMPLATES_DIR = existsSync(resolve(__dirname, '../templates'))
-  ? resolve(__dirname, '../templates')
-  : resolve(__dirname, '../../templates');
+import { introTitle, symbols } from '../utils/ui.js';
+import { TEMPLATES_DIR, IDE_TEMPLATE_MAP } from './init.js';
 
 export async function diffCommand(): Promise<void> {
   const targetDir = resolve('.');
 
-  p.intro(chalk.bgCyan.black(' devtronic Diff '));
+  p.intro(introTitle('Diff'));
 
   const manifest = readManifest(targetDir);
 
@@ -42,7 +36,7 @@ export async function diffCommand(): Promise<void> {
 
   // Check all installed IDEs
   for (const ide of manifest.selectedIDEs) {
-    const templateDir = join(TEMPLATES_DIR, ide);
+    const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (!existsSync(templateDir)) continue;
 
     const templateFiles = getAllFilesRecursive(templateDir);
@@ -107,7 +101,7 @@ export async function diffCommand(): Promise<void> {
     p.note(
       modified
         .map((d) => {
-          const marker = d.localModified ? chalk.yellow('⚠') : chalk.blue('↑');
+          const marker = d.localModified ? symbols.warn : symbols.updated;
           const suffix = d.localModified ? ' (also modified locally)' : '';
           return `  ${marker} ${d.path}${chalk.dim(suffix)}`;
         })
@@ -116,8 +110,7 @@ export async function diffCommand(): Promise<void> {
     );
   }
 
-  console.log('');
-  console.log('Run `npx devtronic update` to apply changes.');
+  p.log.info(`Run ${chalk.cyan('npx devtronic update')} to apply changes.`);
 
   p.outro('');
 }

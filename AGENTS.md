@@ -10,7 +10,7 @@
 
 1. Read `CLAUDE.md` for project-specific rules
 2. Check existing patterns before creating new ones
-3. Follow: brief → spec → research --deep → plan → implement → post-review
+3. Follow: brief → spec → research --deep → plan → implement → summary → post-review
 
 ---
 
@@ -86,11 +86,11 @@ Run after every change.
 
 | Task | Commands |
 |------|----------|
-| New feature | `/brief` → `/spec` → `/generate-tests` → `/research --deep` → `/create-plan` → implement → `/post-review` |
-| Bug fix | `/brief` → fix → test → `/post-review` |
-| Refactor | `/brief` → `/create-plan` → implement → `/post-review` |
+| New feature | `/brief` → `/spec` → `/generate-tests` → `/research --deep` → `/create-plan` → implement → `/summary` → `/post-review` |
+| Bug fix | `/brief` → fix → test → `/summary` → `/post-review` |
+| Refactor | `/brief` → `/create-plan` → implement → `/summary` → `/post-review` |
 
-> **Tip**: `/brief` is recommended when starting a session (quick orientation). Use `/research --deep` for thorough analysis, `--external` for GitHub/Slack context.
+> **Tip**: `/brief` for session orientation (with pre-flight checks). `/summary` to document changes. `/checkpoint` to save progress.
 
 ---
 

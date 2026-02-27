@@ -39,7 +39,7 @@ your-project/
 │   └── devtronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
-│       ├── skills/                     # 18 skills
+│       ├── skills/                     # 19 skills
 │       │   ├── brief/SKILL.md
 │       │   ├── spec/SKILL.md
 │       │   ├── scaffold/

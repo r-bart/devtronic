@@ -15,7 +15,7 @@ export type FrameworkName =
   | 'remix'
   | 'unknown';
 
-export type ArchitecturePattern = 'clean' | 'mvc' | 'feature-based' | 'flat';
+export type ArchitecturePattern = 'clean' | 'layered' | 'mvc' | 'feature-based' | 'flat' | 'none';
 
 export type IDE =
   | 'claude-code'
@@ -144,9 +144,30 @@ export interface RegenerateOptions {
   all?: boolean;
 }
 
+export interface DoctorOptions {
+  fix?: boolean;
+  path?: string;
+}
+
+export interface ConfigOptions {
+  path?: string;
+}
+
+export interface ListOptions {
+  path?: string;
+}
+
+export interface DoctorCheck {
+  name: string;
+  status: 'pass' | 'fail' | 'warn';
+  message: string;
+  fixable?: boolean;
+  fix?: () => void;
+}
+
 export type ConflictResolution = 'merge' | 'keep' | 'replace';
 
-export type PresetName = 'nextjs-clean' | 'react-clean' | 'monorepo';
+export type PresetName = 'nextjs-clean' | 'react-clean' | 'monorepo' | 'feature-based' | 'minimal';
 
 export interface Preset {
   name: PresetName;
@@ -186,6 +207,22 @@ export const PRESETS: Record<PresetName, Preset> = {
     config: {
       architecture: 'clean',
       layers: ['apps', 'packages', 'libs'],
+    },
+  },
+  'feature-based': {
+    name: 'feature-based',
+    description: 'Feature-based architecture (co-located modules)',
+    config: {
+      architecture: 'feature-based',
+      layers: ['features', 'shared'],
+    },
+  },
+  minimal: {
+    name: 'minimal',
+    description: 'Quality checks only, no architecture rules',
+    config: {
+      architecture: 'none',
+      layers: [],
     },
   },
 };

@@ -1,35 +1,42 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { readFileSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import * as p from '@clack/prompts';
+import chalk from 'chalk';
 import { initCommand } from './commands/init.js';
 import { updateCommand } from './commands/update.js';
 import { statusCommand } from './commands/status.js';
 import { diffCommand } from './commands/diff.js';
 import { addCommand } from './commands/add.js';
 import { regenerateCommand } from './commands/regenerate.js';
+import { infoCommand } from './commands/info.js';
+import { listCommand } from './commands/list.js';
+import { configCommand, configSetCommand, configResetCommand } from './commands/config.js';
+import { doctorCommand } from './commands/doctor.js';
 import { PRESETS } from './types.js';
+import { introTitle, showLogo } from './utils/ui.js';
+import { getCliVersion } from './utils/version.js';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-
-function getVersion(): string {
-  try {
-    const packageJsonPath = resolve(__dirname, '../package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-    return packageJson.version || '1.0.0';
-  } catch {
-    return '1.0.0';
-  }
-}
-
+const cliVersion = getCliVersion();
 const program = new Command();
 
 program
   .name('devtronic')
   .description('CLI for deploying devtronic template to your projects')
-  .version(getVersion());
+  .version(cliVersion)
+  .action(() => {
+    // Show branded banner when invoked with no command
+    showLogo();
+    console.log(chalk.dim(`  Agentic development toolkit v${cliVersion}`));
+    console.log();
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic init')} ${chalk.dim('[path]')}              ${chalk.dim('Initialize in a project')}`);
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic info')}                      ${chalk.dim('Version & config summary')}`);
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic doctor')}                    ${chalk.dim('Health diagnostics')}`);
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic status')}                    ${chalk.dim('File status overview')}`);
+    console.log();
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help')}                      ${chalk.dim('Show all commands')}`);
+    console.log();
+  });
 
 program
   .command('init')
@@ -104,24 +111,78 @@ program
     await diffCommand();
   });
 
-// Add presets command to list available presets
+program
+  .command('info')
+  .description('Show version, configuration, and installation summary')
+  .action(async () => {
+    await infoCommand();
+  });
+
+program
+  .command('list')
+  .description('List installed skills and agents')
+  .argument('[filter]', 'Filter by type (skills, agents)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (filter, options) => {
+    await listCommand(filter, { path: options.path });
+  });
+
+const configCmd = program
+  .command('config')
+  .description('View or manage project configuration')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await configCommand({ path: options.path });
+  });
+
+configCmd
+  .command('set')
+  .description('Set a configuration value')
+  .argument('<key>', 'Configuration key')
+  .argument('<value>', 'New value (comma-separated for arrays)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (key, value, options) => {
+    await configSetCommand(key, value, { path: options.path });
+  });
+
+configCmd
+  .command('reset')
+  .description('Re-detect configuration from project')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await configResetCommand({ path: options.path });
+  });
+
+program
+  .command('doctor')
+  .description('Run health checks on your devtronic installation')
+  .option('--fix', 'Auto-fix fixable issues')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await doctorCommand({ fix: options.fix, path: options.path });
+  });
+
+// Presets command
 program
   .command('presets')
   .description('List available configuration presets')
   .action(() => {
-    console.log('\nAvailable presets:\n');
-    for (const [name, preset] of Object.entries(PRESETS)) {
-      console.log(`  ${name}`);
-      console.log(`    ${preset.description}`);
+    p.intro(introTitle('Presets'));
+
+    const lines = Object.entries(PRESETS).map(([name, preset]) => {
+      const parts = [`  ${chalk.bold(name)}`];
+      parts.push(`    ${preset.description}`);
       if (preset.config.architecture) {
-        console.log(`    Architecture: ${preset.config.architecture}`);
+        parts.push(`    Architecture: ${chalk.cyan(preset.config.architecture)}`);
       }
       if (preset.config.layers) {
-        console.log(`    Layers: ${preset.config.layers.join(', ')}`);
+        parts.push(`    Layers: ${chalk.cyan(preset.config.layers.join(', '))}`);
       }
-      console.log('');
-    }
-    console.log('Usage: npx devtronic init --preset <name>\n');
+      return parts.join('\n');
+    });
+
+    p.note(lines.join('\n\n'), 'Available Presets');
+    p.outro(`Usage: ${chalk.cyan('npx devtronic init --preset <name>')}`);
   });
 
 program.parseAsync().catch((err) => {

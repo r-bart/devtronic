@@ -9,12 +9,12 @@ Skills are invocable workflows in Claude Code. Use them with `/skill-name` in yo
 These skills form the recommended development workflow:
 
 ```
-/brief → /spec → /research --deep → /generate-tests → /create-plan → implement → /post-review
+/brief → /spec → /research --deep → /generate-tests → /create-plan → implement → /summary → /post-review
 ```
 
 ### /brief - Quick Session Briefing
 
-**Purpose**: Fast contextual briefing when starting work on existing features. Scans docs, code, and git activity.
+**Purpose**: Fast contextual briefing with pre-flight validation when starting work. Scans docs, code, and git activity, plus runs health checks (typecheck, lint, state freshness).
 
 **When to use**:
 - Starting a new session on existing work
@@ -113,6 +113,26 @@ These skills form the recommended development workflow:
 **Skip for**: Simple single-file changes, obvious bug fixes.
 
 **Output**: `thoughts/plans/YYYY-MM-DD_[feature-slug].md`
+
+---
+
+### /summary - Post-Change Documentation
+
+**Purpose**: Generate a structured summary of what changed, why, decisions made, and what's pending.
+
+**When to use**:
+- After completing a feature or significant change
+- Before creating a PR (complements `/post-review`)
+- At the end of a work session
+- When handing off work to someone else
+
+**Difference from /checkpoint**: Checkpoint saves *how to resume* (state + next steps). Summary documents *what was done and why* (change log + rationale).
+
+**Difference from /post-review**: Post-review validates quality. Summary documents the narrative of changes.
+
+**Output**:
+- `thoughts/SUMMARY.md` (overwrite — latest summary, read by `/brief`)
+- `thoughts/summaries/YYYY-MM-DD_[slug].md` (timestamped archive)
 
 ---
 

@@ -7,7 +7,7 @@ The complete workflow to implement a feature using all skills.
 ## Objective
 
 By the end of this tutorial:
-- You'll have completed the brief → spec → research → plan → implement → review cycle
+- You'll have completed the brief → spec → research → plan → implement → summary → review cycle
 - You'll understand when to use each skill
 - You'll have documentation in thoughts/ as reference
 
@@ -23,7 +23,7 @@ By the end of this tutorial:
 ## The Complete Workflow
 
 ```
-/brief [topic]        →  Quick orientation (what exists?)
+/brief [topic]        →  Orientation + pre-flight checks
         │
 /spec [idea]          →  Define WHAT to build
         │
@@ -33,7 +33,9 @@ By the end of this tutorial:
         │
 [implement]           →  Code step by step
         │
-/post-review               →  Final quality verification
+/summary              →  Document what changed and why
+        │
+/post-review          →  Final quality verification
 ```
 
 ---
@@ -254,11 +256,32 @@ Repeat: implement → verify → next phase.
 
 ---
 
-## Phase 5: Review
+## Phase 5: Summary
+
+### Document Changes
+
+After completing implementation, document what was done:
+
+```
+/summary notifications
+```
+
+Claude will analyze git diff, commits, and generate:
+
+```
+thoughts/SUMMARY.md                              (latest, for /brief)
+thoughts/summaries/2026-02-05_notifications.md   (archive)
+```
+
+This captures: what changed, why, decisions made, and what's pending.
+
+---
+
+## Phase 6: Review
 
 ### Run Review
 
-After completing all implementation:
+After summarizing:
 
 ```
 /post-review
@@ -310,6 +333,9 @@ thoughts/
 │   └── 2026-02-05_notifications-research.md
 ├── plans/
 │   └── 2026-02-05_notifications-plan.md
+├── summaries/
+│   └── 2026-02-05_notifications.md
+├── SUMMARY.md
 └── checkpoints/
     └── 2026-02-05_14-30_notifications-phase2.md
 ```
@@ -354,6 +380,7 @@ Learn to approach errors in a structured way.
 /spec "add dark mode toggle"
 /create-plan dark mode --detailed
 [implement]
+/summary dark-mode
 /post-review --quick
 ```
 
@@ -362,6 +389,7 @@ Learn to approach errors in a structured way.
 ```
 /brief "login timeout"
 [fix]
+/summary login-timeout-fix
 /post-review
 ```
 
@@ -372,5 +400,6 @@ Learn to approach errors in a structured way.
 /research --deep "current auth implementation"
 /create-plan refactor auth to use JWT
 [implement]
+/summary auth-jwt-refactor
 /post-review --strict
 ```

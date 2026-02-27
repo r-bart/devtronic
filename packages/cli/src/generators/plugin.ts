@@ -29,7 +29,7 @@ export function generatePluginJson(cliVersion: string): string {
       name: PLUGIN_NAME,
       version: cliVersion,
       description:
-        'devtronic — 18 skills, 8 agents, full workflow hooks',
+        'devtronic — 19 skills, 8 agents, full workflow hooks',
       author: {
         name: 'r-bart',
         url: 'https://github.com/r-bart/devtronic',
@@ -58,7 +58,7 @@ export function generateMarketplaceJson(): string {
         {
           name: PLUGIN_NAME,
           source: `./${PLUGIN_NAME}`,
-          description: 'devtronic — 18 skills, 8 agents, full workflow hooks',
+          description: 'devtronic — 19 skills, 8 agents, full workflow hooks',
         },
       ],
     },
@@ -78,7 +78,7 @@ export function generateMarketplaceJson(): string {
  * \-- devtronic/                            <- the plugin
  *     |-- .claude-plugin/
  *     |   \-- plugin.json
- *     |-- skills/   (18 skills from template)
+ *     |-- skills/   (19 skills from template)
  *     |-- agents/   (8 agents from template)
  *     |-- hooks/
  *     |   \-- hooks.json

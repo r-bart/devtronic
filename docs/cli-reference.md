@@ -205,6 +205,181 @@ npx devtronic diff
 
 ---
 
+### info
+
+Show version, configuration, and installation summary at a glance.
+
+```bash
+npx devtronic info
+```
+
+**Shows:**
+- CLI version with update check (queries npm registry)
+- Installation date and selected IDEs
+- Install mode (standalone or plugin)
+- Skill and agent counts
+- Framework and architecture
+
+**Example output:**
+
+```
+◆ devtronic Info
+
+  devtronic
+  Version:       1.0.0 (latest)
+  Installed:     2026-02-27
+  IDEs:          claude-code, cursor
+  Mode:          plugin
+  Skills:        19
+  Agents:        8
+  Framework:     nextjs
+  Architecture:  clean
+```
+
+---
+
+### list
+
+List installed skills and agents with their descriptions.
+
+```bash
+npx devtronic list [filter] [options]
+```
+
+**Arguments:**
+- `filter` - Optional: `skills` or `agents` to show only one type
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+**Examples:**
+
+```bash
+# List everything
+npx devtronic list
+
+# List only skills
+npx devtronic list skills
+
+# List only agents
+npx devtronic list agents
+```
+
+Discovers skills from the plugin directory (directories with `SKILL.md`) or `.claude/` for standalone installs. Reads the first line after the heading in each skill/agent markdown file as a description.
+
+---
+
+### config
+
+View or manage project configuration.
+
+```bash
+npx devtronic config [options]                    # Show current config
+npx devtronic config set <key> <value> [options]  # Set a value
+npx devtronic config reset [options]              # Re-detect from project
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+**Valid keys:**
+
+| Key | Type | Example |
+|-----|------|---------|
+| `architecture` | string | `clean`, `layered`, `feature-based`, `mvc`, `flat`, `none` |
+| `framework` | string | `nextjs`, `react`, `vue` |
+| `qualityCommand` | string | `pnpm typecheck && pnpm lint` |
+| `layers` | array | `domain,application,infrastructure` |
+| `stateManagement` | array | `zustand,jotai` |
+| `dataFetching` | array | `react-query` |
+| `orm` | array | `prisma` |
+| `testing` | array | `vitest,playwright` |
+| `ui` | array | `tailwind,radix` |
+| `validation` | array | `zod` |
+
+Array keys accept comma-separated values.
+
+**Examples:**
+
+```bash
+# View current configuration
+npx devtronic config
+
+# Change framework
+npx devtronic config set framework react
+
+# Update testing libraries
+npx devtronic config set testing vitest,playwright
+
+# Re-detect everything from project
+npx devtronic config reset
+```
+
+---
+
+### doctor
+
+Run health checks on your devtronic installation.
+
+```bash
+npx devtronic doctor [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--fix` | Auto-fix fixable issues |
+| `--path <path>` | Target directory (default: current directory) |
+
+**Checks performed:**
+
+| # | Check | Fixable |
+|---|-------|---------|
+| 1 | Manifest exists and is valid | - |
+| 2 | All manifest files exist on disk | - |
+| 3 | Shell scripts have executable permissions | Yes (chmod +x) |
+| 4 | Plugin registered in .claude/settings.json | Yes (adds entry) |
+| 5 | Hook scripts point to existing files | - |
+| 6 | Quality scripts in package.json (typecheck, lint, test) | - |
+| 7 | thoughts/ directory structure | Yes (creates dirs) |
+| 8 | eslint available | - |
+
+**Examples:**
+
+```bash
+# Run diagnostics
+npx devtronic doctor
+
+# Auto-fix what can be fixed
+npx devtronic doctor --fix
+```
+
+**Example output:**
+
+```
+◆ devtronic Doctor
+
+  Health Check
+  ✓ Manifest is valid (v1.0.0)
+  ✓ 42/42 manifest files exist
+  ✓ Scripts have executable permissions
+  ✓ Plugin registered in .claude/settings.json
+  ✓ Hook scripts exist
+  ⚠ Missing package.json script: test (fixable)
+  ✓ thoughts/ directory exists
+  ✓ eslint is available
+
+  7 passed, 1 warning
+
+  Run devtronic doctor --fix to auto-fix 1 issue.
+```
+
+---
+
 ### presets
 
 List available presets.
@@ -220,6 +395,8 @@ npx devtronic presets
 | `nextjs-clean` | Next.js with Clean Architecture |
 | `react-clean` | React (Vite) with Clean Architecture |
 | `monorepo` | Monorepo with Clean Architecture per app |
+| `feature-based` | Feature-based architecture (co-located modules) |
+| `minimal` | Quality checks only, no architecture rules |
 
 ---
 
@@ -240,6 +417,7 @@ Detected from `package.json` dependencies:
 
 Detected from directory structure:
 - **Clean Architecture** - domain/, application/, infrastructure/ folders
+- **Layered** - routes/, controllers/, services/, repositories/ folders
 - **Feature-based** - features/ or modules/ folders
 - **MVC** - models/, views/, controllers/ folders
 - **Flat** - No clear structure
@@ -289,8 +467,8 @@ Copied from templates:
 
 | Directory | Content |
 |-----------|---------|
-| `.claude/skills/` | 14 workflow skills |
-| `.claude/agents/` | 3 specialized agents |
+| `.claude/skills/` | 19 workflow skills |
+| `.claude/agents/` | 8 specialized agents |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |
 
@@ -300,8 +478,8 @@ Copied from templates:
 
 | Feature | Claude Code | Cursor | Antigravity | GitHub Copilot |
 |---------|-------------|--------|-------------|----------------|
-| Skills (14) | ✓ | - | - | - |
-| Agents (3) | ✓ | - | - | - |
+| Skills (19) | ✓ | - | - | - |
+| Agents (8) | ✓ | - | - | - |
 | Rules | ✓ | ✓ | ✓ | Partial |
 | AGENTS.md | ✓ | ✓ | ✓ | - |
 | thoughts/ | ✓ | ✓ | ✓ | - |
@@ -341,7 +519,7 @@ After installation, a manifest is created at `.ai-template/manifest.json`:
 
 ```json
 {
-  "version": "1.8.0",
+  "version": "1.0.0",
   "implantedAt": "2026-02-01",
   "selectedIDEs": ["claude-code", "cursor"],
   "projectConfig": {

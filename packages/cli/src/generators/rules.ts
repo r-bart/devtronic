@@ -30,9 +30,11 @@ export function getFrameworkDisplayName(framework: FrameworkName): string {
 export function getArchitectureLabel(architecture: ArchitecturePattern): string {
   const labels: Record<ArchitecturePattern, string> = {
     clean: 'Clean + DDD',
+    layered: 'Layered',
     mvc: 'MVC',
     'feature-based': 'Feature-Based',
     flat: 'Flat',
+    none: 'None',
   };
   return labels[architecture] || architecture;
 }
@@ -41,11 +43,17 @@ export function getArchitectureOneLiner(config: ProjectConfig): string {
   if (config.architecture === 'clean') {
     return 'Dependencies point INWARD only: Presentation → Application → Domain ← Infrastructure.';
   }
+  if (config.architecture === 'layered') {
+    return 'Layered: Routes/Controllers → Services → Repositories. Each layer calls only the one below.';
+  }
   if (config.architecture === 'mvc') {
     return 'Model-View-Controller: Models hold data/logic, Views handle UI, Controllers orchestrate.';
   }
   if (config.architecture === 'feature-based') {
     return 'Each feature is self-contained with its own components, hooks, API calls, and types.';
+  }
+  if (config.architecture === 'none') {
+    return 'No architecture rules configured. Run `devtronic config set architecture clean` to add rules later.';
   }
   return 'Document your architecture patterns.';
 }
@@ -62,10 +70,16 @@ export function getCodePatternsBullets(config: ProjectConfig): string {
   if (config.architecture === 'clean') {
     lines.push('- **Domain state**: Use cases');
   }
+  if (config.architecture === 'layered') {
+    lines.push('- **Business logic**: Services layer');
+  }
   if (config.orm.length > 0) {
     lines.push(`- **ORM**: ${config.orm.join(', ')}`);
     if (config.architecture === 'clean') {
       lines.push('- Repository interfaces in `domain/`, implementations in `infrastructure/`');
+    }
+    if (config.architecture === 'layered') {
+      lines.push('- Database access only in `repositories/`');
     }
   }
   lines.push('- Never access DB from UI');
@@ -134,9 +148,19 @@ export function generateClaudeMd(
   const codePatterns = getCodePatternsBullets(config);
   const commands = getCommandsBlock(scripts, packageManager, config.qualityCommand);
 
+  const archSection = config.architecture === 'none'
+    ? `## Architecture
+
+${archOneLiner}`
+    : `## Architecture
+
+${archOneLiner}
+
+IMPORTANT: See \`docs/ARCHITECTURE.md\` for structure. See \`.claude/rules/\` for enforcement rules.`;
+
   return `# ${frameworkName}
 
-${frameworkName} project with ${archLabel} architecture.
+${frameworkName} project${config.architecture !== 'none' ? ` with ${archLabel} architecture` : ''}.
 
 ## Commands
 
@@ -154,19 +178,15 @@ Run quality checks after every change.
 
 ${codePatterns}
 
-## Architecture
-
-${archOneLiner}
-
-IMPORTANT: See \`docs/ARCHITECTURE.md\` for structure. See \`.claude/rules/\` for enforcement rules.
+${archSection}
 
 ## Workflow
 
-- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/post-review\`
-- **Bug fix**: \`/brief\` → fix → test → \`/post-review\`
-- **Refactor**: \`/brief\` → \`/create-plan\` → implement → \`/post-review\`
+- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+- **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
+- **Refactor**: \`/brief\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
 
-> \`/brief\` for session orientation. \`/checkpoint\` to save progress.
+> \`/brief\` for session orientation (with pre-flight checks). \`/summary\` to document changes. \`/checkpoint\` to save progress.
 
 ## Project Notes
 
@@ -263,9 +283,17 @@ export function generateAgentsMdFromConfig(
   const codePatterns = getCodePatternsBullets(config);
   const commands = getCommandsBlock(scripts, packageManager, config.qualityCommand);
 
+  const agentsArchSection = config.architecture === 'none'
+    ? `## Architecture
+
+${archOneLiner}`
+    : `## Architecture
+
+${archOneLiner} See \`docs/ARCHITECTURE.md\` for detailed structure.`;
+
   return `# ${frameworkName}
 
-${frameworkName} project with ${archLabel} architecture.
+${frameworkName} project${config.architecture !== 'none' ? ` with ${archLabel} architecture` : ''}.
 
 ## Commands
 
@@ -283,9 +311,7 @@ Run quality checks after every change.
 
 ${codePatterns}
 
-## Architecture
-
-${archOneLiner} See \`docs/ARCHITECTURE.md\` for detailed structure.
+${agentsArchSection}
 `;
 }
 
@@ -294,6 +320,12 @@ ${archOneLiner} See \`docs/ARCHITECTURE.md\` for detailed structure.
 function getArchitectureSectionUniversal(pattern: ArchitecturePattern): string {
   if (pattern === 'clean') {
     return `Dependencies point INWARD only: Presentation → Application → Domain ← Infrastructure.
+
+See \`docs/ARCHITECTURE.md\` for detailed structure.`;
+  }
+
+  if (pattern === 'layered') {
+    return `Layered: Routes/Controllers → Services → Repositories. Each layer calls only the one below.
 
 See \`docs/ARCHITECTURE.md\` for detailed structure.`;
   }
@@ -308,6 +340,10 @@ See \`docs/ARCHITECTURE.md\` for detailed structure.`;
     return `Each feature is self-contained with its own components, hooks, API calls, and types.
 
 See \`docs/ARCHITECTURE.md\` for detailed structure.`;
+  }
+
+  if (pattern === 'none') {
+    return `No architecture rules configured.`;
   }
 
   return `See \`docs/ARCHITECTURE.md\` for detailed structure.`;
