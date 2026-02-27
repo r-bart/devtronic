@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Build script for agentic-marketplace.
+ * Build script for devtronic-marketplace.
  *
  * Copies skills, agents from the CLI templates and generates static
  * plugin metadata files (plugin.json, marketplace.json, hooks.json,
@@ -68,7 +68,7 @@ writeFileSync(
       name: PLUGIN_NAME,
       version,
       description:
-        'devtronic — 18 skills, 8 agents, full workflow hooks by rbart',
+        'devtronic — 18 skills, 8 agents, full workflow hooks',
       author: {
         name: 'r-bart',
         url: 'https://github.com/r-bart/devtronic',
@@ -95,7 +95,7 @@ writeFileSync(
   join(hooksDir, 'hooks.json'),
   JSON.stringify(
     {
-      description: 'r-bart devtronic — workflow hooks',
+      description: 'devtronic — workflow hooks',
       hooks: {
         SessionStart: [
           {
@@ -309,7 +309,7 @@ exit 0
 writeFileSync(join(scriptsDir, 'stop-guard.sh'), stopGuardScript);
 chmodSync(join(scriptsDir, 'stop-guard.sh'), 0o755);
 
-console.log(`Built agentic-marketplace v${version}`);
+console.log(`Built devtronic-marketplace v${version}`);
 console.log(`  .claude-plugin/marketplace.json`);
 console.log(`  ${PLUGIN_NAME}/.claude-plugin/plugin.json`);
 console.log(`  ${PLUGIN_NAME}/skills/ (18 skills)`);

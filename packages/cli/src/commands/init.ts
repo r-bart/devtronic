@@ -265,7 +265,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     manifest.installMode = 'plugin';
     manifest.pluginPath = pluginResult.pluginPath;
 
-    generatedFiles.push(`Plugin ${PLUGIN_NAME} (16 skills, 7 agents, 5 hooks)`);
+    generatedFiles.push(`Plugin ${PLUGIN_NAME} (18 skills, 8 agents, 5 hooks)`);
   }
 
   // Copy IDE templates (except dynamic rule files)
@@ -514,7 +514,7 @@ async function showPreview(
 
   // Plugin preview for Claude Code
   if (selectedIDEs.includes('claude-code')) {
-    console.log(`  ${chalk.magenta('★')} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim('(16 skills, 7 agents, 5 hooks)')}`);
+    console.log(`  ${chalk.magenta('★')} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim('(18 skills, 8 agents, 5 hooks)')}`);
     console.log(chalk.dim(`     └── .claude-plugins/${PLUGIN_NAME}/`));
     console.log(chalk.dim('     └── Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...'));
     console.log(chalk.dim('     └── Hooks: SessionStart, PostToolUse, Stop, SubagentStop, PreCompact'));

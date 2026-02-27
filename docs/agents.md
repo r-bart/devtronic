@@ -10,6 +10,7 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 |-------|-------|------------|---------|
 | error-investigator | haiku | Automatic | Quick error diagnosis |
 | code-reviewer | sonnet | On request | Thorough PR/code review |
+| architecture-checker | sonnet | Delegated by `/post-review` | Validate Clean Architecture compliance |
 | quality-runner | haiku | Proactive | Run tests, typecheck, and lint |
 | commit-changes | haiku | Delegated by skills | Atomic conventional commits |
 | test-generator | sonnet | On request | Generate unit tests following project patterns |
@@ -24,6 +25,7 @@ Which skills delegate to which agents:
 /execute-plan  ──→  commit-changes    (after each wave passes quality checks)
 /quick         ──→  commit-changes    (step 5: commit)
 /audit         ──→  dependency-checker (--security mode: dependency health)
+/post-review   ──→  architecture-checker (architecture compliance check)
 ```
 
 Standalone agents (invoked by Claude or user directly):
@@ -278,6 +280,67 @@ Then for each file:
 3. **Be constructive** - Suggest solutions, not just problems
 4. **Prioritize** - Bugs > Security > Design > Style
 5. **Acknowledge good code** - Positive feedback matters too
+
+---
+
+## architecture-checker
+
+**Model**: Sonnet (requires understanding architecture rules)
+
+**Purpose**: Validate that code changes respect the project's architecture rules (layer boundaries, dependency direction, domain purity).
+
+### When Invoked
+
+Delegated by skills:
+- **`/post-review`** — runs architecture compliance check on changed files
+
+Also invoked directly when:
+- User asks to "check architecture" or "validate layer boundaries"
+- Before merging significant PRs with structural changes
+
+### How It Learns the Architecture
+
+The agent does NOT have hardcoded rules. It discovers them at runtime from:
+1. `CLAUDE.md` / `AGENTS.md` — Project rules and conventions
+2. `docs/ARCHITECTURE.md` — Folder structure and layer definitions
+3. `.claude/architecture-rules.md` — Explicit rules (if exists)
+
+### Checks Performed
+
+| Check | What It Validates |
+|-------|-------------------|
+| Layer dependency direction | Inner layers don't import from outer layers |
+| Domain purity | Domain layer doesn't import ORM, HTTP, or SDK libraries |
+| Pattern compliance | Use case return types, controller patterns, DI conventions |
+| Module structure | New modules follow project's standard structure |
+| No business logic in infra | Infrastructure files are thin wrappers |
+
+### Output Format
+
+```
+## Architecture Check
+
+**Project rules from:** [source files]
+**Files analyzed:** N
+**Violations:** X critical, Y warnings
+
+### VIOLATIONS (must fix)
+1. **[CHECK N] [Rule name]**
+   `file/path.ts:42` — [description]
+
+### WARNINGS (should fix)
+...
+
+### Verdict: PASS / FAIL
+```
+
+### Critical Rules
+
+- **Read-only** — never modifies code, only reports
+- Always reads project rules before checking
+- Provides exact file:line for every finding
+- Distinguishes VIOLATIONS from WARNINGS
+- Checks only changed files unless asked for full scan
 
 ---
 
@@ -718,7 +781,7 @@ Common tools to enable:
 | Interaction | Often interactive | Usually autonomous |
 | Context | Has full conversation | Isolated context |
 | Purpose | Guided workflows | Specific focused tasks |
-| Examples | /spec, /create-plan, /post-review | error-investigator, quality-runner, commit-changes, test-generator |
+| Examples | /spec, /create-plan, /post-review | error-investigator, architecture-checker, quality-runner, commit-changes, test-generator |
 
 **Use a skill** when you want a structured workflow with user interaction.
 

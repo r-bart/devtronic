@@ -9,7 +9,7 @@ Skills are invocable workflows in Claude Code. Use them with `/skill-name` in yo
 These skills form the recommended development workflow:
 
 ```
-/brief → /spec → /research --deep → /create-plan → implement → /post-review
+/brief → /spec → /research --deep → /generate-tests → /create-plan → implement → /post-review
 ```
 
 ### /brief - Quick Session Briefing
@@ -70,6 +70,27 @@ These skills form the recommended development workflow:
 **Output**:
 - Quick: Display only (no file)
 - Others: `thoughts/research/YYYY-MM-DD_[topic].md`
+
+---
+
+### /opensrc - Fetch Package Source Code
+
+**Purpose**: Fetch source code of npm packages or GitHub repos so AI agents have full implementation context, not just type definitions.
+
+**When to use**:
+- You need to understand how a library works internally
+- Type definitions alone aren't enough context
+- Before implementing patterns from another library
+
+**Usage**:
+```
+/opensrc react
+/opensrc react react-router-dom zustand
+/opensrc react@19.0.0
+/opensrc vercel-labs/opensrc
+```
+
+**Output**: Source downloaded to `opensrc/<package>/`, with `opensrc/sources.json` index
 
 ---
 
@@ -263,6 +284,26 @@ Continue from where I left off.
 **Different from `/post-review`**: Post-review checks recent changes. Audit scans full codebase.
 
 **Output**: `thoughts/audit/YYYY-MM-DD_audit.md` with health score (0-100), technical debt estimation, and trend comparison
+
+---
+
+### /generate-tests - Tests as Definition of Done
+
+**Purpose**: Generate failing tests from a spec before implementation begins. Encodes acceptance criteria as executable tests.
+
+**When to use**:
+- After a spec is approved (via `/spec`)
+- Before creating an implementation plan (via `/create-plan`)
+- When you want tests to define "done" before writing production code
+
+**Skip for**: Bug fixes with obvious test scope, pure refactoring with existing coverage.
+
+**Pipeline Position**:
+```
+/spec → /generate-tests → /create-plan → /execute-plan → /post-review
+```
+
+**Output**: Test files + `thoughts/specs/[spec-slug]_test-manifest.json` traceability manifest
 
 ---
 

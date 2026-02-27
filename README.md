@@ -40,7 +40,7 @@ The CLI will:
 ### Option B: npm Plugin (Claude Code Only)
 
 ```bash
-npm install agentic-marketplace --save-dev
+npm install devtronic-marketplace --save-dev
 ```
 
 Then add to `.claude/settings.json`:
@@ -49,7 +49,7 @@ Then add to `.claude/settings.json`:
 {
   "extraKnownMarketplaces": {
     "devtronic-local": {
-      "source": { "source": "directory", "path": "./node_modules/agentic-marketplace" }
+      "source": { "source": "directory", "path": "./node_modules/devtronic-marketplace" }
     }
   },
   "enabledPlugins": { "devtronic@devtronic-local": true }
@@ -153,25 +153,26 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 
 ## What's Included
 
-### Skills (16)
+### Skills (18)
 
 | Category | Skills |
 |----------|--------|
-| **Orientation & Research** | `/brief`, `/research` |
+| **Orientation & Research** | `/brief`, `/research`, `/opensrc` |
 | **Planning** | `/spec`, `/create-plan` |
 | **Development** | `/scaffold`, `/setup`, `/investigate`, `/worktree` |
 | **Execution** | `/quick`, `/execute-plan` |
-| **Quality & Review** | `/audit`, `/post-review` |
+| **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
 | **Session & Meta** | `/checkpoint`, `/backlog`, `/learn`, `/create-skill` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 
-### Agents (7)
+### Agents (8)
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
 | error-investigator | haiku | Quick automatic error diagnosis |
 | code-reviewer | sonnet | Thorough PR review |
+| architecture-checker | sonnet | Validate Clean Architecture compliance |
 | quality-runner | haiku | Run tests, typecheck, and lint |
 | commit-changes | haiku | Atomic conventional commits |
 | test-generator | sonnet | Generate unit tests following project patterns |
