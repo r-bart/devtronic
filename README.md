@@ -12,7 +12,7 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 3 addon skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
@@ -119,7 +119,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             19 skills included                          │
+│       │             19 core + 3 addon skills                    │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             8 agents included                           │
@@ -160,7 +160,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 
 ## What's Included
 
-### Skills (19)
+### Skills (19 core + 3 addon)
 
 | Category | Skills |
 |----------|--------|
@@ -170,6 +170,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 | **Execution** | `/quick`, `/execute-plan` |
 | **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
+| **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 

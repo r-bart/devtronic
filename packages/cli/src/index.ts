@@ -49,6 +49,7 @@ program
     '--preset <name>',
     `Use a preset configuration (${Object.keys(PRESETS).join(', ')})`
   )
+  .option('--addon <name>', 'Enable an addon (e.g., orchestration)')
   .action(async (path, options) => {
     await initCommand({
       path,
@@ -56,6 +57,7 @@ program
       yes: options.yes,
       preview: options.preview,
       preset: options.preset,
+      addon: options.addon,
     });
   });
 
@@ -86,6 +88,7 @@ program
   .option('--rules', 'Regenerate architecture rules for all configured IDEs')
   .option('--agents', 'Regenerate AGENTS.md')
   .option('--all', 'Regenerate everything')
+  .option('--plugin', 'Regenerate the Claude Code plugin (skills, agents, hooks)')
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (target, options) => {
     await regenerateCommand(target, {
@@ -94,6 +97,7 @@ program
       rules: options.rules,
       agents: options.agents,
       all: options.all,
+      plugin: options.plugin,
     });
   });
 

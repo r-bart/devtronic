@@ -116,6 +116,7 @@ describe('config key validation', () => {
     'testing',
     'ui',
     'validation',
+    'enabledAddons',
   ];
 
   const VALID_KEYS = ['architecture', 'framework', 'qualityCommand', ...ARRAY_KEYS];

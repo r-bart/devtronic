@@ -555,6 +555,7 @@ async function regenerateWithNewStack(
     framework: analysis.framework.name,
     qualityCommand:
       qualityParts.length > 0 ? qualityParts.join(' && ') : `${run} typecheck && ${run} lint`,
+    enabledAddons: manifest.projectConfig?.enabledAddons,
   };
 
   // Show what will change

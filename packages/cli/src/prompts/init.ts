@@ -80,3 +80,10 @@ export async function promptForAgentsMd(): Promise<boolean | symbol> {
     initialValue: true,
   });
 }
+
+export async function promptForOrchestration(): Promise<boolean | symbol> {
+  return p.confirm({
+    message: 'Enable orchestration workflow? (briefing \u2192 execute-plan \u2192 recap \u2192 handoff)',
+    initialValue: false,
+  });
+}

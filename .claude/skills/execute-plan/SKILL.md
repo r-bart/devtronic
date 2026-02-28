@@ -190,13 +190,36 @@ Implement Task [X.Y]: [task name]
 - If blocked, return with explanation instead of guessing
 ```
 
+### Visual Progress
+
+Display text-based progress after each wave:
+
+```
+● Wave 2/3                    api-routes, validators
+  ✔ api-routes               done
+  ● validators               running
+  ○ middleware                pending
+```
+
+Indicators:
+- `●` — currently executing
+- `✔` — completed successfully
+- `✖` — failed
+- `○` — pending
+
 ### After each wave completes
 
 1. Check all subagent results for success/failure
 2. Run quality checks: `<pm> run typecheck && <pm> run lint`
 3. If all pass, invoke the **commit-changes** agent to create atomic commits for the wave's changes
-4. Proceed to next wave
-5. If quality checks fail, handle errors (see Error Handling) before committing
+4. If `thoughts/CONTEXT.md` exists (orchestration mode), write an inter-wave handoff summary:
+   - What wave N accomplished
+   - Key decisions made during execution
+   - Files modified and their state
+   - Relevant context for wave N+1 tasks
+   Provide this summary to wave N+1 subagents as additional context.
+5. Proceed to next wave
+6. If quality checks fail, handle errors (see Error Handling) before committing
 
 ---
 
@@ -259,6 +282,45 @@ If the plan has a `## Done Criteria` section, validate each criterion:
 ### Next Steps
 - [Any remaining actions]
 ```
+
+---
+
+## Step 7.5: Recap (orchestration mode)
+
+If `thoughts/CONTEXT.md` exists, also write `thoughts/RECAP.md`:
+
+```markdown
+# Execution Recap
+
+**Plan**: `thoughts/plans/[file].md`
+**Date**: YYYY-MM-DD HH:MM
+**Branch**: [current branch]
+
+## Waves
+
+### Wave 1
+- **Task 1.1**: [name] — done
+- **Task 1.2**: [name] — done
+
+### Wave 2
+- **Task 2.1**: [name] — done
+
+## Files Modified
+
+| File | Task | Status |
+|------|------|--------|
+| `path/to/file.ts` | 1.1 | Complete |
+
+## Pending Work
+
+- [ ] [Any remaining items]
+
+## Next Steps
+
+1. [Most logical follow-up]
+```
+
+Also update `thoughts/STATE.md` with the current workflow position.
 
 ---
 
