@@ -356,7 +356,7 @@ ${skillsSection}
 // ─── Skills Listing ───────────────────────────────────────────────────────
 
 /** Core skills always available */
-const CORE_SKILLS: Array<{ name: string; desc: string }> = [
+export const CORE_SKILLS: Array<{ name: string; desc: string }> = [
   { name: 'brief', desc: 'Session orientation with pre-flight checks' },
   { name: 'spec', desc: 'Product specification interview (PRD)' },
   { name: 'research', desc: 'Codebase investigation (--deep, --external)' },

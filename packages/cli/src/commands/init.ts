@@ -162,10 +162,6 @@ export async function initCommand(options: InitOptions): Promise<void> {
     // Default to claude-code in non-interactive mode
     selectedIDEs = ['claude-code'];
     p.log.info(`IDEs: claude-code (default)`);
-    if (options.addon === 'orchestration') {
-      enabledAddons = ['orchestration'];
-      p.log.info(`Addon: orchestration`);
-    }
   } else {
     const ideSelection = await promptForIDEs(analysis.existingConfigs);
     if (p.isCancel(ideSelection)) {
@@ -175,8 +171,29 @@ export async function initCommand(options: InitOptions): Promise<void> {
     selectedIDEs = ideSelection;
   }
 
-  // Select addons (only for claude-code, skip in --yes mode)
-  if (selectedIDEs.includes('claude-code') && !options.yes && !options.preset && !options.preview) {
+  // Handle --addon flag (works with any mode: --yes, --ide, interactive)
+  if (options.addon) {
+    const validAddons = Object.keys(ADDONS);
+    if (!validAddons.includes(options.addon)) {
+      p.cancel(`Unknown addon: ${options.addon}\n\nValid addons: ${validAddons.join(', ')}`);
+      process.exit(1);
+    }
+    if (selectedIDEs.includes('claude-code')) {
+      enabledAddons = [options.addon as AddonName];
+      p.log.info(`Addon: ${options.addon}`);
+    } else {
+      p.log.warn(`Addon "${options.addon}" requires claude-code IDE. Skipping.`);
+    }
+  }
+
+  // Interactive addon selection (only when no --addon flag, no --yes, no --preset, no --preview)
+  if (
+    selectedIDEs.includes('claude-code') &&
+    !options.addon &&
+    !options.yes &&
+    !options.preset &&
+    !options.preview
+  ) {
     const wantOrchestration = await promptForOrchestration();
     if (p.isCancel(wantOrchestration)) {
       p.cancel('Operation cancelled');

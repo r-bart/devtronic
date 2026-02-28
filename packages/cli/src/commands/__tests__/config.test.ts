@@ -3,6 +3,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync, readFileSync } from 'nod
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import type { Manifest } from '../../types.js';
+import { ADDONS } from '../../types.js';
 
 function baseManifest(overrides: Partial<Manifest> = {}): Manifest {
   return {
@@ -138,5 +139,30 @@ describe('config key validation', () => {
     expect(ARRAY_KEYS.includes('testing')).toBe(true);
     expect(ARRAY_KEYS.includes('architecture')).toBe(false);
     expect(ARRAY_KEYS.includes('framework')).toBe(false);
+  });
+});
+
+describe('addon validation', () => {
+  it('validates addon names against ADDONS registry', () => {
+    const validAddons = Object.keys(ADDONS);
+    expect(validAddons).toContain('orchestration');
+    expect(validAddons).not.toContain('foobar');
+    expect(validAddons).not.toContain('');
+  });
+
+  it('ADDONS registry contains required fields for each addon', () => {
+    for (const [name, addon] of Object.entries(ADDONS)) {
+      expect(addon.name).toBe(name);
+      expect(addon.label).toBeTruthy();
+      expect(addon.description).toBeTruthy();
+      expect(addon.skills.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('orchestration addon has the correct skills', () => {
+    const addon = ADDONS.orchestration;
+    expect(addon.skills).toContain('briefing');
+    expect(addon.skills).toContain('recap');
+    expect(addon.skills).toContain('handoff');
   });
 });

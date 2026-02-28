@@ -328,7 +328,7 @@ function cleanEmptyParents(targetDir: string, relDir: string): void {
  */
 function readdirSafe(dir: string): string[] {
   try {
-    return readdirSync(dir).map(String);
+    return readdirSync(dir) as string[];
   } catch {
     return [];
   }

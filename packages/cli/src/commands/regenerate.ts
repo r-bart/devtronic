@@ -3,7 +3,7 @@ import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { RegenerateOptions } from '../types.js';
+import type { ProjectConfig, RegenerateOptions } from '../types.js';
 import { analyzeProject } from '../analyzers/index.js';
 import { promptForProjectConfig } from '../prompts/analysis.js';
 import {
@@ -135,7 +135,7 @@ export async function regenerateCommand(
         p.log.info('Skipping CLAUDE.md regeneration.');
 
         // If nothing else to do, exit
-        if (!regenerateAgentsMd && !regenerateRules) {
+        if (!regenerateAgentsMd && !regenerateRules && !regeneratePlugin) {
           p.outro('No changes made');
           return;
         }
@@ -161,6 +161,12 @@ export async function regenerateCommand(
   }
   const projectConfig = projectConfigResult;
 
+  // Build full config preserving enabledAddons from existing manifest
+  const fullProjectConfig: ProjectConfig = {
+    ...projectConfig,
+    enabledAddons: manifest.projectConfig?.enabledAddons,
+  };
+
   // Regenerate files
   spinner.start('Regenerating files...');
 
@@ -170,7 +176,7 @@ export async function regenerateCommand(
   if (regenerateClaudeMd) {
     const claudeMdPath = join(targetDir, 'CLAUDE.md');
     const claudeMdContent = generateClaudeMd(
-      projectConfig,
+      fullProjectConfig,
       analysis.scripts,
       analysis.packageManager
     );
@@ -184,7 +190,7 @@ export async function regenerateCommand(
   if (regenerateAgentsMd) {
     const agentsMdPath = join(targetDir, 'AGENTS.md');
     const agentsMdContent = generateAgentsMdFromConfig(
-      projectConfig,
+      fullProjectConfig,
       analysis.scripts,
       analysis.packageManager
     );
@@ -196,7 +202,7 @@ export async function regenerateCommand(
 
   // Regenerate architecture rules (skip when 'none')
   if (regenerateRules) {
-    const generatedRules = generateArchitectureRules(projectConfig);
+    const generatedRules = generateArchitectureRules(fullProjectConfig);
 
     if (generatedRules) {
       for (const ide of manifest.selectedIDEs) {
@@ -226,7 +232,7 @@ export async function regenerateCommand(
         targetDir,
         TEMPLATES_DIR,
         getCliVersion(),
-        projectConfig,
+        fullProjectConfig,
         analysis.packageManager
       );
       Object.assign(manifest.files, pluginResult.files);
@@ -234,11 +240,8 @@ export async function regenerateCommand(
     }
   }
 
-  // Update manifest with new config (preserve enabledAddons from existing manifest)
-  manifest.projectConfig = {
-    ...projectConfig,
-    enabledAddons: manifest.projectConfig?.enabledAddons,
-  };
+  // Update manifest with full config
+  manifest.projectConfig = fullProjectConfig;
   manifest.version = getCliVersion();
   writeManifest(targetDir, manifest);
 

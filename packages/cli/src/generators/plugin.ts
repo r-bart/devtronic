@@ -10,6 +10,7 @@ import {
   createManifestEntry,
 } from '../utils/files.js';
 import { generateHooks, generateCheckpointScript, generateStopGuardScript } from './hooks.js';
+import { CORE_SKILLS } from './rules.js';
 
 export const PLUGIN_NAME = 'devtronic';
 export const MARKETPLACE_NAME = 'devtronic-local';
@@ -22,8 +23,8 @@ export interface PluginGenerationResult {
   pluginPath: string;
 }
 
-/** Base number of core skills (not counting addon skills) */
-export const BASE_SKILL_COUNT = 19;
+/** Base number of core skills (derived from CORE_SKILLS registry) */
+export const BASE_SKILL_COUNT = CORE_SKILLS.length;
 
 /**
  * Generates plugin.json content for the devtronic plugin.
