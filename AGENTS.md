@@ -125,6 +125,27 @@ Maintain notes in `thoughts/notes/` updated after every PR:
 
 ---
 
+## Open Source
+
+This is an **open source project** (MIT) published to npm:
+- `devtronic` (CLI) — `packages/cli/`
+- `devtronic-marketplace` (plugin) — `packages/marketplace/`
+
+### Conventions
+- Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `ci:`
+- Semantic Versioning via Keep a Changelog
+- Branches: `develop` → `main` via PR
+- CI: GitHub Actions (Node 18/20/22)
+- Security: report via GitHub Security Advisories (`SECURITY.md`)
+- Release: tag `v*.*.*` → GitHub Actions publishes to npm
+
+### Contributing Philosophy
+- Encourage **extending via skills/plugins** over core PRs
+- PRs for: bug fixes, structural improvements, docs, CI
+- Feature ideas → standalone skills or plugins
+
+---
+
 ## Prompting Tips
 
 When stuck or getting mediocre results:
