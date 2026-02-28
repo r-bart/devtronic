@@ -1,4 +1,5 @@
 import type {
+  AddonName,
   ArchitecturePattern,
   FrameworkName,
   ProjectAnalysis,
@@ -147,6 +148,7 @@ export function generateClaudeMd(
   const archOneLiner = getArchitectureOneLiner(config);
   const codePatterns = getCodePatternsBullets(config);
   const commands = getCommandsBlock(scripts, packageManager, config.qualityCommand);
+  const skillsSection = generateSkillsSection(config.enabledAddons);
 
   const archSection = config.architecture === 'none'
     ? `## Architecture
@@ -157,6 +159,24 @@ ${archOneLiner}`
 ${archOneLiner}
 
 IMPORTANT: See \`docs/ARCHITECTURE.md\` for structure. See \`.claude/rules/\` for enforcement rules.`;
+
+  const workflowSection = config.enabledAddons?.includes('orchestration')
+    ? `## Workflow
+
+- **New feature**: \`/briefing\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → \`/execute-plan\` → \`/recap\`
+- **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
+- **Refactor**: \`/brief\` → \`/create-plan\` → \`/execute-plan\` → \`/summary\` → \`/post-review\`
+- **Session start**: \`/brief\` for orientation
+- **Session end**: \`/handoff\` for clean context rotation
+
+> \`/briefing\` for pre-planning alignment. \`/recap\` for quick summaries. \`/checkpoint\` to save progress.`
+    : `## Workflow
+
+- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+- **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
+- **Refactor**: \`/brief\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+
+> \`/brief\` for session orientation (with pre-flight checks). \`/summary\` to document changes. \`/checkpoint\` to save progress.`;
 
   return `# ${frameworkName}
 
@@ -180,13 +200,11 @@ ${codePatterns}
 
 ${archSection}
 
-## Workflow
+${workflowSection}
 
-- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
-- **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
-- **Refactor**: \`/brief\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+## Available Skills
 
-> \`/brief\` for session orientation (with pre-flight checks). \`/summary\` to document changes. \`/checkpoint\` to save progress.
+${skillsSection}
 
 ## Project Notes
 
@@ -291,6 +309,20 @@ ${archOneLiner}`
 
 ${archOneLiner} See \`docs/ARCHITECTURE.md\` for detailed structure.`;
 
+  const skillsSection = generateSkillsSection(config.enabledAddons);
+
+  const workflowSection = config.enabledAddons?.includes('orchestration')
+    ? `## Workflow
+
+- **New feature**: \`/briefing\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → \`/execute-plan\` → \`/recap\`
+- **Bug fix**: \`/brief\` → fix → test → \`/summary\`
+- **Session start**: \`/brief\` for orientation
+- **Session end**: \`/handoff\` for clean context rotation`
+    : `## Workflow
+
+- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+- **Bug fix**: \`/brief\` → fix → test → \`/summary\``;
+
   return `# ${frameworkName}
 
 ${frameworkName} project${config.architecture !== 'none' ? ` with ${archLabel} architecture` : ''}.
@@ -312,7 +344,67 @@ Run quality checks after every change.
 ${codePatterns}
 
 ${agentsArchSection}
+
+${workflowSection}
+
+## Available Skills
+
+${skillsSection}
 `;
+}
+
+// ─── Skills Listing ───────────────────────────────────────────────────────
+
+/** Core skills always available */
+const CORE_SKILLS: Array<{ name: string; desc: string }> = [
+  { name: 'brief', desc: 'Session orientation with pre-flight checks' },
+  { name: 'spec', desc: 'Product specification interview (PRD)' },
+  { name: 'research', desc: 'Codebase investigation (--deep, --external)' },
+  { name: 'create-plan', desc: 'Phased implementation plan with task dependencies' },
+  { name: 'execute-plan', desc: 'Parallel wave execution of plans' },
+  { name: 'quick', desc: 'Fast ad-hoc tasks: implement, verify, commit' },
+  { name: 'generate-tests', desc: 'Failing tests from spec (Tests-as-DoD)' },
+  { name: 'post-review', desc: 'Pre-PR review (architecture, quality, requirements)' },
+  { name: 'audit', desc: 'Codebase audit (security, complexity, architecture)' },
+  { name: 'summary', desc: 'Post-change documentation' },
+  { name: 'checkpoint', desc: 'Save session progress for resumption' },
+  { name: 'backlog', desc: 'Issue management with BACK-### IDs' },
+  { name: 'investigate', desc: 'Deep error and bug analysis' },
+  { name: 'learn', desc: 'Post-task teaching breakdown' },
+  { name: 'scaffold', desc: 'Create new projects from scratch' },
+  { name: 'setup', desc: 'Interactive project configuration' },
+  { name: 'worktree', desc: 'Git worktree management' },
+  { name: 'opensrc', desc: 'Fetch npm/GitHub source for full context' },
+  { name: 'create-skill', desc: 'Generate new custom skills' },
+];
+
+/** Addon skills keyed by addon name */
+const ADDON_SKILLS: Record<AddonName, Array<{ name: string; desc: string }>> = {
+  orchestration: [
+    { name: 'briefing', desc: 'Pre-planning alignment Q&A' },
+    { name: 'recap', desc: 'Quick session summary from git activity' },
+    { name: 'handoff', desc: 'Context rotation for fresh sessions' },
+  ],
+};
+
+/**
+ * Generates the available skills section for AGENTS.md / CLAUDE.md.
+ * Universal format readable by any AI coding agent.
+ */
+function generateSkillsSection(enabledAddons?: AddonName[]): string {
+  const lines = CORE_SKILLS.map((s) => `- \`/${s.name}\` — ${s.desc}`);
+
+  const addons = enabledAddons || [];
+  for (const addon of addons) {
+    const addonSkills = ADDON_SKILLS[addon];
+    if (addonSkills) {
+      for (const s of addonSkills) {
+        lines.push(`- \`/${s.name}\` — ${s.desc}`);
+      }
+    }
+  }
+
+  return lines.join('\n');
 }
 
 // ─── Private Helpers ───────────────────────────────────────────────────────

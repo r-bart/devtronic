@@ -45,6 +45,9 @@ export function generatePluginJson(cliVersion: string, addonSkillCount: number =
       repository: 'https://github.com/r-bart/devtronic',
       license: 'MIT',
       keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
+      skills: './skills/',
+      agents: './agents/',
+      hooks: './hooks/hooks.json',
     },
     null,
     2
