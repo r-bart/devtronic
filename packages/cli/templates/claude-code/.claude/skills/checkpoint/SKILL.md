@@ -1,7 +1,6 @@
 ---
 name: checkpoint
 description: Save current session progress for resumption. Creates a compact state document with what's done, what's pending, and how to continue.
-disable-model-invocation: true
 allowed-tools: Read, Write, Bash, Glob
 argument-hint: "[task-name]"
 ---

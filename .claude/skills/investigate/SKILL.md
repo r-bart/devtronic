@@ -1,7 +1,6 @@
 ---
 name: investigate
 description: Deep analysis of errors and bugs. Use when you paste an error for detailed investigation. Identifies root cause, analyzes flow, and proposes fix with code.
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash, Write, Edit
 argument-hint: "[error or description]"
 ---

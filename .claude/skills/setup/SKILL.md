@@ -1,7 +1,6 @@
 ---
 name: setup
 description: Configure devtronic for this project through interactive conversation. Use when setting up AI assistance in an existing project.
-disable-model-invocation: true
 allowed-tools: Bash, Read, Glob, AskUserQuestion, Write
 ---
 

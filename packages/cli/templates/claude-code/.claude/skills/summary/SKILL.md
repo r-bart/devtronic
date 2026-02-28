@@ -1,7 +1,6 @@
 ---
 name: summary
 description: Generate a structured post-change summary. Captures what changed, why, what's pending, and files modified.
-disable-model-invocation: true
 allowed-tools: Read, Write, Bash, Glob, Grep
 argument-hint: "[feature-name]"
 ---

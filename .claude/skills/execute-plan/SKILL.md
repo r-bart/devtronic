@@ -1,7 +1,6 @@
 ---
 name: execute-plan
 description: Execute a plan in parallel waves. Reads task dependencies and runs independent tasks as concurrent subagents. Claude Code only.
-disable-model-invocation: true
 allowed-tools: Task, Read, Write, Bash, Glob, Grep, Edit
 argument-hint: "[plan-path|--latest]"
 ---
