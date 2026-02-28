@@ -55,8 +55,9 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
     removalLines.push(`  ${symbols.fail} Plugin ${chalk.cyan(PLUGIN_NAME)} (${PLUGIN_DIR}/${PLUGIN_NAME}/)`);
   }
 
-  if (existingFiles.length > 0) {
-    removalLines.push(`  ${symbols.fail} ${existingFiles.length} managed files (rules, templates)`);
+  const nonPluginFiles = existingFiles.filter((f) => !f.startsWith(PLUGIN_DIR + '/'));
+  if (nonPluginFiles.length > 0) {
+    removalLines.push(`  ${symbols.fail} ${nonPluginFiles.length} managed files (rules, templates)`);
   }
 
   removalLines.push(`  ${symbols.fail} Installation manifest (${MANIFEST_DIR}/)`);
@@ -98,18 +99,15 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
   let removeThoughts = false;
 
   if (hasClaudeMd || hasAgentsMd || hasThoughts) {
-    p.log.step('Some files may contain your own work:');
+    p.log.step('Some files may contain your own work. Keep or remove?');
 
     if (hasClaudeMd) {
       const confirmClaude = await p.confirm({
         message: 'Remove CLAUDE.md? (may contain self-improvements and custom rules)',
         initialValue: false,
       });
-      if (p.isCancel(confirmClaude)) {
-        p.cancel('Uninstall cancelled. No files were changed.');
-        return;
-      }
-      removeClaudeMd = confirmClaude;
+      // Cancel on individual questions = keep the file, don't abort uninstall
+      removeClaudeMd = !p.isCancel(confirmClaude) && confirmClaude;
     }
 
     if (hasAgentsMd) {
@@ -117,11 +115,7 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
         message: 'Remove AGENTS.md?',
         initialValue: true,
       });
-      if (p.isCancel(confirmAgents)) {
-        p.cancel('Uninstall cancelled. No files were changed.');
-        return;
-      }
-      removeAgentsMd = confirmAgents;
+      removeAgentsMd = !p.isCancel(confirmAgents) && confirmAgents;
     }
 
     if (hasThoughts) {
@@ -129,11 +123,7 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
         message: 'Remove thoughts/ directory? (checkpoints, specs, plans, notes)',
         initialValue: false,
       });
-      if (p.isCancel(confirmThoughts)) {
-        p.cancel('Uninstall cancelled. No files were changed.');
-        return;
-      }
-      removeThoughts = confirmThoughts;
+      removeThoughts = !p.isCancel(confirmThoughts) && confirmThoughts;
     }
   }
 
@@ -324,7 +314,7 @@ function cleanEmptyParents(targetDir: string, relDir: string): void {
   const entries = readdirSafe(absDir);
   if (entries.length === 0) {
     try {
-      rmSync(absDir, { force: true });
+      rmSync(absDir, { recursive: true, force: true });
       // Recurse upward
       cleanEmptyParents(targetDir, dirname(relDir));
     } catch {
