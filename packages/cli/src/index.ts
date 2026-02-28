@@ -13,6 +13,7 @@ import { infoCommand } from './commands/info.js';
 import { listCommand } from './commands/list.js';
 import { configCommand, configSetCommand, configResetCommand } from './commands/config.js';
 import { doctorCommand } from './commands/doctor.js';
+import { uninstallCommand } from './commands/uninstall.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -164,6 +165,14 @@ program
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (options) => {
     await doctorCommand({ fix: options.fix, path: options.path });
+  });
+
+program
+  .command('uninstall')
+  .description('Remove devtronic from your project')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await uninstallCommand({ path: options.path });
   });
 
 // Presets command

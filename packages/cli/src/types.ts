@@ -166,6 +166,10 @@ export interface RegenerateOptions {
   plugin?: boolean;
 }
 
+export interface UninstallOptions {
+  path?: string;
+}
+
 export interface DoctorOptions {
   fix?: boolean;
   path?: string;
