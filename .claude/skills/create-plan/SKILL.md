@@ -1,7 +1,6 @@
 ---
 name: create-plan
 description: Strategic planning for complex tasks. Default creates phased implementation plan. Use --detailed for task-level pseudocode breakdown.
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash, AskUserQuestion, Write
 argument-hint: "[feature] [--detailed|--from-spec]"
 ---

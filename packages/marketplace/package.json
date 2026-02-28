@@ -1,7 +1,7 @@
 {
   "name": "devtronic-marketplace",
   "version": "1.0.0",
-  "description": "devtronic plugin for Claude Code — 19 skills, 8 agents, workflow hooks",
+  "description": "devtronic plugin for Claude Code — 22 skills, 8 agents, workflow hooks",
   "license": "MIT",
   "type": "commonjs",
   "files": [

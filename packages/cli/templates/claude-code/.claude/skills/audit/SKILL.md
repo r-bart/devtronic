@@ -1,7 +1,6 @@
 ---
 name: audit
 description: "Comprehensive codebase audit (SonarQube lite): architecture, code smells, complexity, security, coverage, and technical debt."
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash, Task, Write, AskUserQuestion
 argument-hint: "[--architecture|--code|--complexity|--security|--quick|directory]"
 ---

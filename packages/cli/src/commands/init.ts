@@ -4,13 +4,14 @@ import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type {
+  AddonName,
   IDE,
   InitOptions,
   Manifest,
   ConflictResolution,
   ProjectConfig,
 } from '../types.js';
-import { PRESETS } from '../types.js';
+import { ADDONS, PRESETS } from '../types.js';
 import { analyzeProject } from '../analyzers/index.js';
 import { getExistingConfigsList } from '../analyzers/existingConfigs.js';
 import {
@@ -18,6 +19,7 @@ import {
   promptForConflictResolution,
   promptForThoughtsDir,
   promptForAgentsMd,
+  promptForOrchestration,
 } from '../prompts/init.js';
 import { promptForProjectConfig } from '../prompts/analysis.js';
 import {
@@ -40,6 +42,7 @@ import {
   PLUGIN_NAME,
   MARKETPLACE_NAME,
   PLUGIN_DIR,
+  BASE_SKILL_COUNT,
 } from '../generators/plugin.js';
 import { registerPlugin } from '../utils/settings.js';
 import { introTitle, showLogo, symbols, formatKV } from '../utils/ui.js';
@@ -149,6 +152,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   // Select IDEs
   let selectedIDEs: IDE[];
+  let enabledAddons: AddonName[] = [];
 
   if (options.ide) {
     // Parse from CLI option
@@ -165,6 +169,44 @@ export async function initCommand(options: InitOptions): Promise<void> {
       process.exit(0);
     }
     selectedIDEs = ideSelection;
+  }
+
+  // Handle --addon flag (works with any mode: --yes, --ide, interactive)
+  if (options.addon) {
+    const validAddons = Object.keys(ADDONS);
+    if (!validAddons.includes(options.addon)) {
+      p.cancel(`Unknown addon: ${options.addon}\n\nValid addons: ${validAddons.join(', ')}`);
+      process.exit(1);
+    }
+    if (selectedIDEs.includes('claude-code')) {
+      enabledAddons = [options.addon as AddonName];
+      p.log.info(`Addon: ${options.addon}`);
+    } else {
+      p.log.warn(`Addon "${options.addon}" requires claude-code IDE. Skipping.`);
+    }
+  }
+
+  // Interactive addon selection (only when no --addon flag, no --yes, no --preset, no --preview)
+  if (
+    selectedIDEs.includes('claude-code') &&
+    !options.addon &&
+    !options.yes &&
+    !options.preset &&
+    !options.preview
+  ) {
+    const wantOrchestration = await promptForOrchestration();
+    if (p.isCancel(wantOrchestration)) {
+      p.cancel('Operation cancelled');
+      process.exit(0);
+    }
+    if (wantOrchestration) {
+      enabledAddons = ['orchestration'];
+    }
+  }
+
+  // Store addons in project config
+  if (enabledAddons.length > 0) {
+    projectConfig.enabledAddons = enabledAddons;
   }
 
   // Preview mode - show what would be generated
@@ -268,7 +310,12 @@ export async function initCommand(options: InitOptions): Promise<void> {
     manifest.installMode = 'plugin';
     manifest.pluginPath = pluginResult.pluginPath;
 
-    generatedFiles.push(`Plugin ${PLUGIN_NAME} (19 skills, 8 agents, 5 hooks)`);
+    const addonSkillCount = (projectConfig.enabledAddons || [])
+      .reduce((sum, a) => sum + (ADDONS[a]?.skills.length ?? 0), 0);
+    const skillLabel = addonSkillCount > 0
+      ? `${BASE_SKILL_COUNT} + ${addonSkillCount} addon skills`
+      : `${BASE_SKILL_COUNT} skills`;
+    generatedFiles.push(`Plugin ${PLUGIN_NAME} (${skillLabel}, 8 agents, 5 hooks)`);
   }
 
   // Copy IDE templates (except dynamic rule files)
@@ -515,7 +562,12 @@ async function showPreview(
 
   // Plugin preview for Claude Code
   if (selectedIDEs.includes('claude-code')) {
-    fileLines.push(`  ${symbols.star} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim('(19 skills, 8 agents, 5 hooks)')}`);
+    const previewAddonCount = (projectConfig.enabledAddons || [])
+      .reduce((sum, a) => sum + (ADDONS[a]?.skills.length ?? 0), 0);
+    const previewSkillLabel = previewAddonCount > 0
+      ? `${BASE_SKILL_COUNT} + ${previewAddonCount} addon skills`
+      : `${BASE_SKILL_COUNT} skills`;
+    fileLines.push(`  ${symbols.star} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim(`(${previewSkillLabel}, 8 agents, 5 hooks)`)}`);
   }
 
   // Architecture rules preview (null when 'none')

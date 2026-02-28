@@ -100,10 +100,10 @@ describe('generateClaudeMd', () => {
     expect(result).toContain('Prisma');
   });
 
-  it('is less than 80 lines', () => {
+  it('is less than 110 lines', () => {
     const result = generateClaudeMd(createConfig(), createScripts(), 'npm');
     const lineCount = result.split('\n').length;
-    expect(lineCount).toBeLessThan(80);
+    expect(lineCount).toBeLessThan(110);
   });
 
   it('includes architecture one-liner for clean', () => {
@@ -147,13 +147,12 @@ describe('generateClaudeMd', () => {
 });
 
 describe('generateAgentsMdFromConfig (stripped)', () => {
-  it('does NOT include /slash-commands', () => {
+  it('includes available skills with /slash-commands', () => {
     const result = generateAgentsMdFromConfig(createConfig(), createScripts(), 'npm');
-    expect(result).not.toContain('/brief');
-    expect(result).not.toContain('/spec');
-    expect(result).not.toContain('/create-plan');
-    expect(result).not.toContain('/post-review');
-    expect(result).not.toContain('/checkpoint');
+    expect(result).toContain('## Available Skills');
+    expect(result).toContain('/brief');
+    expect(result).toContain('/spec');
+    expect(result).toContain('/create-plan');
   });
 
   it('does NOT include references to .claude/', () => {
@@ -171,9 +170,10 @@ describe('generateAgentsMdFromConfig (stripped)', () => {
     expect(result).not.toContain('Gotchas');
   });
 
-  it('does NOT include Workflow', () => {
+  it('includes Workflow section', () => {
     const result = generateAgentsMdFromConfig(createConfig(), createScripts(), 'npm');
-    expect(result).not.toContain('## Workflow');
+    expect(result).toContain('## Workflow');
+    expect(result).toContain('/brief');
   });
 
   it('includes Commands section', () => {
@@ -203,10 +203,10 @@ describe('generateAgentsMdFromConfig (stripped)', () => {
     expect(result).toContain('React Query');
   });
 
-  it('is less than 40 lines', () => {
+  it('is less than 70 lines', () => {
     const result = generateAgentsMdFromConfig(createConfig(), createScripts(), 'npm');
     const lineCount = result.split('\n').length;
-    expect(lineCount).toBeLessThan(40);
+    expect(lineCount).toBeLessThan(70);
   });
 
   it('includes framework name in title', () => {
@@ -416,5 +416,75 @@ describe('generateClaudeMd edge cases', () => {
   it('defaults to npm when package manager is null', () => {
     const result = generateClaudeMd(createConfig(), createScripts(), null);
     expect(result).toContain('npm run dev');
+  });
+});
+
+describe('orchestration addon integration', () => {
+  const orchestrationConfig = createConfig({ enabledAddons: ['orchestration'] });
+  const standardConfig = createConfig();
+
+  describe('generateClaudeMd', () => {
+    it('uses orchestration workflow when addon is enabled', () => {
+      const result = generateClaudeMd(orchestrationConfig, createScripts(), 'npm');
+      expect(result).toContain('/briefing');
+      expect(result).toContain('/execute-plan');
+      expect(result).toContain('/recap');
+      expect(result).toContain('/handoff');
+    });
+
+    it('uses standard workflow when addon is not enabled', () => {
+      const result = generateClaudeMd(standardConfig, createScripts(), 'npm');
+      expect(result).not.toContain('/briefing');
+      expect(result).not.toContain('/handoff');
+      expect(result).toContain('/brief');
+      expect(result).toContain('/post-review');
+    });
+
+    it('includes addon skills in Available Skills when enabled', () => {
+      const result = generateClaudeMd(orchestrationConfig, createScripts(), 'npm');
+      expect(result).toContain('## Available Skills');
+      expect(result).toContain('/briefing');
+      expect(result).toContain('/recap');
+      expect(result).toContain('/handoff');
+    });
+
+    it('excludes addon skills from Available Skills when not enabled', () => {
+      const result = generateClaudeMd(standardConfig, createScripts(), 'npm');
+      expect(result).toContain('## Available Skills');
+      expect(result).not.toContain('`/briefing`');
+      expect(result).not.toContain('`/recap`');
+      expect(result).not.toContain('`/handoff`');
+    });
+  });
+
+  describe('generateAgentsMdFromConfig', () => {
+    it('uses orchestration workflow when addon is enabled', () => {
+      const result = generateAgentsMdFromConfig(orchestrationConfig, createScripts(), 'npm');
+      expect(result).toContain('/briefing');
+      expect(result).toContain('/execute-plan');
+      expect(result).toContain('/recap');
+      expect(result).toContain('/handoff');
+    });
+
+    it('uses standard workflow when addon is not enabled', () => {
+      const result = generateAgentsMdFromConfig(standardConfig, createScripts(), 'npm');
+      expect(result).not.toContain('/briefing');
+      expect(result).not.toContain('/handoff');
+      expect(result).toContain('/brief');
+    });
+
+    it('includes addon skills in Available Skills when enabled', () => {
+      const result = generateAgentsMdFromConfig(orchestrationConfig, createScripts(), 'npm');
+      expect(result).toContain('`/briefing`');
+      expect(result).toContain('`/recap`');
+      expect(result).toContain('`/handoff`');
+    });
+
+    it('excludes addon skills from Available Skills when not enabled', () => {
+      const result = generateAgentsMdFromConfig(standardConfig, createScripts(), 'npm');
+      expect(result).not.toContain('`/briefing`');
+      expect(result).not.toContain('`/recap`');
+      expect(result).not.toContain('`/handoff`');
+    });
   });
 });

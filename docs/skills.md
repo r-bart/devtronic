@@ -327,6 +327,85 @@ Continue from where I left off.
 
 ---
 
+## Orchestration Addon Skills
+
+These skills are available when the **orchestration** addon is enabled during `devtronic init`. They add structured pre-planning alignment, session recaps, and context rotation.
+
+**Enable during init**: Select "Orchestration Workflow" when prompted for addons.
+
+**Enable after init**: `devtronic config set enabledAddons orchestration`, then `devtronic regenerate`.
+
+### /briefing - Pre-Planning Alignment
+
+**Purpose**: Ask 3-5 targeted questions to clarify scope, style, priority, and constraints before diving into planning or implementation.
+
+**When to use**:
+- Before `/create-plan` on complex features
+- Requirements are vague or ambiguous
+- Multiple valid approaches exist
+
+**Skip for**: Well-defined tasks, when a detailed `/spec` already exists.
+
+**Process**:
+1. Analyze task context (STATE.md, CLAUDE.md, existing specs)
+2. Generate 3-5 targeted questions with concrete options
+3. Ask via AskUserQuestion
+4. Save decisions to `thoughts/CONTEXT.md`
+5. Suggest next step
+
+**Output**: `thoughts/CONTEXT.md`
+
+---
+
+### /recap - Quick Session Summary
+
+**Purpose**: Generate a compact, structured summary from git activity and modified files.
+
+**When to use**:
+- End of a work session
+- After ad-hoc work not driven by `/execute-plan`
+- Before `/handoff` to capture session details
+
+**Comparison with `/summary`**:
+| | `/recap` | `/summary` |
+|-|----------|------------|
+| Purpose | Quick compact overview | Detailed narrative with rationale |
+| Output | Tree-style + bullets | Full markdown document |
+| Speed | Fast (git-based) | Thorough (reads code + explains) |
+
+**Output**: `thoughts/RECAP.md` (also updates `thoughts/STATE.md`)
+
+---
+
+### /handoff - Context Rotation
+
+**Purpose**: Save current state and signal to start a fresh session with clean context.
+
+**When to use**:
+- Context feels heavy (>50 messages)
+- Natural breakpoint between phases
+- Model making inconsistent decisions
+- End of day / wrapping up
+
+**Comparison with `/checkpoint`**:
+| | `/handoff` | `/checkpoint` |
+|-|------------|---------------|
+| Purpose | End session, rotate | Save progress, can continue |
+| Signal | "Start new session" | "Can resume from here" |
+
+**Output**: `thoughts/STATE.md` + `thoughts/RECAP.md`
+
+---
+
+### Enhanced /execute-plan
+
+When the orchestration addon is enabled (`thoughts/CONTEXT.md` exists):
+- **Visual progress**: Text-based wave progress with status indicators
+- **Inter-wave handoff**: Summary of what each wave accomplished, passed to next wave as context
+- **Automatic recap**: Writes `thoughts/RECAP.md` after completion
+
+---
+
 ## Other Skills
 
 ### /create-skill - Meta Skill Generator

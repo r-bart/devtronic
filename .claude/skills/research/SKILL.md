@@ -1,7 +1,6 @@
 ---
 name: research
 description: Codebase investigation. Quick mode (default) for fast orientation. Deep mode for thorough analysis. External mode for GitHub + user-configured MCPs.
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash, WebFetch, Task, Write
 argument-hint: "[topic] [--deep|--external|--all]"
 ---

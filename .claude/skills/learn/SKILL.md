@@ -1,7 +1,6 @@
 ---
 name: learn
 description: Post-task teaching breakdown. After any task, get a detailed explanation of what was done, why, and how to apply the concepts yourself. Use when you say "explain what you did" or "teach me".
-disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, AskUserQuestion
 argument-hint: "[topic or recent task]"
 ---

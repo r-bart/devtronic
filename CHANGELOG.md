@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Orchestration workflow addon: `/briefing`, `/recap`, `/handoff` skills
+- Enhanced `/execute-plan` with visual progress and inter-wave handoff summaries
+- Addon system: `enabledAddons` in ProjectConfig, selectable during `devtronic init`
+- `getSubdirectories()` utility for directory listing
+
+---
+
 ## [1.0.0] - 2026-02-27
 
 First public open-source release. Version reset from internal pre-release (1.9.0).
