@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Orchestration workflow addon: `/briefing`, `/recap`, `/handoff` skills
-- Enhanced `/execute-plan` with visual progress and inter-wave handoff summaries
+- Enhanced `/execute-plan` with visual progress and inter-phase handoff summaries
 - Addon system: `enabledAddons` in ProjectConfig, selectable during `devtronic init`
 - `getSubdirectories()` utility for directory listing
 

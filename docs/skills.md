@@ -224,22 +224,22 @@ Continue from where I left off.
 
 ---
 
-### /execute-plan - Parallel Wave Execution
+### /execute-plan - Parallel Phase Execution
 
-**Purpose**: Execute a plan in parallel waves by reading task dependencies and running independent tasks as concurrent subagents.
+**Purpose**: Execute a plan in parallel phases by reading task dependencies and running independent tasks as concurrent subagents.
 
 **When to use**:
 - A plan with `## Task Dependencies` exists
 - You want to execute tasks in optimal parallel order
 - The plan was created with `/create-plan`
 
-**Process**: Load plan → Validate dependencies → Compute waves → Execute parallel subagents → Verify done criteria
+**Process**: Load plan → Validate dependencies → Compute phases → Execute parallel subagents → Verify done criteria
 
-**Delegates to**: `commit-changes` agent after each wave passes quality checks.
+**Delegates to**: `commit-changes` agent after each phase passes quality checks.
 
 **Limitations**: Claude Code only, no interactive tasks, tasks must not modify same files in parallel.
 
-**Output**: Execution report with wave results and done criteria validation
+**Output**: Execution report with phase results and done criteria validation
 
 ---
 
@@ -400,8 +400,8 @@ These skills are available when the **orchestration** addon is enabled during `d
 ### Enhanced /execute-plan
 
 When the orchestration addon is enabled (`thoughts/CONTEXT.md` exists):
-- **Visual progress**: Text-based wave progress with status indicators
-- **Inter-wave handoff**: Summary of what each wave accomplished, passed to next wave as context
+- **Visual progress**: Text-based phase progress with status indicators
+- **Inter-phase handoff**: Summary of what each phase accomplished, passed to next phase as context
 - **Automatic recap**: Writes `thoughts/RECAP.md` after completion
 
 ---

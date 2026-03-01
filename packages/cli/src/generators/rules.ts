@@ -361,7 +361,7 @@ export const CORE_SKILLS: Array<{ name: string; desc: string }> = [
   { name: 'spec', desc: 'Product specification interview (PRD)' },
   { name: 'research', desc: 'Codebase investigation (--deep, --external)' },
   { name: 'create-plan', desc: 'Phased implementation plan with task dependencies' },
-  { name: 'execute-plan', desc: 'Parallel wave execution of plans' },
+  { name: 'execute-plan', desc: 'Parallel phase execution of plans' },
   { name: 'quick', desc: 'Fast ad-hoc tasks: implement, verify, commit' },
   { name: 'generate-tests', desc: 'Failing tests from spec (Tests-as-DoD)' },
   { name: 'post-review', desc: 'Pre-PR review (architecture, quality, requirements)' },

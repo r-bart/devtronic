@@ -189,16 +189,16 @@ Define the dependency graph for parallel execution with `/execute-plan`.
 
 ```yaml
 dependencies:
-  1.1: []           # No dependencies — Wave 1
-  1.2: []           # No dependencies — Wave 1
-  2.1: [1.1, 1.2]  # Needs both — Wave 2
-  2.2: [1.1]        # Needs entity only — Wave 2
-  3.1: [2.1, 2.2]  # Needs app layer — Wave 3
+  1.1: []           # No dependencies — Phase 1
+  1.2: []           # No dependencies — Phase 1
+  2.1: [1.1, 1.2]  # Needs both — Phase 2
+  2.2: [1.1]        # Needs entity only — Phase 2
+  3.1: [2.1, 2.2]  # Needs app layer — Phase 3
 ```
 
 Rules:
 - Task IDs must match "Task X.Y" headers in Implementation Phases
-- Empty array `[]` = no dependencies (first wave)
+- Empty array `[]` = no dependencies (first phase)
 - Only direct dependencies (not transitive)
 
 ---

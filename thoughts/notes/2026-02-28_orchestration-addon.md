@@ -10,7 +10,7 @@
 - Made plugin generator filter skills by enabled addons (per-subdirectory copying)
 - Added `promptForAddons()` multiselect during `devtronic init`
 - Created 3 new skills: `/briefing`, `/recap`, `/handoff`
-- Enhanced `/execute-plan` with visual progress indicators and inter-wave handoff
+- Enhanced `/execute-plan` with visual progress indicators and inter-phase handoff
 - Updated docs, README, CHANGELOG
 
 ## Key Decisions
