@@ -148,6 +148,7 @@ export interface InitOptions {
 }
 
 export interface UpdateOptions {
+  path?: string;
   check?: boolean;
   dryRun?: boolean;
 }

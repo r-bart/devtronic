@@ -129,7 +129,6 @@ Maintain notes in `thoughts/notes/` updated after every PR:
 
 This is an **open source project** (MIT) published to npm:
 - `devtronic` (CLI) — `packages/cli/`
-- `devtronic-marketplace` (plugin) — `packages/marketplace/`
 
 ### Conventions
 - Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `ci:`

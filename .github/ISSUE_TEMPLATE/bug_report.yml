@@ -68,7 +68,6 @@ body:
         - npx devtronic init
         - npm install -g devtronic
         - npm link (local development)
-        - Plugin (devtronic-marketplace)
     validations:
       required: true
 

@@ -156,7 +156,13 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   if (options.ide) {
     // Parse from CLI option
+    const VALID_IDES: IDE[] = ['claude-code', 'cursor', 'antigravity', 'github-copilot'];
     selectedIDEs = options.ide.split(',').map((s) => s.trim()) as IDE[];
+    const invalidIDEs = selectedIDEs.filter((ide) => !VALID_IDES.includes(ide));
+    if (invalidIDEs.length > 0) {
+      p.cancel(`Unknown IDE(s): ${invalidIDEs.join(', ')}\n\nValid: ${VALID_IDES.join(', ')}`);
+      process.exit(1);
+    }
     p.log.info(`IDEs from CLI: ${selectedIDEs.join(', ')}`);
   } else if (options.yes) {
     // Default to claude-code in non-interactive mode

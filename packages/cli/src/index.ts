@@ -23,7 +23,7 @@ const program = new Command();
 
 program
   .name('devtronic')
-  .description('CLI for deploying devtronic template to your projects')
+  .description('AI-assisted development toolkit')
   .version(cliVersion)
   .action(() => {
     // Show branded banner when invoked with no command
@@ -68,8 +68,9 @@ program
   .description('Update to the latest template version')
   .option('--check', 'Only check for updates without applying')
   .option('--dry-run', 'Show what would be updated without making changes')
+  .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (options) => {
-    await updateCommand({ check: options.check, dryRun: options.dryRun });
+    await updateCommand({ path: options.path, check: options.check, dryRun: options.dryRun });
   });
 
 program
@@ -106,15 +107,17 @@ program
 program
   .command('status')
   .description('Show installation status and modified files')
-  .action(async () => {
-    await statusCommand();
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await statusCommand({ path: options.path });
   });
 
 program
   .command('diff')
   .description('Show differences between local files and template')
-  .action(async () => {
-    await diffCommand();
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await diffCommand({ path: options.path });
   });
 
 program
@@ -216,6 +219,7 @@ program
         opts: [
           '--check              Only check for updates',
           '--dry-run             Show what would change',
+          '--path <path>        Target directory',
         ],
       },
       {
@@ -265,11 +269,13 @@ program
         title: 'Diagnostics',
         usage: 'status',
         desc: 'Show installation status and modified files',
+        opts: ['--path <path>        Target directory'],
       },
       {
         title: '',
         usage: 'diff',
         desc: 'Show differences between local files and template',
+        opts: ['--path <path>        Target directory'],
       },
       {
         title: '',

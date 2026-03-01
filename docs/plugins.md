@@ -10,7 +10,6 @@ Claude Code plugins are a packaging layer that provides:
 
 - **Namespacing** — Skills are invoked as `/devtronic:brief`, `/devtronic:spec`, etc., avoiding collisions with other plugins or custom skills
 - **Workflow hooks** — Automated actions on session start, file edits, stop, subagent completion, and context compaction
-- **Distribution** — The plugin can be installed via npm without the CLI
 - **Isolation** — Plugin files live in `.claude-plugins/`, separate from your project's `.claude/` configuration
 
 Other IDEs (Cursor, Antigravity, Copilot) continue using their standard file-based approach.
@@ -39,7 +38,7 @@ your-project/
 │   └── devtronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
-│       ├── skills/                     # 19 skills
+│       ├── skills/                     # 22 skills (19 core + 3 addon)
 │       │   ├── brief/SKILL.md
 │       │   ├── spec/SKILL.md
 │       │   ├── scaffold/
@@ -47,6 +46,7 @@ your-project/
 │       │   │   └── (5 supporting files)
 │       │   └── ...
 │       ├── agents/                     # 8 agents
+│       │   ├── architecture-checker.md
 │       │   ├── code-reviewer.md
 │       │   ├── commit-changes.md
 │       │   ├── dependency-checker.md
@@ -81,8 +81,8 @@ Not everything moves into the plugin. These remain outside:
 
 | Content | Path in Plugin | Count |
 |---------|---------------|-------|
-| Skills | `devtronic/skills/` | 16 |
-| Agents | `devtronic/agents/` | 7 |
+| Skills | `devtronic/skills/` | 22 (19 core + 3 addon) |
+| Agents | `devtronic/agents/` | 8 |
 | Hooks | `devtronic/hooks/hooks.json` | 5 events |
 | Scripts | `devtronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |
 | Metadata | `devtronic/.claude-plugin/plugin.json` | — |
@@ -194,7 +194,7 @@ Hooks and skills will stop loading, but files remain on disk for re-enabling.
 
 ## Installation Methods
 
-### Method 1: CLI (Recommended)
+### CLI Installation
 
 ```bash
 npx devtronic init
@@ -207,43 +207,6 @@ Select Claude Code when prompted. The CLI:
 4. Generates standalone rules and CLAUDE.md
 
 **Advantages**: Hooks personalized by your package manager and quality commands.
-
-### Method 2: npm Package (Without CLI)
-
-```bash
-npm install agentic-marketplace --save-dev
-```
-
-Then add to `.claude/settings.json`:
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "devtronic-local": {
-      "source": {
-        "source": "directory",
-        "path": "./node_modules/agentic-marketplace"
-      }
-    }
-  },
-  "enabledPlugins": {
-    "devtronic@devtronic-local": true
-  }
-}
-```
-
-**Advantages**: No CLI needed, works with `npm update`.
-**Trade-offs**: Generic hooks (uses `npx eslint` instead of your PM), no rules or CLAUDE.md generation.
-
-### Comparison
-
-| | CLI (`init`) | npm Package |
-|---|---|---|
-| Hooks | Personalized (PM, quality command) | Generic (`npx eslint`) |
-| Rules + CLAUDE.md | Generated | Not included |
-| Skills & Agents | Identical | Identical |
-| Update mechanism | `npx ... update` | `npm update` |
-| Registration | Automatic | Manual (2 lines in settings.json) |
 
 ---
 

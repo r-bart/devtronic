@@ -24,6 +24,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |
+| `uninstall` | Remove devtronic from your project |
 | `presets` | List available presets |
 
 ## What Gets Generated

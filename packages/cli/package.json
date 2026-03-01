@@ -1,7 +1,7 @@
 {
   "name": "devtronic",
   "version": "1.0.0",
-  "description": "CLI for deploying devtronic template to your projects",
+  "description": "AI-assisted development toolkit — skills, agents, quality gates, and rules for Claude Code, Cursor, Copilot, and Antigravity",
   "type": "module",
   "bin": {
     "devtronic": "./dist/index.js"

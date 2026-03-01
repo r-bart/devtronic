@@ -5,7 +5,19 @@
 
 # devtronic
 
-A universal template for AI-assisted development. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
+**A development system for the AI era.**
+
+We're in a new paradigm. AI agents can write code — but they need structure to do it well. Without clear patterns, quality gates, and workflow guidance, you end up reviewing, correcting, and redoing the work you delegated.
+
+After 14 years building software and the last four working with AI — since the day OpenAI opened its API to the public — one thing became clear: **the highest-leverage thing a developer can do is define the system, not write every line.** When agents have the right structure, you're free to focus on where humans add the most value — understanding the problem, designing the experience, making the hard decisions.
+
+devtronic is that structure. Skills, agents, quality gates, and self-improving rules — tailored to your stack. One command, 30 seconds. Refined daily across real projects, personal and enterprise.
+
+Not a silver bullet. A starting point built from experience, open to iteration.
+
+Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
+
+---
 
 ## Documentation
 
@@ -42,28 +54,7 @@ The CLI will:
 3. **Generate** personalized rules based on your stack
 4. **Track** installation for future updates
 
-### Option B: npm Plugin (Claude Code Only)
-
-```bash
-npm install devtronic-marketplace --save-dev
-```
-
-Then add to `.claude/settings.json`:
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "devtronic-local": {
-      "source": { "source": "directory", "path": "./node_modules/devtronic-marketplace" }
-    }
-  },
-  "enabledPlugins": { "devtronic@devtronic-local": true }
-}
-```
-
-This installs just the plugin (skills, agents, hooks) without generating project-specific rules. See [Plugin Mode](./docs/plugins.md) for details.
-
-### Option C: Claude Code Skill
+### Option B: Claude Code Skill
 
 ```
 /setup      # For existing projects

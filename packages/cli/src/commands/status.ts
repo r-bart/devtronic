@@ -10,8 +10,8 @@ import {
 import { introTitle, formatKV, symbols } from '../utils/ui.js';
 import { getCliVersion, getLatestVersion, compareSemver } from '../utils/version.js';
 
-export async function statusCommand(): Promise<void> {
-  const targetDir = resolve('.');
+export async function statusCommand(options: { path?: string } = {}): Promise<void> {
+  const targetDir = resolve(options.path || '.');
 
   p.intro(introTitle('Status'));
 

@@ -32,7 +32,7 @@ First public open-source release. Version reset from internal pre-release (1.9.0
 - Package READMEs for npm registry pages
 
 ### Changed
-- **Version reset to 1.0.0** for open-source launch (both `devtronic` and `devtronic-marketplace`)
+- **Version reset to 1.0.0** for open-source launch
 - All commands now use consistent shadcn-style UI via `@clack/prompts`
 - Branded ASCII art banner on bare `devtronic` invocation
 - All inline `console.log` replaced with `p.intro()`, `p.note()`, `p.outro()` blocks
