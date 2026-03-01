@@ -163,7 +163,7 @@ IMPORTANT: See \`docs/ARCHITECTURE.md\` for structure. See \`.claude/rules/\` fo
   const workflowSection = config.enabledAddons?.includes('orchestration')
     ? `## Workflow
 
-- **New feature**: \`/briefing\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → \`/execute-plan\` → \`/recap\`
+- **New feature**: \`/briefing\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/recap\`
 - **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
 - **Refactor**: \`/brief\` → \`/create-plan\` → \`/execute-plan\` → \`/summary\` → \`/post-review\`
 - **Session start**: \`/brief\` for orientation
@@ -172,7 +172,7 @@ IMPORTANT: See \`docs/ARCHITECTURE.md\` for structure. See \`.claude/rules/\` fo
 > \`/briefing\` for pre-planning alignment. \`/recap\` for quick summaries. \`/checkpoint\` to save progress.`
     : `## Workflow
 
-- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+- **New feature**: \`/brief\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/summary\` → \`/post-review\`
 - **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
 - **Refactor**: \`/brief\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
 
@@ -314,13 +314,13 @@ ${archOneLiner} See \`docs/ARCHITECTURE.md\` for detailed structure.`;
   const workflowSection = config.enabledAddons?.includes('orchestration')
     ? `## Workflow
 
-- **New feature**: \`/briefing\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → \`/execute-plan\` → \`/recap\`
+- **New feature**: \`/briefing\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/recap\`
 - **Bug fix**: \`/brief\` → fix → test → \`/summary\`
 - **Session start**: \`/brief\` for orientation
 - **Session end**: \`/handoff\` for clean context rotation`
     : `## Workflow
 
-- **New feature**: \`/brief\` → \`/spec\` → \`/research --deep\` → \`/create-plan\` → implement → \`/summary\` → \`/post-review\`
+- **New feature**: \`/brief\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/summary\` → \`/post-review\`
 - **Bug fix**: \`/brief\` → fix → test → \`/summary\``;
 
   return `# ${frameworkName}

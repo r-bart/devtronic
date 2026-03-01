@@ -10,7 +10,7 @@
 
 1. Read `CLAUDE.md` for project-specific rules
 2. Check existing patterns before creating new ones
-3. Follow: brief → spec → research --deep → plan → implement → summary → post-review
+3. Follow: brief → spec → create-plan → generate-tests → execute-plan → summary → post-review
 
 ---
 
@@ -86,7 +86,7 @@ Run after every change.
 
 | Task | Commands |
 |------|----------|
-| New feature | `/brief` → `/spec` → `/generate-tests` → `/research --deep` → `/create-plan` → implement → `/summary` → `/post-review` |
+| New feature | `/brief` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/summary` → `/post-review` |
 | Bug fix | `/brief` → fix → test → `/summary` → `/post-review` |
 | Refactor | `/brief` → `/create-plan` → implement → `/summary` → `/post-review` |
 
