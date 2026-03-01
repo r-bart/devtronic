@@ -167,6 +167,10 @@ export interface RegenerateOptions {
   plugin?: boolean;
 }
 
+export interface AddonOptions {
+  path?: string;
+}
+
 export interface UninstallOptions {
   path?: string;
 }

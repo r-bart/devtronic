@@ -14,6 +14,7 @@ import { listCommand } from './commands/list.js';
 import { configCommand, configSetCommand, configResetCommand } from './commands/config.js';
 import { doctorCommand } from './commands/doctor.js';
 import { uninstallCommand } from './commands/uninstall.js';
+import { addonCommand } from './commands/addon.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -213,6 +214,18 @@ program
         opts: ['--path <path>        Target directory'],
       },
       {
+        title: 'Addons',
+        usage: 'addon add <name>',
+        desc: 'Add an optional skill pack (e.g., orchestration)',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: '',
+        usage: 'addon remove <name>',
+        desc: 'Remove an addon skill pack',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
         title: 'Maintenance',
         usage: 'update',
         desc: 'Update to the latest template version',
@@ -312,6 +325,28 @@ program
       }
       console.log();
     }
+  });
+
+const addonCmd = program
+  .command('addon')
+  .description('Manage addons (add or remove optional skill packs)');
+
+addonCmd
+  .command('add')
+  .description('Add an addon to the devtronic plugin')
+  .argument('<name>', 'Addon name (e.g., orchestration)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (name, options) => {
+    await addonCommand('add', name, { path: options.path });
+  });
+
+addonCmd
+  .command('remove')
+  .description('Remove an addon from the devtronic plugin')
+  .argument('<name>', 'Addon name (e.g., orchestration)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (name, options) => {
+    await addonCommand('remove', name, { path: options.path });
   });
 
 // Presets command

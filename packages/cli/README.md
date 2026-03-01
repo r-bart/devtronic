@@ -20,6 +20,8 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
+| `addon add <name>` | Add an addon skill pack |
+| `addon remove <name>` | Remove an addon skill pack |
 | `add <ide>` | Add another IDE |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
