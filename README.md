@@ -5,7 +5,19 @@
 
 # devtronic
 
-A universal template for AI-assisted development. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
+**Exponential development workflow — toolkit composed by skills, agents, and architecture rules for Claude Code, Cursor, Copilot and more.**
+
+We're in a new paradigm. AI agents can write code — but they need structure to do it well. Without clear patterns, quality gates, and workflow guidance, you end up reviewing, correcting, and redoing the work you delegated.
+
+**The developer's job is to define the system, focus on the problem to solve, and own the experience.** The AI's job is to execute. This creates a perfect division of responsibilities — each actor focused on where they add the most value — and that's where the exponential development starts.
+
+devtronic is that structure. A toolkit composed by skills, agents, quality gates, and self-improving rules — tailored to your stack. Refined daily across real projects, personal and enterprise.
+
+Not a silver bullet. A starting point built from experience, open to iteration.
+
+Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
+
+---
 
 ## Documentation
 
@@ -42,28 +54,7 @@ The CLI will:
 3. **Generate** personalized rules based on your stack
 4. **Track** installation for future updates
 
-### Option B: npm Plugin (Claude Code Only)
-
-```bash
-npm install devtronic-marketplace --save-dev
-```
-
-Then add to `.claude/settings.json`:
-
-```json
-{
-  "extraKnownMarketplaces": {
-    "devtronic-local": {
-      "source": { "source": "directory", "path": "./node_modules/devtronic-marketplace" }
-    }
-  },
-  "enabledPlugins": { "devtronic@devtronic-local": true }
-}
-```
-
-This installs just the plugin (skills, agents, hooks) without generating project-specific rules. See [Plugin Mode](./docs/plugins.md) for details.
-
-### Option C: Claude Code Skill
+### Option B: Claude Code Skill
 
 ```
 /setup      # For existing projects
@@ -103,8 +94,9 @@ npx devtronic init
 |-----|-----------------|--------|
 | Claude Code | `.claude-plugins/devtronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
 | Cursor | `.cursor/rules/*.mdc` | Full support |
-| Google Antigravity | `.agent/rules/*.md` | Full support |
+| Google Antigravity | `.agents/rules/*.md` | Full support |
 | GitHub Copilot | `.github/copilot-instructions.md` | Full support |
+| OpenCode | `.opencode/rules/*.md` | Full support |
 | Zed | Uses `AGENTS.md` directly | Native |
 
 ---
@@ -139,19 +131,19 @@ npx devtronic init
 ## Core Workflow
 
 ```
-/brief [topic]        →  Orientation + pre-flight checks
+/brief [topic]         →  Orientation + pre-flight checks
         │
-/spec [idea]          →  Define WHAT to build (PRD)
-        │
-/research --deep      →  Understand HOW code works
+/spec [idea]           →  Define WHAT to build (PRD)
         │
 /create-plan [feature] →  Design implementation phases
         │
-[implement]           →  Code task by task
+/generate-tests        →  Encode acceptance criteria as failing tests
         │
-/summary              →  Document what changed and why
+/execute-plan          →  Implement in parallel phases
         │
-/post-review          →  Final quality check
+/summary               →  Document what changed and why
+        │
+/post-review           →  Final quality check
 ```
 
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.
@@ -276,6 +268,8 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `init [path]` | Initialize in a project |
 | `update` | Update to latest template |
 | `add <ide>` | Add another IDE |
+| `addon add <name>` | Add an optional skill pack |
+| `addon remove <name>` | Remove an optional skill pack |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |
@@ -283,6 +277,7 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
 | `doctor [--fix]` | Run health diagnostics |
+| `uninstall` | Remove devtronic from your project |
 
 See [CLI Reference](./docs/cli-reference.md) for full documentation.
 

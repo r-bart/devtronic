@@ -14,6 +14,7 @@ import { listCommand } from './commands/list.js';
 import { configCommand, configSetCommand, configResetCommand } from './commands/config.js';
 import { doctorCommand } from './commands/doctor.js';
 import { uninstallCommand } from './commands/uninstall.js';
+import { addonCommand } from './commands/addon.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -23,7 +24,7 @@ const program = new Command();
 
 program
   .name('devtronic')
-  .description('CLI for deploying devtronic template to your projects')
+  .description('AI-assisted development toolkit')
   .version(cliVersion)
   .action(() => {
     // Show branded banner when invoked with no command
@@ -68,8 +69,9 @@ program
   .description('Update to the latest template version')
   .option('--check', 'Only check for updates without applying')
   .option('--dry-run', 'Show what would be updated without making changes')
+  .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (options) => {
-    await updateCommand({ check: options.check, dryRun: options.dryRun });
+    await updateCommand({ path: options.path, check: options.check, dryRun: options.dryRun });
   });
 
 program
@@ -106,15 +108,17 @@ program
 program
   .command('status')
   .description('Show installation status and modified files')
-  .action(async () => {
-    await statusCommand();
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await statusCommand({ path: options.path });
   });
 
 program
   .command('diff')
   .description('Show differences between local files and template')
-  .action(async () => {
-    await diffCommand();
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await diffCommand({ path: options.path });
   });
 
 program
@@ -210,12 +214,25 @@ program
         opts: ['--path <path>        Target directory'],
       },
       {
+        title: 'Addons',
+        usage: 'addon add <name>',
+        desc: 'Add an optional skill pack (e.g., orchestration)',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: '',
+        usage: 'addon remove <name>',
+        desc: 'Remove an addon skill pack',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
         title: 'Maintenance',
         usage: 'update',
         desc: 'Update to the latest template version',
         opts: [
           '--check              Only check for updates',
           '--dry-run             Show what would change',
+          '--path <path>        Target directory',
         ],
       },
       {
@@ -265,11 +282,13 @@ program
         title: 'Diagnostics',
         usage: 'status',
         desc: 'Show installation status and modified files',
+        opts: ['--path <path>        Target directory'],
       },
       {
         title: '',
         usage: 'diff',
         desc: 'Show differences between local files and template',
+        opts: ['--path <path>        Target directory'],
       },
       {
         title: '',
@@ -306,6 +325,28 @@ program
       }
       console.log();
     }
+  });
+
+const addonCmd = program
+  .command('addon')
+  .description('Manage addons (add or remove optional skill packs)');
+
+addonCmd
+  .command('add')
+  .description('Add an addon to the devtronic plugin')
+  .argument('<name>', 'Addon name (e.g., orchestration)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (name, options) => {
+    await addonCommand('add', name, { path: options.path });
+  });
+
+addonCmd
+  .command('remove')
+  .description('Remove an addon from the devtronic plugin')
+  .argument('<name>', 'Addon name (e.g., orchestration)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (name, options) => {
+    await addonCommand('remove', name, { path: options.path });
   });
 
 // Presets command

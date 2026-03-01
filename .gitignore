@@ -23,8 +23,10 @@ dist/
 # Test coverage
 coverage/
 
-# AI checkpoints (optional - uncomment if you don't want to track these)
-# thoughts/checkpoints/
+# AI session state (internal, no value for contributors)
+thoughts/checkpoints/
+thoughts/STATE.md
+.claude/plans/
 
 # Internal skills (not distributed)
 .claude/skills/oss-status/

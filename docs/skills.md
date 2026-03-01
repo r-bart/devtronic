@@ -9,7 +9,7 @@ Skills are invocable workflows in Claude Code. Use them with `/skill-name` in yo
 These skills form the recommended development workflow:
 
 ```
-/brief → /spec → /research --deep → /generate-tests → /create-plan → implement → /summary → /post-review
+/brief → /spec → /create-plan → /generate-tests → /execute-plan → /summary → /post-review
 ```
 
 ### /brief - Quick Session Briefing
@@ -333,7 +333,7 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 **Enable during init**: Select "Orchestration Workflow" when prompted for addons.
 
-**Enable after init**: `devtronic config set enabledAddons orchestration`, then `devtronic regenerate`.
+**Enable after init**: `npx devtronic addon add orchestration`
 
 ### /briefing - Pre-Planning Alignment
 

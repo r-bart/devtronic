@@ -122,6 +122,7 @@ npx devtronic add [ide]
 - `cursor`
 - `antigravity`
 - `github-copilot`
+- `opencode`
 
 **Examples:**
 
@@ -133,6 +134,47 @@ npx devtronic add
 npx devtronic add cursor
 npx devtronic add antigravity
 ```
+
+---
+
+### addon add / addon remove
+
+Manage optional addon skill packs after initial setup.
+
+```bash
+npx devtronic addon add <name> [options]
+npx devtronic addon remove <name> [options]
+```
+
+**Arguments:**
+- `name` - Addon name (currently: `orchestration`)
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+**Available addons:**
+
+| Addon | Skills | Description |
+|-------|--------|-------------|
+| `orchestration` | `/briefing`, `/recap`, `/handoff` | Pre-planning alignment, session recaps, context rotation |
+
+**Examples:**
+
+```bash
+# Add the orchestration addon
+npx devtronic addon add orchestration
+
+# Remove the orchestration addon
+npx devtronic addon remove orchestration
+```
+
+**Notes:**
+- Requires Claude Code in plugin mode (selected during `devtronic init`)
+- Both commands show a preview (name, description, skills, subagents) and ask for confirmation before proceeding
+- Remove will additionally warn about any locally modified skill files before deleting them
+- Restart Claude Code after adding or removing an addon to reload skills
 
 ---
 
@@ -459,7 +501,7 @@ Generated based on your detected stack:
 | `AGENTS.md` | Commands, architecture, patterns for your stack |
 | `.claude/rules/architecture.md` | Architecture rules matching your patterns |
 | `.cursor/rules/architecture.mdc` | Same for Cursor (MDC format) |
-| `.agent/rules/architecture.md` | Same for Google Antigravity |
+| `.agents/rules/architecture.md` | Same for Google Antigravity |
 
 ### Static (Copied)
 
@@ -476,13 +518,13 @@ Copied from templates:
 
 ## IDE Feature Matrix
 
-| Feature | Claude Code | Cursor | Antigravity | GitHub Copilot |
-|---------|-------------|--------|-------------|----------------|
-| Skills (19) | ✓ | - | - | - |
-| Agents (8) | ✓ | - | - | - |
-| Rules | ✓ | ✓ | ✓ | Partial |
-| AGENTS.md | ✓ | ✓ | ✓ | - |
-| thoughts/ | ✓ | ✓ | ✓ | - |
+| Feature | Claude Code | Cursor | Antigravity | GitHub Copilot | OpenCode |
+|---------|-------------|--------|-------------|----------------|----------|
+| Skills (19) | ✓ | - | - | - | - |
+| Agents (8) | ✓ | - | - | - | - |
+| Rules | ✓ | ✓ | ✓ | Partial | ✓ |
+| AGENTS.md | ✓ | ✓ | ✓ | - | ✓ |
+| thoughts/ | ✓ | ✓ | ✓ | - | ✓ |
 
 > **Note**: Skills and agents only work in Claude Code. Other IDEs receive architecture and quality rules.
 

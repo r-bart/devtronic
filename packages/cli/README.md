@@ -1,6 +1,6 @@
 # devtronic
 
-CLI for setting up AI-assisted development in your projects. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
+CLI for setting up AI-assisted development in your projects. Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
 
 ## Quick Start
 
@@ -20,10 +20,13 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
+| `addon add <name>` | Add an addon skill pack |
+| `addon remove <name>` | Remove an addon skill pack |
 | `add <ide>` | Add another IDE |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |
+| `uninstall` | Remove devtronic from your project |
 | `presets` | List available presets |
 
 ## What Gets Generated
@@ -41,8 +44,9 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 |-----|--------------|----------|
 | Claude Code | `.claude/rules/*.md` + plugin | Full (skills, agents, hooks, rules) |
 | Cursor | `.cursor/rules/*.mdc` | Rules + AGENTS.md |
-| Google Antigravity | `.agent/rules/*.md` | Rules + AGENTS.md |
+| Google Antigravity | `.agents/rules/*.md` | Rules + AGENTS.md |
 | GitHub Copilot | `.github/copilot-instructions.md` | Rules |
+| OpenCode | `.opencode/rules/*.md` | Rules + AGENTS.md |
 
 ## Requirements
 

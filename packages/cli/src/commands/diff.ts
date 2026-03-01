@@ -12,8 +12,8 @@ import {
 import { introTitle, symbols } from '../utils/ui.js';
 import { TEMPLATES_DIR, IDE_TEMPLATE_MAP } from './init.js';
 
-export async function diffCommand(): Promise<void> {
-  const targetDir = resolve('.');
+export async function diffCommand(options: { path?: string } = {}): Promise<void> {
+  const targetDir = resolve(options.path || '.');
 
   p.intro(introTitle('Diff'));
 

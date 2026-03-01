@@ -36,7 +36,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     ensureInteractive('update');
   }
 
-  const targetDir = resolve('.');
+  const targetDir = resolve(options.path || '.');
 
   p.intro(introTitle('Update'));
 

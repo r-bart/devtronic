@@ -7,52 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- Orchestration workflow addon: `/briefing`, `/recap`, `/handoff` skills
-- Enhanced `/execute-plan` with visual progress and inter-phase handoff summaries
-- Addon system: `enabledAddons` in ProjectConfig, selectable during `devtronic init`
-- `getSubdirectories()` utility for directory listing
-
 ---
 
-## [1.0.0] - 2026-02-27
+## [1.0.0] - 2026-03-01
 
-First public open-source release. Version reset from internal pre-release (1.9.0).
+First public release.
 
 ### Added
-- `devtronic info` command: version with npm update check, IDEs, mode, skill/agent counts, framework, architecture
-- `devtronic list [skills|agents]` command: discover and display installed skills and agents with descriptions
-- `devtronic config` command: view current configuration
-- `devtronic config set <key> <value>` command: modify individual config values
-- `devtronic config reset` command: re-detect configuration from project analysis
-- `devtronic doctor [--fix]` command: 8 health checks with 3 auto-fixable (permissions, plugin registration, thoughts dir)
-- Shared `utils/ui.ts`: ASCII logo, standardized symbols, `introTitle()`, `formatKV()`, `formatList()`
-- Shared `utils/version.ts`: `getCliVersion()`, `getLatestVersion()`, `compareSemver()`
-- Version update check in `status` and `info` commands (non-blocking npm registry query)
-- Package READMEs for npm registry pages
-
-### Changed
-- **Version reset to 1.0.0** for open-source launch (both `devtronic` and `devtronic-marketplace`)
-- All commands now use consistent shadcn-style UI via `@clack/prompts`
-- Branded ASCII art banner on bare `devtronic` invocation
-- All inline `console.log` replaced with `p.intro()`, `p.note()`, `p.outro()` blocks
-- All inline chalk symbols replaced with shared `symbols.*` constants
-- `showPreview()` in `init` rewritten to use structured `p.note()` blocks
-- Centralized `getCliVersion()` (was duplicated in 3 files)
-- Centralized `TEMPLATES_DIR` (was duplicated in `update.ts` and `diff.ts`)
-- Update available message now shows correct upgrade command (`npx devtronic@latest init`)
-
-### Fixed
-- `update.ts` and `diff.ts` now use `IDE_TEMPLATE_MAP` for template directory lookup
-- `config.ts` array fields use optional chaining to prevent crashes on legacy manifests
-- `doctor.ts` hook path resolution correctly strips `${CLAUDE_PLUGIN_ROOT}/` shell variables
-- `version.ts` `compareSemver` handles pre-release suffixes safely via `parseInt`
-- `list.ts` `extractDescription` strips markdown formatting (bold, italic, code, links)
-
-### Removed
-- Duplicate `getCliVersion()` functions from `init.ts`, `update.ts`, and `index.ts`
-- Duplicate `TEMPLATES_DIR` resolution from `update.ts` and `diff.ts`
-- Dead outer try/catch in `getCliVersion()`
+- `devtronic init` command: analyzes project and generates personalized AI configuration
+- `devtronic update` command: updates templates while preserving local modifications
+- `devtronic add <ide>` command: add IDE configurations after initial setup
+- `devtronic addon add/remove <name>` commands: manage optional skill packs post-init
+- `devtronic regenerate` command: regenerate configuration files from current stack
+- `devtronic status` command: show installation status and tracked files
+- `devtronic diff` command: show differences between local files and template
+- `devtronic info` command: version, IDEs, mode, skill/agent counts, framework, architecture
+- `devtronic list [skills|agents]` command: discover installed skills and agents
+- `devtronic config` / `config set` / `config reset` commands: view and manage configuration
+- `devtronic doctor [--fix]` command: 8 health checks, 3 auto-fixable
+- `devtronic presets` command: list available presets
+- `devtronic uninstall` command: remove all installed files
+- IDE support: Claude Code, Cursor, OpenCode, Antigravity, GitHub Copilot
+- Orchestration addon: `/briefing`, `/recap`, `/handoff` skills for context rotation
+- 19 workflow skills and 8 specialized agents for Claude Code
+- Architecture rules generated per detected stack (clean, MVC, feature-based, layered, flat)
+- Plugin mode for Claude Code: skills registered as native slash commands
+- Manifest system: checksum-based change detection across updates
+- `thoughts/` directory structure for AI session documents
 
 ---
 

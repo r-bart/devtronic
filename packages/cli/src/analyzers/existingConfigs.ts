@@ -18,11 +18,15 @@ const CONFIG_LOCATIONS: ConfigLocation[] = [
   },
   {
     ide: 'antigravity',
-    paths: ['.agent', '.antigravity'],
+    paths: ['.agents', '.agent', '.antigravity'],
   },
   {
     ide: 'github-copilot',
     paths: ['.github/copilot-instructions.md'],
+  },
+  {
+    ide: 'opencode',
+    paths: ['opencode.json'],
   },
 ];
 
@@ -32,6 +36,7 @@ export function detectExistingConfigs(targetDir: string): ExistingConfigs {
     cursor: false,
     antigravity: false,
     'github-copilot': false,
+    opencode: false,
   };
 
   for (const config of CONFIG_LOCATIONS) {

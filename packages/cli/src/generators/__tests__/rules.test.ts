@@ -62,8 +62,9 @@ describe('generateClaudeMd', () => {
     const result = generateClaudeMd(createConfig(), createScripts(), 'npm');
     expect(result).toContain('/brief');
     expect(result).toContain('/spec');
-    expect(result).toContain('/research --deep');
     expect(result).toContain('/create-plan');
+    expect(result).toContain('/generate-tests');
+    expect(result).toContain('/execute-plan');
     expect(result).toContain('/post-review');
     expect(result).toContain('/checkpoint');
   });
@@ -264,6 +265,7 @@ describe('generateAgentsMd (from analysis)', () => {
         cursor: false,
         antigravity: false,
         'github-copilot': false,
+        opencode: false,
       },
       stack: {
         stateManagement: [],

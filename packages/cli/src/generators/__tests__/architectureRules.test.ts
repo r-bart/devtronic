@@ -207,11 +207,12 @@ describe('generateArchitectureRules', () => {
   });
 
   describe('output formats', () => {
-    it('Claude Code format includes YAML frontmatter', () => {
+    it('Claude Code format is plain markdown (no frontmatter)', () => {
       const config = createConfig();
       const rules = generateArchitectureRules(config);
 
-      expect(rules!.claudeCode).toMatch(/^---\nalwaysApply: true\n---/);
+      expect(rules!.claudeCode).not.toMatch(/^---/);
+      expect(rules!.claudeCode).toContain('Clean Architecture');
     });
 
     it('Cursor format includes MDC frontmatter', () => {
@@ -238,6 +239,14 @@ describe('generateArchitectureRules', () => {
       expect(rules!.antigravity).toContain('Clean Architecture');
     });
 
+    it('OpenCode format is plain markdown (no frontmatter)', () => {
+      const config = createConfig();
+      const rules = generateArchitectureRules(config);
+
+      expect(rules!.opencode).not.toMatch(/^---/);
+      expect(rules!.opencode).toContain('Clean Architecture');
+    });
+
     it('all formats contain the same core content', () => {
       const config = createConfig();
       const rules = generateArchitectureRules(config);
@@ -247,6 +256,7 @@ describe('generateArchitectureRules', () => {
       expect(rules!.cursor).toContain(coreContent);
       expect(rules!.copilot).toContain(coreContent);
       expect(rules!.antigravity).toContain(coreContent);
+      expect(rules!.opencode).toContain(coreContent);
     });
   });
 

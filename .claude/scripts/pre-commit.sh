@@ -2,11 +2,11 @@
 # pre-commit.sh — Git pre-commit hook for devtronic projects
 #
 # Install:
-#   cp packages/marketplace/devtronic/scripts/pre-commit.sh .git/hooks/pre-commit
+#   cp .claude/scripts/pre-commit.sh .git/hooks/pre-commit
 #   chmod +x .git/hooks/pre-commit
 #
 # Or with a symlink:
-#   ln -sf ../../packages/marketplace/devtronic/scripts/pre-commit.sh .git/hooks/pre-commit
+#   ln -sf ../../.claude/scripts/pre-commit.sh .git/hooks/pre-commit
 
 set -euo pipefail
 

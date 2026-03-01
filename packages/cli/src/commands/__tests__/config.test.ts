@@ -156,6 +156,7 @@ describe('addon validation', () => {
       expect(addon.label).toBeTruthy();
       expect(addon.description).toBeTruthy();
       expect(addon.skills.length).toBeGreaterThan(0);
+      expect(Array.isArray(addon.agents)).toBe(true);
     }
   });
 

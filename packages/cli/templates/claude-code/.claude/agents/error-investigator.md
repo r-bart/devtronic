@@ -2,6 +2,7 @@
 name: error-investigator
 description: Quick error diagnosis. Invoke automatically when there are stack traces, failed tests, failing commands, or build errors. Analyzes cause and suggests fix.
 tools: Bash, Read, Grep, Glob
+disallowedTools: Edit, Write, NotebookEdit
 model: haiku
 ---
 

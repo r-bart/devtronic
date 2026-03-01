@@ -6,6 +6,7 @@ import { getExistingConfigsList } from '../analyzers/existingConfigs.js';
 const IDE_OPTIONS: Array<{ value: IDE; label: string; hint?: string }> = [
   { value: 'claude-code', label: 'Claude Code', hint: 'CLI + Skills + Agents' },
   { value: 'cursor', label: 'Cursor', hint: 'Rules (.mdc)' },
+  { value: 'opencode', label: 'OpenCode', hint: 'Rules (.md)' },
   { value: 'antigravity', label: 'Google Antigravity', hint: 'Rules (.md)' },
   { value: 'github-copilot', label: 'GitHub Copilot', hint: 'Instructions' },
 ];
