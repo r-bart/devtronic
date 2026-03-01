@@ -131,19 +131,19 @@ npx devtronic init
 ## Core Workflow
 
 ```
-/brief [topic]        →  Orientation + pre-flight checks
+/brief [topic]         →  Orientation + pre-flight checks
         │
-/spec [idea]          →  Define WHAT to build (PRD)
-        │
-/research --deep      →  Understand HOW code works
+/spec [idea]           →  Define WHAT to build (PRD)
         │
 /create-plan [feature] →  Design implementation phases
         │
-[implement]           →  Code task by task
+/generate-tests        →  Encode acceptance criteria as failing tests
         │
-/summary              →  Document what changed and why
+/execute-plan          →  Implement in parallel phases
         │
-/post-review          →  Final quality check
+/summary               →  Document what changed and why
+        │
+/post-review           →  Final quality check
 ```
 
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.

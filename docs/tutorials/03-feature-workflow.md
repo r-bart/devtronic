@@ -23,19 +23,19 @@ By the end of this tutorial:
 ## The Complete Workflow
 
 ```
-/brief [topic]        →  Orientation + pre-flight checks
+/brief [topic]         →  Orientation + pre-flight checks
         │
-/spec [idea]          →  Define WHAT to build
+/spec [idea]           →  Define WHAT to build
         │
-/research --deep      →  Understand HOW the code works
+/create-plan [feature] →  Design implementation phases
         │
-/create-plan [feature] →  Design implementation
+/generate-tests        →  Encode acceptance criteria as failing tests
         │
-[implement]           →  Code step by step
+/execute-plan          →  Implement in parallel phases
         │
-/summary              →  Document what changed and why
+/summary               →  Document what changed and why
         │
-/post-review          →  Final quality verification
+/post-review           →  Final quality verification
 ```
 
 ---

@@ -9,7 +9,7 @@ Skills are invocable workflows in Claude Code. Use them with `/skill-name` in yo
 These skills form the recommended development workflow:
 
 ```
-/brief → /spec → /research --deep → /generate-tests → /create-plan → implement → /summary → /post-review
+/brief → /spec → /create-plan → /generate-tests → /execute-plan → /summary → /post-review
 ```
 
 ### /brief - Quick Session Briefing
