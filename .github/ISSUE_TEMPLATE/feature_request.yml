@@ -1,0 +1,74 @@
+name: Feature Request
+description: Propose a new feature or improvement
+title: "feat: "
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your feature idea!
+
+        **Before opening a feature request**, consider whether this can be implemented as a:
+        - **Custom skill** (`.claude/skills/`) — for new workflows
+        - **Custom agent** (`.claude/agents/`) — for specialized automation
+        - **Plugin** — for distributing skills + agents + hooks as a package
+
+        We encourage the community to **extend devtronic via skills and plugins** rather than expanding the core. This keeps the project lean and the ecosystem modular. See [Customization](https://github.com/r-bart/devtronic/blob/main/docs/customization.md).
+
+        PRs are best suited for bug fixes, structural improvements, and documentation.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem description
+      description: What problem does this feature address?
+      placeholder: "I always have to manually ... when ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed solution
+      description: Describe the solution you would like. Include any relevant API design, command syntax, or UX details.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Describe any alternative solutions or workarounds you have considered.
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area affected
+      options:
+        - CLI
+        - Skills
+        - Agents
+        - Hooks
+        - Templates
+        - Docs
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: extensible
+    attributes:
+      label: Could this be a standalone skill or plugin?
+      description: "Features that can be skills/plugins are better contributed to the ecosystem rather than the core."
+      options:
+        - "Yes — I plan to publish it as a skill/plugin"
+        - "Maybe — I'd like guidance"
+        - "No — this requires core changes"
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional context
+      description: Add any other context, mockups, or references.

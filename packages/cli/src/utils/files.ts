@@ -114,3 +114,12 @@ export function createManifestEntry(content: string): ManifestFile {
     originalChecksum: checksum,
   };
 }
+
+export function getSubdirectories(dir: string): string[] {
+  if (!existsSync(dir)) {
+    return [];
+  }
+  return readdirSync(dir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+}

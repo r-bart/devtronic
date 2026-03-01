@@ -22,7 +22,7 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 Which skills delegate to which agents:
 
 ```
-/execute-plan  ──→  commit-changes    (after each wave passes quality checks)
+/execute-plan  ──→  commit-changes    (after each phase passes quality checks)
 /quick         ──→  commit-changes    (step 5: commit)
 /audit         ──→  dependency-checker (--security mode: dependency health)
 /post-review   ──→  architecture-checker (architecture compliance check)
@@ -458,7 +458,7 @@ Focuses on actionable information. Does not dump full output unless specifically
 ### When Invoked
 
 Primarily delegated by skills:
-- **`/execute-plan`** — after each wave passes quality checks
+- **`/execute-plan`** — after each phase passes quality checks
 - **`/quick`** — step 5, after implementation and verification
 
 Also invoked directly when:

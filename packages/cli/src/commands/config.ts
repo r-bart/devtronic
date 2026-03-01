@@ -2,6 +2,7 @@ import { resolve } from 'node:path';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { ConfigOptions, ProjectConfig } from '../types.js';
+import { ADDONS } from '../types.js';
 import { readManifest, writeManifest } from '../utils/files.js';
 import { introTitle, formatKV } from '../utils/ui.js';
 import { analyzeProject } from '../analyzers/index.js';
@@ -15,6 +16,7 @@ const ARRAY_KEYS: Array<keyof ProjectConfig> = [
   'testing',
   'ui',
   'validation',
+  'enabledAddons',
 ];
 
 /** All valid config keys */
@@ -58,6 +60,7 @@ export async function configCommand(options: ConfigOptions): Promise<void> {
     formatKV('UI:', config.ui?.join(', ') || none),
     formatKV('Validation:', config.validation?.join(', ') || none),
     formatKV('Quality:', config.qualityCommand || none),
+    formatKV('Addons:', config.enabledAddons?.join(', ') || none),
   ];
 
   p.note(lines.join('\n'), 'Current Configuration');
@@ -95,6 +98,19 @@ export async function configSetCommand(
   if (ARRAY_KEYS.includes(configKey as typeof ARRAY_KEYS[number])) {
     // Array value — accept comma-separated
     const arrayValue = value.split(',').map((v) => v.trim()).filter(Boolean);
+
+    // Validate addon names
+    if (configKey === 'enabledAddons') {
+      const validAddons = Object.keys(ADDONS);
+      const invalid = arrayValue.filter((v) => !validAddons.includes(v));
+      if (invalid.length > 0) {
+        p.cancel(
+          `Unknown addon(s): ${invalid.join(', ')}\n\nValid addons: ${validAddons.join(', ')}`
+        );
+        process.exit(1);
+      }
+    }
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (manifest.projectConfig as any)[configKey] = arrayValue;
     p.log.success(`${chalk.bold(key)} set to ${chalk.cyan(arrayValue.join(', '))}`);
@@ -105,6 +121,13 @@ export async function configSetCommand(
   }
 
   writeManifest(targetDir, manifest);
+
+  // Hint about regenerating plugin when addons change
+  if (configKey === 'enabledAddons') {
+    p.log.info(
+      `Run ${chalk.cyan('devtronic regenerate --plugin')} to apply addon changes to the plugin.`
+    );
+  }
 
   // Hint about regenerating rules when architecture changes
   if (configKey === 'architecture' && value !== previousArch) {
@@ -159,6 +182,7 @@ export async function configResetCommand(options: ConfigOptions): Promise<void> 
     framework: analysis.framework.name,
     qualityCommand:
       qualityParts.length > 0 ? qualityParts.join(' && ') : `${run} typecheck && ${run} lint`,
+    enabledAddons: manifest.projectConfig?.enabledAddons,
   };
 
   writeManifest(targetDir, manifest);
@@ -176,6 +200,7 @@ export async function configResetCommand(options: ConfigOptions): Promise<void> 
     formatKV('UI:', config.ui?.join(', ') || none),
     formatKV('Validation:', config.validation?.join(', ') || none),
     formatKV('Quality:', config.qualityCommand || none),
+    formatKV('Addons:', config.enabledAddons?.join(', ') || none),
   ];
 
   p.note(resetLines.join('\n'), 'Re-detected Configuration');

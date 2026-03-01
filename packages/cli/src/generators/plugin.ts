@@ -1,13 +1,16 @@
 import { join, dirname } from 'node:path';
 import type { ProjectConfig, PackageManager, ManifestFile } from '../types.js';
+import { ADDONS } from '../types.js';
 import {
   ensureDir,
   writeFile,
   getAllFilesRecursive,
+  getSubdirectories,
   readFile,
   createManifestEntry,
 } from '../utils/files.js';
 import { generateHooks, generateCheckpointScript, generateStopGuardScript } from './hooks.js';
+import { CORE_SKILLS } from './rules.js';
 
 export const PLUGIN_NAME = 'devtronic';
 export const MARKETPLACE_NAME = 'devtronic-local';
@@ -20,16 +23,22 @@ export interface PluginGenerationResult {
   pluginPath: string;
 }
 
+/** Base number of core skills (derived from CORE_SKILLS registry) */
+export const BASE_SKILL_COUNT = CORE_SKILLS.length;
+
 /**
  * Generates plugin.json content for the devtronic plugin.
  */
-export function generatePluginJson(cliVersion: string): string {
+export function generatePluginJson(cliVersion: string, addonSkillCount: number = 0): string {
+  const skillLabel = addonSkillCount > 0
+    ? `${BASE_SKILL_COUNT} + ${addonSkillCount} addon skills`
+    : `${BASE_SKILL_COUNT} skills`;
   return JSON.stringify(
     {
       name: PLUGIN_NAME,
       version: cliVersion,
       description:
-        'devtronic — 19 skills, 8 agents, full workflow hooks',
+        `devtronic — ${skillLabel}, 8 agents, full workflow hooks`,
       author: {
         name: 'r-bart',
         url: 'https://github.com/r-bart/devtronic',
@@ -37,6 +46,9 @@ export function generatePluginJson(cliVersion: string): string {
       repository: 'https://github.com/r-bart/devtronic',
       license: 'MIT',
       keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
+      skills: './skills/',
+      agents: './agents/',
+      hooks: './hooks/hooks.json',
     },
     null,
     2
@@ -46,7 +58,10 @@ export function generatePluginJson(cliVersion: string): string {
 /**
  * Generates marketplace.json for the local directory marketplace.
  */
-export function generateMarketplaceJson(): string {
+export function generateMarketplaceJson(addonSkillCount: number = 0): string {
+  const skillLabel = addonSkillCount > 0
+    ? `${BASE_SKILL_COUNT} + ${addonSkillCount} addon skills`
+    : `${BASE_SKILL_COUNT} skills`;
   return JSON.stringify(
     {
       name: MARKETPLACE_NAME,
@@ -58,7 +73,7 @@ export function generateMarketplaceJson(): string {
         {
           name: PLUGIN_NAME,
           source: `./${PLUGIN_NAME}`,
-          description: 'devtronic — 19 skills, 8 agents, full workflow hooks',
+          description: `devtronic — ${skillLabel}, 8 agents, full workflow hooks`,
         },
       ],
     },
@@ -103,19 +118,40 @@ export function generatePlugin(
   const files: Record<string, ManifestFile> = {};
   const pluginRoot = join(PLUGIN_DIR, PLUGIN_NAME);
 
+  // Compute addon skill filtering
+  const addonOnlySkills = new Set(
+    Object.values(ADDONS).flatMap((a) => a.skills)
+  );
+  const enabledAddonSkills = new Set(
+    (config.enabledAddons || []).flatMap((a) => ADDONS[a]?.skills ?? [])
+  );
+  const addonSkillCount = enabledAddonSkills.size;
+
   // 1. Marketplace descriptor (.claude-plugins/.claude-plugin/marketplace.json)
-  const marketplaceContent = generateMarketplaceJson();
+  const marketplaceContent = generateMarketplaceJson(addonSkillCount);
   const marketplaceRelPath = join(PLUGIN_DIR, '.claude-plugin', 'marketplace.json');
   writeGeneratedFile(targetDir, marketplaceRelPath, marketplaceContent, files);
 
   // 2. Plugin manifest (.claude-plugins/devtronic/.claude-plugin/plugin.json)
-  const pluginJsonContent = generatePluginJson(cliVersion);
+  const pluginJsonContent = generatePluginJson(cliVersion, addonSkillCount);
   const pluginJsonRelPath = join(pluginRoot, '.claude-plugin', 'plugin.json');
   writeGeneratedFile(targetDir, pluginJsonRelPath, pluginJsonContent, files);
 
-  // 3. Copy skills from template
+  // 3. Copy skills from template (filter by addon)
   const templateClaudeDir = join(templatesDir, 'claude-code', '.claude');
-  copyTemplateDir(targetDir, join(templateClaudeDir, 'skills'), join(pluginRoot, 'skills'), files);
+  const skillsSourceDir = join(templateClaudeDir, 'skills');
+  const skillDirs = getSubdirectories(skillsSourceDir);
+  for (const dir of skillDirs) {
+    const isAddonSkill = addonOnlySkills.has(dir);
+    if (!isAddonSkill || enabledAddonSkills.has(dir)) {
+      copyTemplateDir(
+        targetDir,
+        join(skillsSourceDir, dir),
+        join(pluginRoot, 'skills', dir),
+        files
+      );
+    }
+  }
 
   // 4. Copy agents from template
   copyTemplateDir(targetDir, join(templateClaudeDir, 'agents'), join(pluginRoot, 'agents'), files);

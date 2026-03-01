@@ -13,6 +13,7 @@ import { infoCommand } from './commands/info.js';
 import { listCommand } from './commands/list.js';
 import { configCommand, configSetCommand, configResetCommand } from './commands/config.js';
 import { doctorCommand } from './commands/doctor.js';
+import { uninstallCommand } from './commands/uninstall.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -35,6 +36,7 @@ program
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic status')}                    ${chalk.dim('File status overview')}`);
     console.log();
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help')}                      ${chalk.dim('Show all commands')}`);
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help --all')}                ${chalk.dim('Full reference with all options')}`);
     console.log();
   });
 
@@ -49,6 +51,7 @@ program
     '--preset <name>',
     `Use a preset configuration (${Object.keys(PRESETS).join(', ')})`
   )
+  .option('--addon <name>', 'Enable an addon (e.g., orchestration)')
   .action(async (path, options) => {
     await initCommand({
       path,
@@ -56,6 +59,7 @@ program
       yes: options.yes,
       preview: options.preview,
       preset: options.preset,
+      addon: options.addon,
     });
   });
 
@@ -86,6 +90,7 @@ program
   .option('--rules', 'Regenerate architecture rules for all configured IDEs')
   .option('--agents', 'Regenerate AGENTS.md')
   .option('--all', 'Regenerate everything')
+  .option('--plugin', 'Regenerate the Claude Code plugin (skills, agents, hooks)')
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (target, options) => {
     await regenerateCommand(target, {
@@ -94,6 +99,7 @@ program
       rules: options.rules,
       agents: options.agents,
       all: options.all,
+      plugin: options.plugin,
     });
   });
 
@@ -160,6 +166,146 @@ program
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (options) => {
     await doctorCommand({ fix: options.fix, path: options.path });
+  });
+
+program
+  .command('uninstall')
+  .description('Remove devtronic from your project')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await uninstallCommand({ path: options.path });
+  });
+
+// Extended help — devtronic help --all
+program
+  .command('help')
+  .description('Show help (use --all for full reference)')
+  .option('-a, --all', 'Show all commands with their options')
+  .action((options) => {
+    if (!options.all) {
+      program.outputHelp();
+      return;
+    }
+
+    showLogo();
+    console.log(chalk.dim(`  Agentic development toolkit v${cliVersion}\n`));
+
+    const sections: Array<{ title: string; usage: string; desc: string; opts?: string[] }> = [
+      {
+        title: 'Setup',
+        usage: 'init [path]',
+        desc: 'Initialize devtronic in your project',
+        opts: [
+          '--ide <ides>        Comma-separated list of IDEs',
+          '-y, --yes           Skip prompts and use defaults',
+          '--preview            Show what would be generated',
+          '--preset <name>      Use a preset (nextjs-clean, react-clean, monorepo, feature-based, minimal)',
+          '--addon <name>       Enable an addon (e.g., orchestration)',
+        ],
+      },
+      {
+        title: '',
+        usage: 'uninstall',
+        desc: 'Remove devtronic from your project',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: 'Maintenance',
+        usage: 'update',
+        desc: 'Update to the latest template version',
+        opts: [
+          '--check              Only check for updates',
+          '--dry-run             Show what would change',
+        ],
+      },
+      {
+        title: '',
+        usage: 'regenerate [target]',
+        desc: 'Regenerate CLAUDE.md, AGENTS.md, rules, or plugin',
+        opts: [
+          '--claude             Regenerate CLAUDE.md',
+          '--agents             Regenerate AGENTS.md',
+          '--rules              Regenerate architecture rules',
+          '--plugin             Regenerate Claude Code plugin',
+          '--all                Regenerate everything',
+          '--path <path>        Target directory',
+        ],
+      },
+      {
+        title: '',
+        usage: 'add [ide]',
+        desc: 'Add configuration for an additional IDE',
+        opts: [
+          '-y, --yes           Skip prompts',
+          '--path <path>        Target directory',
+        ],
+      },
+      {
+        title: 'Configuration',
+        usage: 'config',
+        desc: 'View current project configuration',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: '',
+        usage: 'config set <key> <value>',
+        desc: 'Set a configuration value (comma-separated for arrays)',
+      },
+      {
+        title: '',
+        usage: 'config reset',
+        desc: 'Re-detect configuration from project',
+      },
+      {
+        title: '',
+        usage: 'presets',
+        desc: 'List available configuration presets',
+      },
+      {
+        title: 'Diagnostics',
+        usage: 'status',
+        desc: 'Show installation status and modified files',
+      },
+      {
+        title: '',
+        usage: 'diff',
+        desc: 'Show differences between local files and template',
+      },
+      {
+        title: '',
+        usage: 'info',
+        desc: 'Version, configuration, and installation summary',
+      },
+      {
+        title: '',
+        usage: 'doctor',
+        desc: 'Run health checks on your installation',
+        opts: [
+          '--fix                Auto-fix fixable issues',
+          '--path <path>        Target directory',
+        ],
+      },
+      {
+        title: '',
+        usage: 'list [skills|agents]',
+        desc: 'List installed skills and agents',
+        opts: ['--path <path>        Target directory'],
+      },
+    ];
+
+    for (const section of sections) {
+      if (section.title) {
+        console.log(`  ${chalk.bold.underline(section.title)}\n`);
+      }
+      console.log(`  ${chalk.white('devtronic ' + section.usage)}`);
+      console.log(`  ${chalk.dim(section.desc)}`);
+      if (section.opts) {
+        for (const opt of section.opts) {
+          console.log(`    ${chalk.yellow(opt)}`);
+        }
+      }
+      console.log();
+    }
   });
 
 // Presets command

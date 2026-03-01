@@ -1,5 +1,23 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | null;
 
+export type AddonName = 'orchestration';
+
+export interface AddonInfo {
+  name: AddonName;
+  label: string;
+  description: string;
+  skills: string[]; // skill directory names this addon adds
+}
+
+export const ADDONS: Record<AddonName, AddonInfo> = {
+  orchestration: {
+    name: 'orchestration',
+    label: 'Orchestration Workflow',
+    description: 'briefing → execute-plan (enhanced) → recap → handoff',
+    skills: ['briefing', 'recap', 'handoff'],
+  },
+};
+
 export type FrameworkName =
   | 'nextjs'
   | 'react'
@@ -100,6 +118,8 @@ export interface ProjectConfig {
   framework: FrameworkName;
   /** Quality check command */
   qualityCommand: string;
+  /** Enabled addon names (e.g., ['orchestration']) */
+  enabledAddons?: AddonName[];
 }
 
 /** Whether Claude Code uses standalone files (.claude/) or a plugin (.claude-plugins/) */
@@ -124,6 +144,7 @@ export interface InitOptions {
   yes?: boolean;
   preview?: boolean;
   preset?: PresetName;
+  addon?: string;
 }
 
 export interface UpdateOptions {
@@ -142,6 +163,11 @@ export interface RegenerateOptions {
   agents?: boolean;
   claude?: boolean;
   all?: boolean;
+  plugin?: boolean;
+}
+
+export interface UninstallOptions {
+  path?: string;
 }
 
 export interface DoctorOptions {

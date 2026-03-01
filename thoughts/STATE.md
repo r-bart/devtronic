@@ -1,16 +1,16 @@
 # Project State
 
-**Updated**: 2026-02-27 21:02 (auto-compact)
-**Branch**: main
+**Updated**: 2026-02-28 18:33 (auto-compact)
+**Branch**: feat/orchestration-addon
 
 ## Last Auto-Checkpoint
 
-Context was compacted. See: `thoughts/checkpoints/20260227_210220_pre-compact.md`
+Context was compacted. See: `thoughts/checkpoints/20260228_183328_pre-compact.md`
 
 ## Recent Commits
 
-e49af80 chore: decouple from Tutellus, update docs, add OSS files
-5faf758 chore: bump version to 1.9.0 (generate-tests, opensrc, execute-plan, architecture-checker)
-75d4ffd chore: rename project from rbartronic to devtronic
-d0f1dc5 chore: update repo URL to r-bart/agentic-development
-0272d64 feat: add /opensrc skill for fetching package source context
+35fbd1d fix: update marketplace description to reflect 22 skills
+2a8f6ef feat: add extended help with all commands and options
+0a47e81 fix: review fixes for uninstall command
+061d15a feat: add uninstall command for clean removal
+fbff47e feat: make all skills discoverable by removing disable-model-invocation

@@ -1,7 +1,6 @@
 ---
 name: create-skill
 description: Meta skill to create new skills. Guides through defining purpose, workflow steps, tools, and generates the skill file.
-disable-model-invocation: true
 allowed-tools: AskUserQuestion, Write, Read, Glob
 argument-hint: "[skill-name]"
 ---
@@ -146,7 +145,6 @@ Generate the skill file based on gathered info:
 ---
 name: {name}
 description: {description}
-disable-model-invocation: true
 allowed-tools: {tools}
 ---
 

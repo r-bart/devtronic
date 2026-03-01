@@ -1,3 +1,8 @@
+[![CI](https://github.com/r-bart/devtronic/actions/workflows/ci.yml/badge.svg)](https://github.com/r-bart/devtronic/actions/workflows/ci.yml)
+[![npm version](https://img.shields.io/npm/v/devtronic)](https://www.npmjs.com/package/devtronic)
+[![npm downloads](https://img.shields.io/npm/dm/devtronic)](https://www.npmjs.com/package/devtronic)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # devtronic
 
 A universal template for AI-assisted development. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
@@ -7,7 +12,7 @@ A universal template for AI-assisted development. Works with **Claude Code**, **
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 3 addon skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
@@ -114,7 +119,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             19 skills included                          │
+│       │             19 core + 3 addon skills                    │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             8 agents included                           │
@@ -155,7 +160,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 
 ## What's Included
 
-### Skills (19)
+### Skills (19 core + 3 addon)
 
 | Category | Skills |
 |----------|--------|
@@ -165,6 +170,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 | **Execution** | `/quick`, `/execute-plan` |
 | **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
+| **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 
@@ -295,6 +301,27 @@ See [CLI Reference](./docs/cli-reference.md) for full documentation.
 
 - [AGENTS.md Standard](https://www.aihero.dev/a-complete-guide-to-agents-md)
 - [amplified.dev](https://amplified.dev/)
+
+---
+
+## Contributing
+
+devtronic is designed to be **extended, not forked**.
+
+Before opening a PR, consider whether your contribution can be packaged as:
+- A **custom skill** (`.claude/skills/`) — for new workflows
+- A **custom agent** (`.claude/agents/`) — for specialized automation
+- A **plugin** — for distributing skills + agents + hooks as a package
+
+PRs are welcome for:
+- Bug fixes and correctness improvements
+- Structural or architectural enhancements
+- Documentation improvements
+- CI/tooling improvements
+
+For feature ideas that extend functionality, we strongly encourage publishing them as **standalone skills or plugins** that others can install. This keeps the core lean and the ecosystem modular.
+
+See [Customization](./docs/customization.md) for how to create skills, agents, and plugins.
 
 ---
 

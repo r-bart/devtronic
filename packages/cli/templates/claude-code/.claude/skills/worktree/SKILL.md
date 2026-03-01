@@ -1,7 +1,6 @@
 ---
 name: worktree
 description: Manage git worktrees with intuitive flags. Create, list, remove, and prune worktrees with consistent naming and enriched status.
-disable-model-invocation: true
 allowed-tools: Bash, AskUserQuestion, Read, Glob
 argument-hint: "[--create|--list|--remove|--prune] [name]"
 ---

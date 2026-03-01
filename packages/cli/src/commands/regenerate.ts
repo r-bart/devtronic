@@ -1,7 +1,9 @@
+import { existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { RegenerateOptions } from '../types.js';
+import type { ProjectConfig, RegenerateOptions } from '../types.js';
 import { analyzeProject } from '../analyzers/index.js';
 import { promptForProjectConfig } from '../prompts/analysis.js';
 import {
@@ -19,6 +21,12 @@ import { DYNAMIC_RULE_FILES } from './init.js';
 import { getCliVersion } from '../utils/version.js';
 import { getRuleContentForIDE } from '../utils/rules.js';
 import { introTitle, symbols } from '../utils/ui.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __regen_dirname = dirname(__filename);
+const TEMPLATES_DIR = existsSync(resolve(__regen_dirname, '../templates'))
+  ? resolve(__regen_dirname, '../templates')
+  : resolve(__regen_dirname, '../../templates');
 
 export async function regenerateCommand(
   target: string | undefined,
@@ -42,6 +50,7 @@ export async function regenerateCommand(
   let regenerateAgentsMd = false;
   let regenerateClaudeMd = false;
   let regenerateRules = false;
+  let regeneratePlugin = false;
 
   if (target === 'CLAUDE.md' || target === 'claude') {
     regenerateClaudeMd = true;
@@ -53,10 +62,13 @@ export async function regenerateCommand(
     regenerateRules = true;
   } else if (options.agents || target === 'agents-md') {
     regenerateAgentsMd = true;
+  } else if (options.plugin) {
+    regeneratePlugin = true;
   } else if (options.all) {
     regenerateAgentsMd = true;
     regenerateClaudeMd = true;
     regenerateRules = true;
+    regeneratePlugin = true;
   } else if (target) {
     // Check if target is a specific rule file
     if (target.includes('architecture') || target.includes('rules')) {
@@ -67,6 +79,7 @@ export async function regenerateCommand(
           `  CLAUDE.md       Regenerate CLAUDE.md (overwrites self-improvements)\n` +
           `  AGENTS.md       Regenerate AGENTS.md\n` +
           `  --rules         Regenerate architecture rules for all IDEs\n` +
+          `  --plugin        Regenerate Claude Code plugin (skills, agents, hooks)\n` +
           `  --all           Regenerate everything`
       );
       process.exit(1);
@@ -83,6 +96,7 @@ export async function regenerateCommand(
         },
         { value: 'agents', label: 'AGENTS.md', hint: 'Universal AI context' },
         { value: 'rules', label: 'Architecture rules', hint: 'For all configured IDEs' },
+        { value: 'plugin', label: 'Plugin', hint: 'Skills, agents, hooks (Claude Code only)' },
       ],
       required: true,
     });
@@ -95,9 +109,10 @@ export async function regenerateCommand(
     regenerateClaudeMd = (selection as string[]).includes('claude');
     regenerateAgentsMd = (selection as string[]).includes('agents');
     regenerateRules = (selection as string[]).includes('rules');
+    regeneratePlugin = (selection as string[]).includes('plugin');
   }
 
-  if (!regenerateAgentsMd && !regenerateRules && !regenerateClaudeMd) {
+  if (!regenerateAgentsMd && !regenerateRules && !regenerateClaudeMd && !regeneratePlugin) {
     p.log.warn('Nothing selected to regenerate.');
     p.outro('No changes made');
     return;
@@ -120,7 +135,7 @@ export async function regenerateCommand(
         p.log.info('Skipping CLAUDE.md regeneration.');
 
         // If nothing else to do, exit
-        if (!regenerateAgentsMd && !regenerateRules) {
+        if (!regenerateAgentsMd && !regenerateRules && !regeneratePlugin) {
           p.outro('No changes made');
           return;
         }
@@ -146,6 +161,12 @@ export async function regenerateCommand(
   }
   const projectConfig = projectConfigResult;
 
+  // Build full config preserving enabledAddons from existing manifest
+  const fullProjectConfig: ProjectConfig = {
+    ...projectConfig,
+    enabledAddons: manifest.projectConfig?.enabledAddons,
+  };
+
   // Regenerate files
   spinner.start('Regenerating files...');
 
@@ -155,7 +176,7 @@ export async function regenerateCommand(
   if (regenerateClaudeMd) {
     const claudeMdPath = join(targetDir, 'CLAUDE.md');
     const claudeMdContent = generateClaudeMd(
-      projectConfig,
+      fullProjectConfig,
       analysis.scripts,
       analysis.packageManager
     );
@@ -169,7 +190,7 @@ export async function regenerateCommand(
   if (regenerateAgentsMd) {
     const agentsMdPath = join(targetDir, 'AGENTS.md');
     const agentsMdContent = generateAgentsMdFromConfig(
-      projectConfig,
+      fullProjectConfig,
       analysis.scripts,
       analysis.packageManager
     );
@@ -181,7 +202,7 @@ export async function regenerateCommand(
 
   // Regenerate architecture rules (skip when 'none')
   if (regenerateRules) {
-    const generatedRules = generateArchitectureRules(projectConfig);
+    const generatedRules = generateArchitectureRules(fullProjectConfig);
 
     if (generatedRules) {
       for (const ide of manifest.selectedIDEs) {
@@ -201,8 +222,26 @@ export async function regenerateCommand(
     }
   }
 
-  // Update manifest with new config
-  manifest.projectConfig = projectConfig;
+  // Regenerate plugin (skills, agents, hooks)
+  if (regeneratePlugin) {
+    if (!manifest.selectedIDEs.includes('claude-code') || manifest.installMode !== 'plugin') {
+      p.log.warn('Plugin regeneration only applies to Claude Code in plugin mode. Skipping.');
+    } else {
+      const { generatePlugin } = await import('../generators/plugin.js');
+      const pluginResult = generatePlugin(
+        targetDir,
+        TEMPLATES_DIR,
+        getCliVersion(),
+        fullProjectConfig,
+        analysis.packageManager
+      );
+      Object.assign(manifest.files, pluginResult.files);
+      regeneratedFiles.push('plugin (skills, agents, hooks)');
+    }
+  }
+
+  // Update manifest with full config
+  manifest.projectConfig = fullProjectConfig;
   manifest.version = getCliVersion();
   writeManifest(targetDir, manifest);
 

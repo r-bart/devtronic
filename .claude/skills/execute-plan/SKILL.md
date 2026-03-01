@@ -1,12 +1,11 @@
 ---
 name: execute-plan
-description: Execute a plan in parallel waves. Reads task dependencies and runs independent tasks as concurrent subagents. Claude Code only.
-disable-model-invocation: true
+description: Execute a plan in parallel phases. Reads task dependencies and runs independent tasks as concurrent subagents. Claude Code only.
 allowed-tools: Task, Read, Write, Bash, Glob, Grep, Edit
 argument-hint: "[plan-path|--latest]"
 ---
 
-# Execute Plan - Parallel Wave Execution
+# Execute Plan - Parallel Phase Execution
 
 Execute `$ARGUMENTS` by reading a plan's task dependencies and running independent tasks as concurrent subagents.
 
@@ -32,20 +31,20 @@ Execute `$ARGUMENTS` by reading a plan's task dependencies and running independe
 2. VALIDATE
    └── Check dependency graph (no cycles, IDs match)
 
-3. COMPUTE WAVES
+3. COMPUTE PHASES
    └── Topological sort by dependency levels
 
 4. DISPLAY
-   └── Show wave plan for user confirmation
+   └── Show phase plan for user confirmation
 
 5. EXECUTE
-   └── Per wave: spawn parallel Task subagents → wait → verify → next
+   └── Per phase: spawn parallel Task subagents → wait → verify → next
 
 6. VERIFY
    └── Run full quality checks + done criteria validation
 
 7. REPORT
-   └── Summary table with wave results
+   └── Summary table with phase results
 ```
 
 ---
@@ -97,48 +96,48 @@ Extract from the plan file:
 
 ---
 
-## Step 3: Compute Waves
+## Step 3: Compute Phases
 
-Group tasks into waves using topological sort:
+Group tasks into phases using topological sort:
 
 ```markdown
-## Execution Waves
+## Execution Phases
 
-| Wave | Tasks | Dependencies Met |
-|------|-------|-------------------|
+| Phase | Tasks | Dependencies Met |
+|-------|-------|-------------------|
 | 1 | 1.1, 1.2 | None (starting tasks) |
-| 2 | 2.1, 2.2 | Wave 1 complete |
-| 3 | 3.1 | Wave 2 complete |
+| 2 | 2.1, 2.2 | Phase 1 complete |
+| 3 | 3.1 | Phase 2 complete |
 ```
 
 Algorithm:
-1. Tasks with empty dependency arrays = Wave 1
-2. Tasks whose dependencies are all in previous waves = next wave
+1. Tasks with empty dependency arrays = Phase 1
+2. Tasks whose dependencies are all in previous phases = next phase
 3. Repeat until all tasks are assigned
 
 ---
 
 ## Step 4: Display and Confirm
 
-Show the computed wave plan and ask for confirmation:
+Show the computed phase plan and ask for confirmation:
 
 ```markdown
-## Wave Execution Plan
+## Phase Execution Plan
 
 **Plan**: `thoughts/plans/[file].md`
 **Total tasks**: X
-**Total waves**: Y
-**Estimated**: [parallel task count per wave]
+**Total phases**: Y
+**Estimated**: [parallel task count per phase]
 
-### Wave 1 (parallel: 2 tasks)
+### Phase 1 (parallel: 2 tasks)
 - **Task 1.1**: [name] → `file1.ts`, `file2.ts`
 - **Task 1.2**: [name] → `file3.ts`
 
-### Wave 2 (parallel: 2 tasks)
+### Phase 2 (parallel: 2 tasks)
 - **Task 2.1**: [name] → `file4.ts` (needs: 1.1, 1.2)
 - **Task 2.2**: [name] → `file5.ts` (needs: 1.1)
 
-### Wave 3 (sequential: 1 task)
+### Phase 3 (sequential: 1 task)
 - **Task 3.1**: [name] → `file6.ts` (needs: 2.1, 2.2)
 
 Proceed with execution?
@@ -146,7 +145,7 @@ Proceed with execution?
 
 ---
 
-## Step 5: Execute Waves
+## Step 5: Execute Phases
 
 ### Model Selection
 
@@ -158,9 +157,9 @@ Check `thoughts/CONFIG.md` for model profile:
 | balanced | sonnet (default) |
 | budget | haiku |
 
-### Per Wave
+### Per Phase
 
-For each wave, spawn parallel Task subagents:
+For each phase, spawn parallel Task subagents:
 
 ```markdown
 Each subagent receives:
@@ -186,23 +185,46 @@ Implement Task [X.Y]: [task name]
 ## Rules
 - Only modify the files listed above
 - Follow existing code patterns
-- Do NOT run quality checks (will be run after wave)
+- Do NOT run quality checks (will be run after phase)
 - If blocked, return with explanation instead of guessing
 ```
 
-### After each wave completes
+### Visual Progress
+
+Display text-based progress after each phase:
+
+```
+● Phase 2/3                    api-routes, validators
+  ✔ api-routes               done
+  ● validators               running
+  ○ middleware                pending
+```
+
+Indicators:
+- `●` — currently executing
+- `✔` — completed successfully
+- `✖` — failed
+- `○` — pending
+
+### After each phase completes
 
 1. Check all subagent results for success/failure
 2. Run quality checks: `<pm> run typecheck && <pm> run lint`
-3. If all pass, invoke the **commit-changes** agent to create atomic commits for the wave's changes
-4. Proceed to next wave
-5. If quality checks fail, handle errors (see Error Handling) before committing
+3. If all pass, invoke the **commit-changes** agent to create atomic commits for the phase's changes
+4. If `thoughts/CONTEXT.md` exists (orchestration mode), write an inter-phase handoff summary:
+   - What phase N accomplished
+   - Key decisions made during execution
+   - Files modified and their state
+   - Relevant context for phase N+1 tasks
+   Provide this summary to phase N+1 subagents as additional context.
+5. Proceed to next phase
+6. If quality checks fail, handle errors (see Error Handling) before committing
 
 ---
 
 ## Step 6: Verify
 
-After all waves complete:
+After all phases complete:
 
 ```bash
 # Full quality check
@@ -233,11 +255,11 @@ If the plan has a `## Done Criteria` section, validate each criterion:
 
 **Plan**: `thoughts/plans/[file].md`
 **Status**: Complete / Partial / Failed
-**Duration**: [wave count] waves
+**Duration**: [phase count] phases
 
-### Wave Results
+### Phase Results
 
-| Wave | Tasks | Status | Notes |
+| Phase | Tasks | Status | Notes |
 |------|-------|--------|-------|
 | 1 | 1.1, 1.2 | PASS | All tasks complete |
 | 2 | 2.1, 2.2 | PASS | All tasks complete |
@@ -259,6 +281,45 @@ If the plan has a `## Done Criteria` section, validate each criterion:
 ### Next Steps
 - [Any remaining actions]
 ```
+
+---
+
+## Step 7.5: Recap (orchestration mode)
+
+If `thoughts/CONTEXT.md` exists, also write `thoughts/RECAP.md`:
+
+```markdown
+# Execution Recap
+
+**Plan**: `thoughts/plans/[file].md`
+**Date**: YYYY-MM-DD HH:MM
+**Branch**: [current branch]
+
+## Phases
+
+### Phase 1
+- **Task 1.1**: [name] — done
+- **Task 1.2**: [name] — done
+
+### Phase 2
+- **Task 2.1**: [name] — done
+
+## Files Modified
+
+| File | Task | Status |
+|------|------|--------|
+| `path/to/file.ts` | 1.1 | Complete |
+
+## Pending Work
+
+- [ ] [Any remaining items]
+
+## Next Steps
+
+1. [Most logical follow-up]
+```
+
+Also update `thoughts/STATE.md` with the current workflow position.
 
 ---
 
@@ -292,16 +353,16 @@ If skipped, all tasks that depend on it are also skipped:
 **Skipped due to dependency**: Tasks 2.1, 3.1 (depend on failed 1.1)
 ```
 
-### Quality Check Failure After Wave
+### Quality Check Failure After Phase
 
 ```markdown
-## Wave [N] Quality Check Failed
+## Phase [N] Quality Check Failed
 
 **Errors**:
 - [error details]
 
 Options:
-1. **Fix and continue** — Fix issues, then resume from this wave
+1. **Fix and continue** — Fix issues, then resume from this phase
 2. **Abort** — Stop execution
 ```
 
@@ -311,7 +372,7 @@ Options:
 
 - **Claude Code only** — Uses Task tool for parallel subagents
 - **No interactive tasks** — Subagents cannot ask user questions mid-task
-- **File conflict risk** — Tasks in the same wave must NOT modify the same files
+- **File conflict risk** — Tasks in the same phase must NOT modify the same files
 - **Sequential fallback** — If Task tool is unavailable, executes tasks sequentially
 
 ---
@@ -331,7 +392,7 @@ Options:
 ## Tips
 
 1. **Ensure plan has Task Dependencies** — Without them, execution is sequential
-2. **Review wave plan before confirming** — Check for file conflicts
+2. **Review phase plan before confirming** — Check for file conflicts
 3. **Start with balanced profile** — Switch to budget for large plans
 4. **Check done criteria** — They're your verification checklist
-5. **Commit after each wave** — The commit-changes agent handles this automatically
+5. **Commit after each phase** — The commit-changes agent handles this automatically
