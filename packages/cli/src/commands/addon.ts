@@ -1,5 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { existsSync, unlinkSync, rmdirSync } from 'node:fs';
+import { existsSync, unlinkSync, rmSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { AddonName, AddonOptions } from '../types.js';
@@ -221,7 +221,7 @@ async function removeAddon(
 
     // Remove empty skill directory
     if (existsSync(skillAbsDir)) {
-      try { rmdirSync(skillAbsDir, { recursive: true }); } catch { /* ignore */ }
+      try { rmSync(skillAbsDir, { recursive: true }); } catch { /* ignore */ }
     }
   }
 
