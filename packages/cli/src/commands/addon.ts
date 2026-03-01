@@ -78,6 +78,22 @@ async function addAddon(
   const pluginRoot = manifest.pluginPath!;
   const skillsSourceDir = join(TEMPLATES_DIR, 'claude-code', '.claude', 'skills');
 
+  p.note(
+    [
+      `  ${chalk.dim('Name:')}        ${addon.label}`,
+      `  ${chalk.dim('Description:')} ${addon.description}`,
+      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.cyan(`/devtronic:${s}`)).join(', ')}`,
+      `  ${chalk.dim('Subagents:')}   ${addon.agents.length ? addon.agents.join(', ') : chalk.dim('—')}`,
+    ].join('\n'),
+    'Adding addon'
+  );
+
+  const confirmed = await p.confirm({ message: 'Add this addon?' });
+  if (p.isCancel(confirmed) || !confirmed) {
+    p.cancel('Addon installation cancelled.');
+    process.exit(0);
+  }
+
   const spinner = p.spinner();
   spinner.start(`Adding ${addon.label}...`);
 
@@ -140,6 +156,22 @@ async function removeAddon(
 
   const addon = ADDONS[addonName];
   const pluginRoot = manifest.pluginPath!;
+
+  p.note(
+    [
+      `  ${chalk.dim('Name:')}        ${addon.label}`,
+      `  ${chalk.dim('Description:')} ${addon.description}`,
+      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.dim(`/devtronic:${s}`)).join(', ')}`,
+      `  ${chalk.dim('Subagents:')}   ${addon.agents.length ? addon.agents.join(', ') : chalk.dim('—')}`,
+    ].join('\n'),
+    'Removing addon'
+  );
+
+  const confirmed = await p.confirm({ message: 'Remove this addon?' });
+  if (p.isCancel(confirmed) || !confirmed) {
+    p.cancel('Addon removal cancelled.');
+    process.exit(0);
+  }
 
   // Check for user-modified files before removing
   const modifiedFiles: string[] = [];

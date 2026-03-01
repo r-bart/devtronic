@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- `devtronic addon add <name>` and `devtronic addon remove <name>` commands for post-init addon management
 - Orchestration workflow addon: `/briefing`, `/recap`, `/handoff` skills
 - Enhanced `/execute-plan` with visual progress and inter-phase handoff summaries
 - Addon system: `enabledAddons` in ProjectConfig, selectable during `devtronic init`

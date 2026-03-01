@@ -99,6 +99,21 @@ describe('addonCommand — add', () => {
     await expect(addonCommand('add', 'nonexistent', { path: tmpDir })).rejects.toThrow();
   });
 
+  it('cancels addon add when user declines confirmation', async () => {
+    const manifest = pluginManifest();
+    writeManifestFile(tmpDir, manifest);
+
+    const clack = await import('@clack/prompts');
+    vi.mocked(clack.confirm).mockResolvedValueOnce(false);
+
+    const { addonCommand } = await import('../addon.js');
+    await expect(addonCommand('add', 'orchestration', { path: tmpDir })).rejects.toThrow();
+
+    const { readManifest } = await import('../../utils/files.js');
+    const updated = readManifest(tmpDir);
+    expect(updated!.projectConfig?.enabledAddons).not.toContain('orchestration');
+  });
+
   it('warns and exits if addon already enabled', async () => {
     const manifest = pluginManifest({
       projectConfig: {
@@ -157,6 +172,28 @@ describe('addonCommand — remove', () => {
     writeManifestFile(tmpDir, manifest);
     const { addonCommand } = await import('../addon.js');
     await expect(addonCommand('remove', 'orchestration', { path: tmpDir })).resolves.not.toThrow();
+  });
+
+  it('cancels addon remove when user declines confirmation', async () => {
+    const manifest = pluginManifest({
+      projectConfig: {
+        architecture: 'flat', layers: [], stateManagement: [], dataFetching: [],
+        orm: [], testing: [], ui: [], validation: [], framework: 'nextjs',
+        qualityCommand: '', enabledAddons: ['orchestration'],
+      },
+    });
+    writeManifestFile(tmpDir, manifest);
+
+    const clack = await import('@clack/prompts');
+    vi.mocked(clack.confirm).mockResolvedValueOnce(false);
+
+    const { addonCommand } = await import('../addon.js');
+    await expect(addonCommand('remove', 'orchestration', { path: tmpDir })).rejects.toThrow();
+
+    // Addon should still be enabled in manifest
+    const { readManifest } = await import('../../utils/files.js');
+    const updated = readManifest(tmpDir);
+    expect(updated!.projectConfig?.enabledAddons).toContain('orchestration');
   });
 
   it('removes skill files and updates manifest', async () => {

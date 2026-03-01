@@ -14,6 +14,8 @@ export interface GeneratedRules {
   antigravity: string;
   /** For GitHub Copilot (.github/copilot-instructions.md) - appended section */
   copilot: string;
+  /** For OpenCode (.opencode/rules/architecture.md) */
+  opencode: string;
 }
 
 export function generateArchitectureRules(config: ProjectConfig): GeneratedRules | null {
@@ -28,6 +30,7 @@ export function generateArchitectureRules(config: ProjectConfig): GeneratedRules
     cursor: generateCursorFormat(content),
     antigravity: generateAntigravityFormat(content),
     copilot: content, // Copilot uses plain markdown
+    opencode: content, // OpenCode uses plain markdown
   };
 }
 
@@ -329,12 +332,8 @@ ${config.qualityCommand}
 // Format generators for different IDEs
 
 function generateClaudeCodeFormat(content: string): string {
-  return `---
-alwaysApply: true
----
-
-${content}
-`;
+  // .claude/rules/*.md files are loaded unconditionally — no frontmatter needed
+  return content;
 }
 
 function generateCursorFormat(content: string): string {
@@ -348,6 +347,6 @@ ${content}
 }
 
 function generateAntigravityFormat(content: string): string {
-  // Antigravity uses plain markdown in .agent/rules/
+  // Antigravity uses plain markdown in .agents/rules/
   return content;
 }

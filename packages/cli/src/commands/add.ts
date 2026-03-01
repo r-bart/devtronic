@@ -30,6 +30,7 @@ import { introTitle, symbols } from '../utils/ui.js';
 const ALL_IDES: { value: IDE; label: string }[] = [
   { value: 'claude-code', label: 'Claude Code' },
   { value: 'cursor', label: 'Cursor' },
+  { value: 'opencode', label: 'OpenCode' },
   { value: 'antigravity', label: 'Google Antigravity' },
   { value: 'github-copilot', label: 'GitHub Copilot' },
 ];

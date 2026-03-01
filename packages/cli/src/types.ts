@@ -7,14 +7,16 @@ export interface AddonInfo {
   label: string;
   description: string;
   skills: string[]; // skill directory names this addon adds
+  agents: string[]; // subagent names this addon adds
 }
 
 export const ADDONS: Record<AddonName, AddonInfo> = {
   orchestration: {
     name: 'orchestration',
     label: 'Orchestration Workflow',
-    description: 'briefing → execute-plan (enhanced) → recap → handoff',
+    description: 'Structured pre-planning alignment, session recaps, and context rotation for long multi-session work.',
     skills: ['briefing', 'recap', 'handoff'],
+    agents: [],
   },
 };
 
@@ -39,7 +41,8 @@ export type IDE =
   | 'claude-code'
   | 'cursor'
   | 'antigravity'
-  | 'github-copilot';
+  | 'github-copilot'
+  | 'opencode';
 
 export interface FrameworkInfo {
   name: FrameworkName;
@@ -65,6 +68,7 @@ export interface ExistingConfigs {
   cursor: boolean;
   antigravity: boolean;
   'github-copilot': boolean;
+  opencode: boolean;
 }
 
 export interface StackInfo {

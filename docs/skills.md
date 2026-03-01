@@ -333,7 +333,7 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 **Enable during init**: Select "Orchestration Workflow" when prompted for addons.
 
-**Enable after init**: `devtronic config set enabledAddons orchestration`, then `devtronic regenerate`.
+**Enable after init**: `npx devtronic addon add orchestration`
 
 ### /briefing - Pre-Planning Alignment
 

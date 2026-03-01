@@ -1,6 +1,6 @@
 # devtronic
 
-CLI for setting up AI-assisted development in your projects. Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
+CLI for setting up AI-assisted development in your projects. Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
 
 ## Quick Start
 
@@ -44,8 +44,9 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 |-----|--------------|----------|
 | Claude Code | `.claude/rules/*.md` + plugin | Full (skills, agents, hooks, rules) |
 | Cursor | `.cursor/rules/*.mdc` | Rules + AGENTS.md |
-| Google Antigravity | `.agent/rules/*.md` | Rules + AGENTS.md |
+| Google Antigravity | `.agents/rules/*.md` | Rules + AGENTS.md |
 | GitHub Copilot | `.github/copilot-instructions.md` | Rules |
+| OpenCode | `.opencode/rules/*.md` | Rules + AGENTS.md |
 
 ## Requirements
 

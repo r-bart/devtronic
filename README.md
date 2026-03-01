@@ -15,7 +15,7 @@ devtronic is that structure. Skills, agents, quality gates, and self-improving r
 
 Not a silver bullet. A starting point built from experience, open to iteration.
 
-Works with **Claude Code**, **Cursor**, **Google Antigravity**, and **GitHub Copilot**.
+Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
 
 ---
 
@@ -94,8 +94,9 @@ npx devtronic init
 |-----|-----------------|--------|
 | Claude Code | `.claude-plugins/devtronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
 | Cursor | `.cursor/rules/*.mdc` | Full support |
-| Google Antigravity | `.agent/rules/*.md` | Full support |
+| Google Antigravity | `.agents/rules/*.md` | Full support |
 | GitHub Copilot | `.github/copilot-instructions.md` | Full support |
+| OpenCode | `.opencode/rules/*.md` | Full support |
 | Zed | Uses `AGENTS.md` directly | Native |
 
 ---
@@ -267,6 +268,8 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `init [path]` | Initialize in a project |
 | `update` | Update to latest template |
 | `add <ide>` | Add another IDE |
+| `addon add <name>` | Add an optional skill pack |
+| `addon remove <name>` | Remove an optional skill pack |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |
@@ -274,6 +277,7 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
 | `doctor [--fix]` | Run health diagnostics |
+| `uninstall` | Remove devtronic from your project |
 
 See [CLI Reference](./docs/cli-reference.md) for full documentation.
 

@@ -14,6 +14,8 @@ export function getRuleContentForIDE(ide: IDE, rules: GeneratedRules): string | 
       return rules.antigravity;
     case 'github-copilot':
       return rules.copilot;
+    case 'opencode':
+      return rules.opencode;
     default:
       return null;
   }

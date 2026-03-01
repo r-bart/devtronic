@@ -60,14 +60,16 @@ const IDE_TEMPLATE_MAP: Record<IDE, string> = {
   cursor: 'cursor',
   antigravity: 'antigravity',
   'github-copilot': 'github-copilot',
+  opencode: 'opencode',
 };
 
 // Files that should be generated dynamically instead of copied from templates
 const DYNAMIC_RULE_FILES: Record<IDE, string[]> = {
   'claude-code': ['.claude/rules/architecture.md'],
   cursor: ['.cursor/rules/architecture.mdc'],
-  antigravity: ['.agent/rules/architecture.md'],
+  antigravity: ['.agents/rules/architecture.md'],
   'github-copilot': [], // Copilot uses single file, handled separately
+  opencode: [], // OpenCode reads AGENTS.md natively — no separate rules directory needed
 };
 
 const THOUGHTS_DIRS = [
@@ -156,7 +158,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   if (options.ide) {
     // Parse from CLI option
-    const VALID_IDES: IDE[] = ['claude-code', 'cursor', 'antigravity', 'github-copilot'];
+    const VALID_IDES: IDE[] = ['claude-code', 'cursor', 'antigravity', 'github-copilot', 'opencode'];
     selectedIDEs = options.ide.split(',').map((s) => s.trim()) as IDE[];
     const invalidIDEs = selectedIDEs.filter((ide) => !VALID_IDES.includes(ide));
     if (invalidIDEs.length > 0) {
