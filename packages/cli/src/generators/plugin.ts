@@ -25,20 +25,25 @@ export interface PluginGenerationResult {
 
 /** Base number of core skills (derived from CORE_SKILLS registry) */
 export const BASE_SKILL_COUNT = CORE_SKILLS.length;
+/** Number of design phase skills */
+export const DESIGN_SKILL_COUNT = 12;
+/** Total number of bundled agents (core + design) */
+export const BASE_AGENT_COUNT = 15;
 
 /**
  * Generates plugin.json content for the devtronic plugin.
  */
 export function generatePluginJson(cliVersion: string, addonSkillCount: number = 0): string {
+  const baseTotal = BASE_SKILL_COUNT + DESIGN_SKILL_COUNT;
   const skillLabel = addonSkillCount > 0
-    ? `${BASE_SKILL_COUNT} + ${addonSkillCount} addon skills`
-    : `${BASE_SKILL_COUNT} skills`;
+    ? `${baseTotal} + ${addonSkillCount} addon skills`
+    : `${baseTotal} skills`;
   return JSON.stringify(
     {
       name: PLUGIN_NAME,
       version: cliVersion,
       description:
-        `devtronic — ${skillLabel}, 8 agents, full workflow hooks`,
+        `devtronic — ${skillLabel}, ${BASE_AGENT_COUNT} agents, full workflow hooks`,
       author: {
         name: 'r-bart',
         url: 'https://github.com/r-bart/devtronic',
@@ -59,9 +64,10 @@ export function generatePluginJson(cliVersion: string, addonSkillCount: number =
  * Generates marketplace.json for the local directory marketplace.
  */
 export function generateMarketplaceJson(addonSkillCount: number = 0): string {
+  const baseTotal = BASE_SKILL_COUNT + DESIGN_SKILL_COUNT;
   const skillLabel = addonSkillCount > 0
-    ? `${BASE_SKILL_COUNT} + ${addonSkillCount} addon skills`
-    : `${BASE_SKILL_COUNT} skills`;
+    ? `${baseTotal} + ${addonSkillCount} addon skills`
+    : `${baseTotal} skills`;
   return JSON.stringify(
     {
       name: MARKETPLACE_NAME,
@@ -73,7 +79,7 @@ export function generateMarketplaceJson(addonSkillCount: number = 0): string {
         {
           name: PLUGIN_NAME,
           source: `./${PLUGIN_NAME}`,
-          description: `devtronic — ${skillLabel}, 8 agents, full workflow hooks`,
+          description: `devtronic — ${skillLabel}, ${BASE_AGENT_COUNT} agents, full workflow hooks`,
         },
       ],
     },
@@ -93,8 +99,8 @@ export function generateMarketplaceJson(addonSkillCount: number = 0): string {
  * \-- devtronic/                            <- the plugin
  *     |-- .claude-plugin/
  *     |   \-- plugin.json
- *     |-- skills/   (19 skills from template)
- *     |-- agents/   (8 agents from template)
+ *     |-- skills/   (31 skills: 19 core + 12 design)
+ *     |-- agents/   (15 agents: 8 core + 7 design)
  *     |-- hooks/
  *     |   \-- hooks.json
  *     \-- scripts/
