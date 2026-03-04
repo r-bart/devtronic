@@ -16,6 +16,13 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 | test-generator | sonnet | On request | Generate unit tests following project patterns |
 | dependency-checker | haiku | Delegated by `/audit` | Audit dependencies for vulnerabilities and issues |
 | doc-sync | haiku | On request | Verify docs match the actual codebase |
+| ux-researcher | sonnet | Delegated by `/design:research`, `/design:define` | Synthesize research, personas, user journeys |
+| ia-architect | sonnet | Delegated by `/design:ia` | Navigation structure, user flows, sitemaps |
+| design-critic | sonnet | Delegated by `/design:audit` | Nielsen's 10 heuristics evaluation |
+| a11y-auditor | haiku | Delegated by `/design:audit` | WCAG 2.1 AA compliance checks |
+| design-token-extractor | haiku | Delegated by `/design:system` skills | Extract and normalize design tokens |
+| design-system-guardian | haiku | Delegated by `/design:system-audit`, `/post-review` | Detect design system drift (read-only) |
+| visual-qa | sonnet | Delegated by `/design:review` | Compare implementation vs design specs |
 
 ### Invocation Map
 
@@ -26,6 +33,15 @@ Which skills delegate to which agents:
 /quick         ──→  commit-changes    (step 5: commit)
 /audit         ──→  dependency-checker (--security mode: dependency health)
 /post-review   ──→  architecture-checker (architecture compliance check)
+/design:research   ──→  ux-researcher          (competitive analysis, persona generation)
+/design:define     ──→  ux-researcher          (personas, journeys, HMW questions)
+/design:ia         ──→  ia-architect           (sitemap, navigation model, user flows)
+/design:audit      ──→  design-critic          (Nielsen's 10 heuristics)
+                   ──→  a11y-auditor           (WCAG 2.1 AA checks)
+/design:system-*   ──→  design-token-extractor (extract and normalize tokens)
+/design:system-audit──→ design-system-guardian (drift detection)
+/design:review     ──→  visual-qa              (implementation vs spec comparison)
+/post-review       ──→  design-system-guardian (design system compliance on changed files)
 ```
 
 Standalone agents (invoked by Claude or user directly):
@@ -720,6 +736,258 @@ Overall: [IN SYNC / NEEDS UPDATE]
 Files needing updates:
 1. [path] — [what to fix]
 ```
+
+---
+
+## ux-researcher
+
+**Model**: Sonnet (requires reasoning for synthesis)
+
+**Purpose**: Synthesizes user research into personas, user journeys, competitive analysis, and HMW questions.
+
+### When Invoked
+
+Delegated by:
+- **`/design:research`** — competitive analysis and research synthesis
+- **`/design:define`** — persona generation and user journey mapping
+
+### Capabilities
+
+1. **Competitive Analysis** — identifies value propositions, UX patterns, strengths/weaknesses from competitor descriptions or URLs
+2. **Persona Generation** — builds realistic personas with goals, frustrations, context of use, and behavioral insights
+3. **User Journey Mapping** — maps stages (Discover → Onboard → Use → Return) with touchpoints, pain points, and opportunities
+4. **HMW Questions** — generates 5-8 "How Might We" questions from identified pain points
+5. **Problem Statements** — articulates "[Persona] needs a way to [action] because [insight]"
+
+### Critical Rules
+
+- Never invent user data — base everything on provided context
+- When context is thin, explicitly note what assumptions were made
+- Personas should feel like real people, not archetypes
+- Journey maps must surface pain points, not just the happy path
+
+---
+
+## ia-architect
+
+**Model**: Sonnet (requires reasoning for structure)
+
+**Purpose**: Designs information architecture, navigation structures, and user flows from personas and requirements.
+
+### When Invoked
+
+Delegated by **`/design:ia`** with personas, journeys, and functional scope as input.
+
+### Capabilities
+
+1. **Sitemap Generation** — hierarchical screen/page structure (max 3 levels recommended)
+2. **Navigation Model** — primary nav, secondary nav, entry and exit points aligned with users' mental model
+3. **Content Hierarchy** — per screen: what content/actions appear and in what order
+4. **User Flows** — critical paths with happy path + error/edge case paths
+5. **IA Issues** — flags orphaned screens, dead-ends, navigation depth > 3 levels, missing states
+
+### Critical Rules
+
+- Navigation must serve users' goals, not mirror the database schema
+- Every flow needs an error path — never design only the happy path
+- Depth > 3 levels is a red flag — flatten or reconsider
+
+---
+
+## design-critic
+
+**Model**: Sonnet (requires UX expertise)
+
+**Purpose**: Evaluates designs against Nielsen's 10 usability heuristics.
+
+### When Invoked
+
+Delegated by **`/design:audit`** with wireframe text, screen descriptions, or UI code as input.
+
+### The 10 Heuristics Checked
+
+1. Visibility of system status
+2. Match between system and real world
+3. User control and freedom
+4. Consistency and standards
+5. Error prevention
+6. Recognition rather than recall
+7. Flexibility and efficiency of use
+8. Aesthetic and minimalist design
+9. Help users recognize, diagnose, and recover from errors
+10. Help and documentation
+
+### Output Format
+
+```
+## Heuristic Evaluation
+
+| # | Heuristic | Status | Finding | Recommendation |
+|---|-----------|--------|---------|----------------|
+| 4 | Consistency and standards | ⚠️ warn | ... | ... |
+| 8 | Aesthetic and minimalist design | ❌ blocker | ... | ... |
+
+Severity summary: N blockers, M warnings, K suggestions
+```
+
+Severity: ❌ blocker = must fix before launch, ⚠️ warning = should fix, 💡 suggestion = nice to have.
+
+---
+
+## a11y-auditor
+
+**Model**: Haiku (pattern-matching checks)
+
+**Purpose**: Validates WCAG 2.1 AA compliance across color contrast, keyboard navigation, ARIA, touch targets, and more.
+
+### When Invoked
+
+Delegated by **`/design:audit`** with HTML/JSX/CSS source files or wireframe text descriptions.
+
+### Checks Performed
+
+| Check | WCAG | What It Validates |
+|-------|------|-------------------|
+| Color contrast | 1.4.3 | 4.5:1 normal text, 3:1 large text and UI components |
+| Touch targets | 2.5.5 | Minimum 44×44 CSS pixels for interactive elements |
+| Alt text | 1.1.1 | All images have descriptive alt attributes |
+| Form labels | 1.3.1 | Every input has an associated label |
+| Keyboard nav | 2.1.1 | All interactive elements keyboard accessible |
+| ARIA | 4.1.2 | Correct roles, required attributes, landmark regions |
+| Reduced motion | 2.3.3 | Animations have `prefers-reduced-motion` override |
+
+### Critical Rules
+
+- AA compliance is the minimum for public-facing products
+- Contrast must be calculated, not guessed
+- Report file:line references for every violation
+
+---
+
+## design-token-extractor
+
+**Model**: Haiku (parsing and normalization)
+
+**Purpose**: Extracts design tokens from CSS, Tailwind config, or Style Dictionary files and normalizes them to a tool-agnostic format.
+
+### When Invoked
+
+Delegated by `/design:system-define`, `/design:system-sync`, `/design:system-audit`.
+
+### Supported Sources
+
+- `tailwind.config.js/ts` → extracts `theme.colors`, `theme.spacing`, `theme.fontFamily`, `theme.fontSize`, `theme.borderRadius`, `theme.boxShadow`
+- CSS `:root { }` → extracts all `--variable: value` pairs
+- `tokens.json` / Style Dictionary → extracts value fields
+
+### Normalization Format
+
+All tokens normalized to: `category.name: value`
+
+Examples:
+- Tailwind `colors.primary` → `color.primary: #value`
+- CSS `--space-4` → `space.4: 16px`
+- Tailwind `spacing[4]` → `space.4: 16px`
+
+### Critical Rules
+
+- Never invent token values — only extract what's in the files
+- Report extraction errors rather than silently skipping
+- Always note the source file for each extracted token
+
+---
+
+## design-system-guardian
+
+**Model**: Haiku (fast pattern matching)
+
+**Purpose**: Detects design system drift in source files — hardcoded values that should use tokens. **Read-only — never modifies code.**
+
+### When Invoked
+
+Delegated by:
+- **`/design:system-audit`** — full codebase scan
+- **`/post-review`** — check files modified in current branch
+
+### Checks Performed
+
+1. **Hardcoded Colors** — hex, rgb(), rgba(), hsl() values that match or are near a design system token
+2. **Hardcoded Spacing** — numeric px/rem values where spacing tokens exist
+3. **Token Coverage** — components in design system that aren't implemented in code
+
+Requires `thoughts/design/design-system.md` to exist. If missing, reports: "No design system found. Run `/design:system --define` first."
+
+### Output Format
+
+```
+## Design System Compliance
+
+Files checked: N
+Violations found: M
+
+| File | Line | Type | Found | Token to use |
+|------|------|------|-------|--------------|
+| src/Button.tsx | 42 | hardcoded-color | #3B82F6 | color.primary |
+| src/Card.tsx | 15 | hardcoded-spacing | padding: 16px | space.4 |
+
+Compliance rate: X%
+```
+
+### Critical Rules
+
+- **NEVER modifies any file** — reports only
+- `disallowedTools: Edit, Write`
+- File:line reference for every violation
+
+---
+
+## visual-qa
+
+**Model**: Sonnet (requires visual reasoning)
+
+**Purpose**: Compares implementation against wireframe specs or screenshots. Reports deviations in layout, components, states, and token usage.
+
+### When Invoked
+
+Delegated by **`/design:review`** with wireframe spec sections and implementation files (and optionally screenshot paths).
+
+### Comparison Method
+
+**Text-based** (primary): Compares wireframe spec → implementation code
+- Components present
+- Content hierarchy matches priority
+- All interactive elements with correct labels
+- All states implemented (empty, loading, error, success)
+- Token usage (no hardcoded values)
+- No placeholder copy in production
+
+**Screenshot** (when provided): Compares layout zones, proportions, spacing, colors.
+
+### Severity
+
+- **Blocker**: Missing component, wrong primary action, broken state
+- **Warning**: Token not used, layout deviation > 8px, missing state
+- **Suggestion**: Copy refinement, animation, minor spacing polish
+
+### Output Format
+
+```
+## Visual QA: [Component/Screen]
+
+| Element | Expected | Found | Severity |
+|---------|----------|-------|----------|
+| Primary CTA | "Get Started" | "Start" | suggestion |
+| Error state | Inline error | Toast | warning |
+| Card padding | 16px (space.4) | 12px | warning |
+
+N blockers, M warnings, K suggestions
+```
+
+### Critical Rules
+
+- Only report deviations from the spec — no personal preferences
+- Never modify implementation files
+- Reference exact spec line for each deviation
 
 ---
 

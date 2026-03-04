@@ -403,3 +403,23 @@ Learn to approach errors in a structured way.
 /summary auth-jwt-refactor
 /post-review --strict
 ```
+
+### Feature with Design
+
+```
+/brief [feature]
+/design --research
+/design --define
+/design --ia
+/design --wireframe
+/design:system --define   (if design system doesn't exist yet)
+/spec [feature]
+/create-plan [feature]
+/generate-tests
+/execute-plan
+/design:review
+/summary [feature]
+/post-review
+```
+
+Use when visual quality and UX matter — define what to build and how it should feel before writing a single line of code. See [Tutorial 07: Design-First Workflow](./07-design-workflow.md).

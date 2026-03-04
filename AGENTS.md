@@ -87,6 +87,7 @@ Run after every change.
 | Task | Commands |
 |------|----------|
 | New feature | `/brief` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/summary` → `/post-review` |
+| Design (new) | `/brief` → `/spec` → `/design` → `/create-plan` → `/execute-plan` → `/design:review` → `/post-review` |
 | Bug fix | `/brief` → fix → test → `/summary` → `/post-review` |
 | Refactor | `/brief` → `/create-plan` → implement → `/summary` → `/post-review` |
 
@@ -160,5 +161,6 @@ When stuck or getting mediocre results:
 - **CLAUDE.md** - Project rules
 - **docs/ARCHITECTURE.md** - Folder structure
 - **docs/worktrees.md** - Parallel sessions with git worktrees
+- **docs/design-phase.md** - Design phase skills and agents guide
 - **.claude/skills/** - Available workflows
 - **.claude/agents/** - Specialized helpers

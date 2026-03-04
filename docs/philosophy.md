@@ -14,6 +14,7 @@ The principles and reasoning behind devtronic.
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  Spec Error         →  Wrong feature       →  Everything wrong  │
+│  Design Error       →  Wrong UX            →  rework UI + flows │
 │  Research Error     →  Wrong understanding →  1000s bad LOC     │
 │  Planning Error     →  Wrong approach      →  100s bad LOC      │
 │  Coding Error       →  Bug                 →  1 bug             │
@@ -23,11 +24,12 @@ The principles and reasoning behind devtronic.
 
 Human review at earlier stages has higher leverage. That's why we:
 1. **Spec first** - Validate requirements before technical work
-2. **Research second** - Understand the codebase before designing
-3. **Plan third** - Approve approach before implementation
-4. **Implement fourth** - When everything is clear
-5. **Summarize** - Document what changed and why
-6. **Review last** - Verify quality before merging
+2. **Design second** - Validate UX before writing code (optional but high-leverage)
+3. **Research third** - Understand the codebase before designing
+4. **Plan fourth** - Approve approach before implementation
+5. **Implement fifth** - When everything is clear
+6. **Summarize** - Document what changed and why
+7. **Review last** - Verify quality before merging
 
 ---
 
@@ -240,6 +242,16 @@ The workflow is designed for human review at critical moments:
 - Are edge cases identified?
 - Are success metrics realistic?
 
+### After /design (optional, high-leverage)
+
+**Review**: Personas, IA, wireframes, design system
+
+**Questions**:
+- Does the UX match user needs?
+- Is the information architecture intuitive?
+- Are wireframes feasible to implement?
+- Is the design system consistent and complete?
+
 ### After /create-plan
 
 **Review**: Architecture, phases, task breakdown
@@ -336,5 +348,6 @@ Pointing to files instead of pasting content saves tokens.
 
 - [Skills Reference](./skills.md) - All included skills
 - [Agents Reference](./agents.md) - All included agents
+- [Design Phase Reference](./design-phase.md) - Design skills and workflow
 - [Worktrees Guide](./worktrees.md) - Parallel session setup
 - [Customization Guide](./customization.md) - Make it your own
