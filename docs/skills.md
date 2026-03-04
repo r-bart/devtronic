@@ -12,7 +12,7 @@ These skills form the recommended development workflow:
 /brief → /spec → /create-plan → /generate-tests → /execute-plan → /summary → /post-review
 
 Design workflow:
-/brief → /spec → /design → /create-plan → /execute-plan → /design:review → /post-review
+/brief → /design --research → /design --define → /design --ia → /design --wireframe → /design:system --define → /spec → /create-plan → /generate-tests → /execute-plan → /design:review → /post-review
 ```
 
 ### /brief - Quick Session Briefing

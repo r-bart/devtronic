@@ -12,7 +12,9 @@ devtronic includes a structured design phase that bridges product requirements a
 ## Workflow Position
 
 ```
-/brief → /spec → /design → /create-plan → /execute-plan → /design:review → /post-review
+/brief → /design --research → /design --define → /design --ia → /design --wireframe
+       → /design:system --define → /spec → /create-plan → /generate-tests
+       → /execute-plan → /design:review → /post-review
 ```
 
 ## Skills Reference
