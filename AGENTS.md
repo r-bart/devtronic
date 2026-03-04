@@ -138,6 +138,7 @@ This is an **open source project** (MIT) published to npm:
 - CI: GitHub Actions (Node 18/20/22)
 - Security: report via GitHub Security Advisories (`SECURITY.md`)
 - Release: tag `v*.*.*` → GitHub Actions publishes to npm
+- **Never include `Co-Authored-By:` lines in commit messages**
 
 ### Contributing Philosophy
 - Encourage **extending via skills/plugins** over core PRs

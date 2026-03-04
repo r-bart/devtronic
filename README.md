@@ -147,6 +147,24 @@ npx devtronic init
 /post-review           →  Final quality check
 ```
 
+### With design phase (UI-heavy features)
+
+```
+/brief
+        │
+/design --research     →  Competitive analysis, user segments, pain points
+/design --define       →  Personas, user journeys, HMW questions
+/design --ia           →  Sitemap, navigation, user flows
+/design --wireframe    →  Screen specs (text-based, tool-agnostic)
+/design:system --define→  Design tokens: colors, typography, spacing
+        │
+/spec [feature]        →  PRD informed by design decisions
+/create-plan + /generate-tests + /execute-plan
+        │
+/design:review         →  QA: implementation vs wireframes + design system
+/post-review
+```
+
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.
 
 ---
@@ -208,8 +226,8 @@ your-project/
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
 │   └── devtronic/                         # ← the plugin
-│       ├── skills/                     # 19 skills (/devtronic:brief, etc.)
-│       ├── agents/                     # 8 agents
+│       ├── skills/                     # 34 skills (/devtronic:brief, etc.)
+│       ├── agents/                     # 15 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh
 │
@@ -228,6 +246,7 @@ your-project/
     ├── notes/                          # Project notes
     ├── debug/                          # Debug analysis
     ├── audit/                          # Audit reports from /audit
+    ├── design/                         # Design artifacts (research, wireframes, tokens...)
     └── archive/                        # Archived items
 ```
 
