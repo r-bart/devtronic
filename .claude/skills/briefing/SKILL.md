@@ -58,6 +58,7 @@ thoughts/SUMMARY.md    — Latest session summary
 Also scan:
 - `thoughts/specs/` for related specs
 - `thoughts/plans/` for existing plans on this topic
+- `thoughts/design/` for existing design artifacts (research, wireframes, design system)
 - Recent git log for related work
 
 ---
@@ -73,6 +74,7 @@ Create 3-5 targeted questions based on:
 | **Priority** | "Ship fast or build for extensibility?" |
 | **Constraints** | "Any performance budgets or browser support requirements?" |
 | **Dependencies** | "Should this integrate with X or be standalone?" |
+| **Design Context** | "Do wireframes exist in `thoughts/design/`? Is the design system defined? Should we run `/design` first?" |
 
 **Rules for good questions:**
 - Each question should have 2-4 concrete options (not open-ended)

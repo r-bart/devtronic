@@ -268,12 +268,12 @@ npx devtronic info
 ◆ devtronic Info
 
   devtronic
-  Version:       1.0.0 (latest)
+  Version:       1.1.0 (latest)
   Installed:     2026-02-27
   IDEs:          claude-code, cursor
   Mode:          plugin
-  Skills:        19
-  Agents:        8
+  Skills:        31
+  Agents:        15
   Framework:     nextjs
   Architecture:  clean
 ```
@@ -509,8 +509,8 @@ Copied from templates:
 
 | Directory | Content |
 |-----------|---------|
-| `.claude/skills/` | 19 workflow skills |
-| `.claude/agents/` | 8 specialized agents |
+| `.claude/skills/` | 31 workflow skills (19 core + 12 design) |
+| `.claude/agents/` | 15 specialized agents (8 core + 7 design) |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |
 
@@ -520,8 +520,8 @@ Copied from templates:
 
 | Feature | Claude Code | Cursor | Antigravity | GitHub Copilot | OpenCode |
 |---------|-------------|--------|-------------|----------------|----------|
-| Skills (19) | ✓ | - | - | - | - |
-| Agents (8) | ✓ | - | - | - | - |
+| Skills (31) | ✓ | - | - | - | - |
+| Agents (15) | ✓ | - | - | - | - |
 | Rules | ✓ | ✓ | ✓ | Partial | ✓ |
 | AGENTS.md | ✓ | ✓ | ✓ | - | ✓ |
 | thoughts/ | ✓ | ✓ | ✓ | - | ✓ |

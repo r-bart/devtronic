@@ -134,7 +134,8 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
   }
 
-  // Check which template files have updates
+  // Check which template files have updates or are new
+  const newFiles: string[] = [];
   for (const ide of manifest.selectedIDEs) {
     const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (!existsSync(templateDir)) continue;
@@ -148,6 +149,8 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
       const fileInfo = manifest.files[file];
       if (fileInfo && fileInfo.checksum !== templateChecksum) {
         outdatedFiles.push(file);
+      } else if (!fileInfo) {
+        newFiles.push(file);
       }
     }
   }
@@ -187,7 +190,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     );
   }
 
-  if (outdatedFiles.length === 0 && removedFromTemplate.length === 0) {
+  if (outdatedFiles.length === 0 && removedFromTemplate.length === 0 && newFiles.length === 0) {
     p.log.success('All files are up to date!');
     p.outro('No updates needed');
     return;
@@ -200,6 +203,13 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     p.note(
       filesToUpdate.map((f) => `  ${symbols.updated} ${f}`).join('\n'),
       'Files to Update'
+    );
+  }
+
+  if (newFiles.length > 0) {
+    p.note(
+      newFiles.map((f) => `  ${symbols.star} ${f}`).join('\n'),
+      'New Files in This Version'
     );
   }
 
@@ -285,10 +295,11 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   // Confirm update
   const hasUpdates = filesToUpdate.length > 0;
+  const hasNewFiles = newFiles.length > 0;
   const hasDeletions = filesToDelete.length > 0;
   const hasIgnores = filesToIgnore.length > 0;
 
-  if (!hasUpdates && !hasDeletions && !hasIgnores) {
+  if (!hasUpdates && !hasNewFiles && !hasDeletions && !hasIgnores) {
     p.log.success('No changes to apply');
     p.outro('Update complete');
     return;
@@ -296,6 +307,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   const actionParts: string[] = [];
   if (hasUpdates) actionParts.push(`update ${filesToUpdate.length} files`);
+  if (hasNewFiles) actionParts.push(`add ${newFiles.length} new files`);
   if (hasDeletions) actionParts.push(`delete ${filesToDelete.length} files`);
   if (hasIgnores) actionParts.push(`ignore ${filesToIgnore.length} files`);
 

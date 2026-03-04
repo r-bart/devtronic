@@ -87,6 +87,7 @@ Run after every change.
 | Task | Commands |
 |------|----------|
 | New feature | `/brief` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/summary` → `/post-review` |
+| Design (new) | `/brief` → `/design --research` → `/design --define` → `/design --ia` → `/design --wireframe` → `/design:system --define` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/design:review` → `/post-review` |
 | Bug fix | `/brief` → fix → test → `/summary` → `/post-review` |
 | Refactor | `/brief` → `/create-plan` → implement → `/summary` → `/post-review` |
 
@@ -137,6 +138,7 @@ This is an **open source project** (MIT) published to npm:
 - CI: GitHub Actions (Node 18/20/22)
 - Security: report via GitHub Security Advisories (`SECURITY.md`)
 - Release: tag `v*.*.*` → GitHub Actions publishes to npm
+- **Never include `Co-Authored-By:` lines in commit messages**
 
 ### Contributing Philosophy
 - Encourage **extending via skills/plugins** over core PRs
@@ -160,5 +162,6 @@ When stuck or getting mediocre results:
 - **CLAUDE.md** - Project rules
 - **docs/ARCHITECTURE.md** - Folder structure
 - **docs/worktrees.md** - Parallel sessions with git worktrees
+- **docs/design-phase.md** - Design phase skills and agents guide
 - **.claude/skills/** - Available workflows
 - **.claude/agents/** - Specialized helpers

@@ -9,6 +9,7 @@ import {
   PLUGIN_NAME,
   PLUGIN_DIR,
   BASE_SKILL_COUNT,
+  DESIGN_SKILL_COUNT,
 } from '../plugin.js';
 import type { ProjectConfig } from '../../types.js';
 
@@ -129,26 +130,26 @@ describe('addon skill filtering', () => {
 describe('dynamic skill count in plugin.json', () => {
   it('shows base count when no addons', () => {
     const result = JSON.parse(generatePluginJson('1.0.0', 0));
-    expect(result.description).toContain(`${BASE_SKILL_COUNT} skills`);
+    expect(result.description).toContain(`${BASE_SKILL_COUNT + DESIGN_SKILL_COUNT} skills`);
     expect(result.description).not.toContain('addon');
   });
 
   it('shows addon count when addons enabled', () => {
     const result = JSON.parse(generatePluginJson('1.0.0', 3));
-    expect(result.description).toContain(`${BASE_SKILL_COUNT} + 3 addon skills`);
+    expect(result.description).toContain(`${BASE_SKILL_COUNT + DESIGN_SKILL_COUNT} + 3 addon skills`);
   });
 });
 
 describe('dynamic skill count in marketplace.json', () => {
   it('shows base count when no addons', () => {
     const result = JSON.parse(generateMarketplaceJson(0));
-    expect(result.plugins[0].description).toContain(`${BASE_SKILL_COUNT} skills`);
+    expect(result.plugins[0].description).toContain(`${BASE_SKILL_COUNT + DESIGN_SKILL_COUNT} skills`);
     expect(result.plugins[0].description).not.toContain('addon');
   });
 
   it('shows addon count when addons enabled', () => {
     const result = JSON.parse(generateMarketplaceJson(3));
-    expect(result.plugins[0].description).toContain(`${BASE_SKILL_COUNT} + 3 addon skills`);
+    expect(result.plugins[0].description).toContain(`${BASE_SKILL_COUNT + DESIGN_SKILL_COUNT} + 3 addon skills`);
   });
 });
 

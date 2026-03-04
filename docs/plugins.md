@@ -38,14 +38,26 @@ your-project/
 │   └── devtronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
-│       ├── skills/                     # 22 skills (19 core + 3 addon)
+│       ├── skills/                     # 34 skills (19 core + 12 design + 3 addon)
 │       │   ├── brief/SKILL.md
 │       │   ├── spec/SKILL.md
 │       │   ├── scaffold/
 │       │   │   ├── SKILL.md
 │       │   │   └── (5 supporting files)
+│       │   ├── design/SKILL.md
+│       │   ├── design-research/SKILL.md
+│       │   ├── design-define/SKILL.md
+│       │   ├── design-ia/SKILL.md
+│       │   ├── design-wireframe/SKILL.md
+│       │   ├── design-system/SKILL.md
+│       │   ├── design-system-define/SKILL.md
+│       │   ├── design-system-audit/SKILL.md
+│       │   ├── design-system-sync/SKILL.md
+│       │   ├── design-audit/SKILL.md
+│       │   ├── design-review/SKILL.md
+│       │   ├── design-spec/SKILL.md
 │       │   └── ...
-│       ├── agents/                     # 8 agents
+│       ├── agents/                     # 15 agents (8 core + 7 design)
 │       │   ├── architecture-checker.md
 │       │   ├── code-reviewer.md
 │       │   ├── commit-changes.md
@@ -53,7 +65,14 @@ your-project/
 │       │   ├── doc-sync.md
 │       │   ├── error-investigator.md
 │       │   ├── quality-runner.md
-│       │   └── test-generator.md
+│       │   ├── test-generator.md
+│       │   ├── ux-researcher.md
+│       │   ├── ia-architect.md
+│       │   ├── design-critic.md
+│       │   ├── a11y-auditor.md
+│       │   ├── design-token-extractor.md
+│       │   ├── design-system-guardian.md
+│       │   └── visual-qa.md
 │       ├── hooks/
 │       │   └── hooks.json              # 5 workflow hooks
 │       └── scripts/
@@ -81,8 +100,8 @@ Not everything moves into the plugin. These remain outside:
 
 | Content | Path in Plugin | Count |
 |---------|---------------|-------|
-| Skills | `devtronic/skills/` | 22 (19 core + 3 addon) |
-| Agents | `devtronic/agents/` | 8 |
+| Skills | `devtronic/skills/` | 34 (19 core + 12 design + 3 addon) |
+| Agents | `devtronic/agents/` | 15 (8 core + 7 design) |
 | Hooks | `devtronic/hooks/hooks.json` | 5 events |
 | Scripts | `devtronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |
 | Metadata | `devtronic/.claude-plugin/plugin.json` | — |
