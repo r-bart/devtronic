@@ -10,6 +10,9 @@ These skills form the recommended development workflow:
 
 ```
 /brief → /spec → /create-plan → /generate-tests → /execute-plan → /summary → /post-review
+
+Design workflow:
+/brief → /design --research → /design --define → /design --ia → /design --wireframe → /design:system --define → /spec → /create-plan → /generate-tests → /execute-plan → /design:review → /post-review
 ```
 
 ### /brief - Quick Session Briefing
@@ -403,6 +406,170 @@ When the orchestration addon is enabled (`thoughts/CONTEXT.md` exists):
 - **Visual progress**: Text-based phase progress with status indicators
 - **Inter-phase handoff**: Summary of what each phase accomplished, passed to next phase as context
 - **Automatic recap**: Writes `thoughts/RECAP.md` after completion
+
+---
+
+## Design Phase Skills
+
+A structured UX/UI design phase that bridges product requirements and implementation. Tool-agnostic — works with or without Figma or Paper MCP. See [Design Phase Guide](./design-phase.md) for the full workflow.
+
+### /design - Design Phase Orchestrator
+
+**Purpose**: Entry point for the design phase. Detects current context and routes to the appropriate sub-skill.
+
+**Flags**:
+| Flag | Routes to | When |
+|------|----------|------|
+| `--research` | `/design:research` | Start discovery phase |
+| `--define` | `/design:define` | Build personas and journeys |
+| `--ia` | `/design:ia` | Define information architecture |
+| `--wireframe` | `/design:wireframe` | Specify screen layouts |
+| `--system` | `/design:system` | Manage design system |
+| `--audit` | `/design:audit` | UX + accessibility audit |
+| `--review` | `/design:review` | QA implementation vs design |
+| `--spec` | `/design:spec` | Generate dev handoff spec |
+
+**No flag**: Detects state from `thoughts/design/` and proposes next step.
+
+**Output**: Appends to `thoughts/design/design.md`
+
+---
+
+### /design:research - Discovery & Competitive Analysis
+
+**Purpose**: Synthesizes competitive analysis, target audience, and business context from user input and existing specs.
+
+**When to use**:
+- Starting a new product or feature with no prior research
+- After `/spec` to enrich requirements with market context
+
+**Skip for**: Internal tools with no competition, or when `thoughts/design/research.md` already exists.
+
+**Output**: `thoughts/design/research.md`
+
+---
+
+### /design:define - Personas, Journeys & Problem Framing
+
+**Purpose**: Generates 2-3 personas, user journey maps, HMW questions, and a crisp problem statement.
+
+**When to use**: After `/design:research` — reads `thoughts/design/research.md` as input.
+
+**Skip for**: B2B internal tools where users are well-known.
+
+**Output**: `thoughts/design/define.md`
+
+---
+
+### /design:ia - Information Architecture
+
+**Purpose**: Defines navigation structure, sitemap, content hierarchy, and user flows.
+
+**When to use**: After `/design:define` — reads personas and journeys as input.
+
+**Skip for**: Single-screen tools with no navigation.
+
+**Output**: `thoughts/design/ia.md`
+
+---
+
+### /design:wireframe - Screen Specifications
+
+**Purpose**: Generates structured text-based wireframe specs per screen — components, states, layout zones, interactive elements.
+
+**When to use**: After `/design:ia` — uses screen list from IA as input.
+
+**Arguments**: `[screen-name]` for a specific screen, `--all` for all screens.
+
+**Note**: Tool-agnostic. No Figma or Paper required — specs are structured text in `thoughts/design/wireframes.md`.
+
+**Output**: `thoughts/design/wireframes.md`
+
+---
+
+### /design:system - Design System Router
+
+**Purpose**: Routes to the appropriate design system sub-skill based on flag.
+
+**Flags**:
+| Flag | Routes to | Purpose |
+|------|----------|---------|
+| `--define` | `/design:system-define` | Create or extract design system |
+| `--audit` | `/design:system-audit` | Detect drift and hardcoded values |
+| `--sync` | `/design:system-sync` | Sync tokens to project config files |
+
+---
+
+### /design:system-define - Create or Extract Design System
+
+**Purpose**: Interactively defines design tokens (colors, typography, spacing, borders, shadows) or extracts them from existing CSS/Tailwind config.
+
+**Modes**:
+- Default: guided interactive token definition
+- `--extract`: reads existing project config and normalizes to tokens
+
+**Output**: `thoughts/design/design-system.md` (source of truth for all tokens)
+
+---
+
+### /design:system-audit - Design System Drift Detection
+
+**Purpose**: Scans the codebase for design system drift — hardcoded hex values, arbitrary spacing, tokens defined but unused, components that bypass the system.
+
+**When to use**: Before PRs, before releases, periodically on growing codebases. Also runs automatically from `/post-review` via `design-system-guardian` agent.
+
+**Output**: `thoughts/design/design-system-audit.md`
+
+---
+
+### /design:system-sync - Token Synchronization
+
+**Purpose**: Syncs `thoughts/design/design-system.md` → project config files (Tailwind, CSS vars, tokens.json). Always one-directional: design system is the source of truth.
+
+**Arguments**: `--dry-run` to preview changes without applying.
+
+**When to use**: After defining or changing design tokens, before starting implementation.
+
+---
+
+### /design:audit - UX Heuristics & Accessibility
+
+**Purpose**: Evaluates designs against Nielsen's 10 heuristics and WCAG 2.1 AA. Can audit wireframe specs (text) or implementation (code).
+
+**Modes**:
+| Flag | Input | What runs |
+|------|-------|----------|
+| `--wireframes` | `thoughts/design/wireframes.md` | Heuristics only |
+| `--code` | Source files | Heuristics + accessibility |
+| `--both` | Both | Full audit |
+
+**Delegates to**: `design-critic` (heuristics) + `a11y-auditor` (WCAG 2.1 AA)
+
+**Output**: `thoughts/design/audit.md`
+
+---
+
+### /design:review - Implementation vs Design QA
+
+**Purpose**: Compares what was built against wireframe specs and design system. Surfaces deviations with severity (blocker / warning / suggestion).
+
+**When to use**: After `/execute-plan` completes UI work, before PR.
+
+**Arguments**: `[component-name]` for specific component, `--all` for all screens.
+
+**Delegates to**: `visual-qa` agent if screenshots are available.
+
+**Note**: Not a code quality review — use `/post-review` for that. This reviews visual/UX fidelity.
+
+---
+
+### /design:spec - Developer Handoff Specification
+
+**Purpose**: Generates a structured developer spec from all design artifacts — component breakdown, props, token references, interaction specs, states, and edge cases.
+
+**When to use**: After the design phase is complete, before `/create-plan`. The spec informs the component breakdown in the implementation plan.
+
+**Output**: `thoughts/design/spec.md`
 
 ---
 
