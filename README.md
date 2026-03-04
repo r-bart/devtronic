@@ -134,6 +134,8 @@ npx devtronic init
 ```
 /brief [topic]         →  Orientation + pre-flight checks
         │
+[ /design phase ]      →  (optional) UX discovery → wireframes → design system
+        │                  See Design Phase Guide ↗
 /spec [idea]           →  Define WHAT to build (PRD)
         │
 /create-plan [feature] →  Design implementation phases
@@ -142,30 +144,16 @@ npx devtronic init
         │
 /execute-plan          →  Implement in parallel phases
         │
+[ /design:review ]     →  (optional) QA vs wireframes + design system
+        │
 /summary               →  Document what changed and why
         │
 /post-review           →  Final quality check
 ```
 
-### With design phase (UI-heavy features)
-
-```
-/brief
-        │
-/design --research     →  Competitive analysis, user segments, pain points
-/design --define       →  Personas, user journeys, HMW questions
-/design --ia           →  Sitemap, navigation, user flows
-/design --wireframe    →  Screen specs (text-based, tool-agnostic)
-/design:system --define→  Design tokens: colors, typography, spacing
-        │
-/spec [feature]        →  PRD informed by design decisions
-/create-plan + /generate-tests + /execute-plan
-        │
-/design:review         →  QA: implementation vs wireframes + design system
-/post-review
-```
-
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.
+
+For UI-heavy features, run the design phase before `/spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
 
 ---
 
