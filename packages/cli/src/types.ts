@@ -1,6 +1,6 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | null;
 
-export type AddonName = 'orchestration';
+export type AddonName = 'orchestration' | 'design-best-practices';
 
 export interface AddonInfo {
   name: AddonName;
@@ -10,12 +10,32 @@ export interface AddonInfo {
   agents: string[]; // subagent names this addon adds
 }
 
+export interface AddonManifest {
+  name: string;
+  description: string;
+  version: string;
+  license: string;
+  attribution?: string;
+  files: {
+    skills: string[];
+    reference?: string[];
+    rules?: string[];
+  };
+}
+
 export const ADDONS: Record<AddonName, AddonInfo> = {
   orchestration: {
     name: 'orchestration',
     label: 'Orchestration Workflow',
     description: 'Structured pre-planning alignment, session recaps, and context rotation for long multi-session work.',
     skills: ['briefing', 'recap', 'handoff'],
+    agents: [],
+  },
+  'design-best-practices': {
+    name: 'design-best-practices',
+    label: 'Design Best Practices',
+    description: 'Frontend design quality skills: typography, color, layout, accessibility, motion, and UX writing.',
+    skills: ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'],
     agents: [],
   },
 };
