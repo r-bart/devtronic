@@ -5,6 +5,7 @@
  * These tests encode the spec's acceptance criteria as executable assertions.
  * If a test seems wrong, update the spec and regenerate — don't edit tests directly.
  */
+/* eslint-disable @typescript-eslint/no-unused-vars, @typescript-eslint/no-require-imports */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';

@@ -4,12 +4,12 @@ import {
   writeFileSync,
   mkdirSync,
   rmSync,
-  readdirSync,
-  statSync,
   unlinkSync,
 } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
+import type { AddonName } from '../types.js';
+import { getAddonSourceDir } from '../addons/registry.js';
 
 export interface GenerateResult {
   written: number;
@@ -137,20 +137,18 @@ export function generateAddonFiles(
 
 /**
  * Removes addon files from all specified agent directories.
+ * Reads the addon's manifest to determine which files to remove.
  */
 export function removeAddonFiles(
   projectDir: string,
   addonName: string,
-  agents: string[]
+  agents: string[],
+  addonSourceDir?: string
 ): void {
-  // We need to know what files belong to this addon.
-  // Try to read the manifest from the bundled source.
-  // For removal, we need the addon source dir — find it from the registry.
-  // Since we're a utility, we'll work with what the caller can provide.
-  // For now, use the known file structure for design-best-practices.
-
-  const knownSkills = ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'];
-  const knownRules = ['design-quality.md'];
+  const sourceDir = addonSourceDir ?? getAddonSourceDir(addonName as AddonName);
+  const manifest = readManifest(sourceDir);
+  const knownSkills: string[] = manifest.files.skills ?? [];
+  const knownRules: string[] = manifest.files.rules ?? [];
 
   for (const agent of agents) {
     const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
@@ -189,16 +187,17 @@ export function syncAddonFiles(
   agents: string[]
 ): GenerateResult {
   const fileMap = buildFileMap(addonSourceDir);
+  const manifest = readManifest(addonSourceDir);
+  const addonName = manifest.name as string;
   const result: GenerateResult = { written: 0, skipped: 0, conflicts: [], updated: 0 };
 
   // Build a checksum map of what was originally installed
-  // by reading the current devtronic.json checksums
   const configPath = join(projectDir, 'devtronic.json');
   let installedChecksums: Record<string, string> = {};
   if (existsSync(configPath)) {
     try {
       const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-      const installed = config.addons?.installed?.['design-best-practices'];
+      const installed = config.addons?.installed?.[addonName];
       if (installed?.checksums) {
         installedChecksums = installed.checksums;
       }
@@ -250,7 +249,7 @@ export function syncAddonFiles(
  */
 export function detectModifiedAddonFiles(
   projectDir: string,
-  _addonName: string
+  addonName: string
 ): string[] {
   const configPath = join(projectDir, 'devtronic.json');
   if (!existsSync(configPath)) return [];
@@ -258,7 +257,7 @@ export function detectModifiedAddonFiles(
   let installedChecksums: Record<string, string> = {};
   try {
     const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-    const installed = config.addons?.installed?.['design-best-practices'];
+    const installed = config.addons?.installed?.[addonName];
     if (installed?.checksums) {
       installedChecksums = installed.checksums;
     }

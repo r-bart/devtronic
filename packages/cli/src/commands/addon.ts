@@ -19,7 +19,7 @@ import { getCliVersion } from '../utils/version.js';
 import { generatePluginJson, generateMarketplaceJson, PLUGIN_DIR } from '../generators/plugin.js';
 import { TEMPLATES_DIR } from './init.js';
 import { getAddonSourceDir, getAvailableAddons } from '../addons/registry.js';
-import { readAddonConfig, writeAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../utils/addonConfig.js';
+import { readAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../utils/addonConfig.js';
 import { generateAddonFiles, removeAddonFiles, syncAddonFiles, detectModifiedAddonFiles } from '../generators/addonFiles.js';
 
 /**
@@ -271,7 +271,7 @@ async function removeAddon(
 async function addFileBasedAddon(
   targetDir: string,
   addonName: AddonName,
-  _options: AddonOptions
+  _options: AddonOptions // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<void> {
   const addon = ADDONS[addonName];
   const config = readAddonConfig(targetDir);
@@ -328,7 +328,7 @@ async function addFileBasedAddon(
 async function removeFileBasedAddon(
   targetDir: string,
   addonName: AddonName,
-  _options: AddonOptions
+  _options: AddonOptions // eslint-disable-line @typescript-eslint/no-unused-vars
 ): Promise<void> {
   const addon = ADDONS[addonName];
   const config = readAddonConfig(targetDir);

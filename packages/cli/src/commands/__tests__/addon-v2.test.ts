@@ -8,6 +8,7 @@
  * Note: These tests cover the NEW addon system (v2) described in the spec.
  * The existing addon.test.ts covers the current plugin-mode addon system.
  */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
