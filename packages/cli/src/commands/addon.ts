@@ -288,7 +288,9 @@ async function addFileBasedAddon(
       `  ${chalk.dim('Name:')}        ${addon.label}`,
       `  ${chalk.dim('Description:')} ${addon.description}`,
       `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.cyan(`/${s}`)).join(', ')}`,
-      `  ${chalk.dim('Agents:')}      ${config.agents.join(', ')}`,
+      addon.agents.length
+        ? `  ${chalk.dim('Agents:')}      ${addon.agents.map((a) => chalk.cyan(a)).join(', ')}`
+        : `  ${chalk.dim('Agents:')}      ${chalk.dim('—')}`,
     ].join('\n'),
     'Adding addon'
   );
