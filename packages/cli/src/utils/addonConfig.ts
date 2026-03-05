@@ -1,16 +1,8 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import type { AddonConfig, AddonConfigEntry } from '../types.js';
 
-export interface AddonConfigEntry {
-  version: string;
-  files: string[];
-  checksums?: Record<string, string>;
-}
-
-export interface AddonConfig {
-  agents: string[];
-  installed: Record<string, AddonConfigEntry>;
-}
+export type { AddonConfig, AddonConfigEntry };
 
 const CONFIG_FILE = 'devtronic.json';
 

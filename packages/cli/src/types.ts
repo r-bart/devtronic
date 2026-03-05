@@ -10,6 +10,17 @@ export interface AddonInfo {
   agents: string[]; // subagent names this addon adds
 }
 
+export interface AddonConfigEntry {
+  version: string;
+  files: string[];
+  checksums?: Record<string, string>;
+}
+
+export interface AddonConfig {
+  agents: string[];
+  installed: Record<string, AddonConfigEntry>;
+}
+
 export interface AddonManifest {
   name: string;
   description: string;
