@@ -14,7 +14,7 @@ import { listCommand } from './commands/list.js';
 import { configCommand, configSetCommand, configResetCommand } from './commands/config.js';
 import { doctorCommand } from './commands/doctor.js';
 import { uninstallCommand } from './commands/uninstall.js';
-import { addonCommand } from './commands/addon.js';
+import { addonCommand, addonListCommand, addonSyncCommand } from './commands/addon.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -216,13 +216,25 @@ program
       {
         title: 'Addons',
         usage: 'addon add <name>',
-        desc: 'Add an optional skill pack (e.g., orchestration)',
+        desc: 'Add an optional skill pack (e.g., orchestration, design-best-practices)',
         opts: ['--path <path>        Target directory'],
       },
       {
         title: '',
         usage: 'addon remove <name>',
         desc: 'Remove an addon skill pack',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: '',
+        usage: 'addon list',
+        desc: 'List available and installed addons',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: '',
+        usage: 'addon sync',
+        desc: 'Regenerate addon files for current agent configuration',
         opts: ['--path <path>        Target directory'],
       },
       {
@@ -347,6 +359,22 @@ addonCmd
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (name, options) => {
     await addonCommand('remove', name, { path: options.path });
+  });
+
+addonCmd
+  .command('list')
+  .description('List available and installed addons')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await addonListCommand({ path: options.path });
+  });
+
+addonCmd
+  .command('sync')
+  .description('Regenerate addon files for current agent configuration')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (options) => {
+    await addonSyncCommand({ path: options.path });
   });
 
 // Presets command
