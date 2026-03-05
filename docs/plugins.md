@@ -81,11 +81,13 @@ Not everything moves into the plugin. These remain outside:
 
 | Content | Path in Plugin | Count |
 |---------|---------------|-------|
-| Skills | `devtronic/skills/` | 22 (19 core + 3 addon) |
+| Skills | `devtronic/skills/` | 22 (19 core + 3 orchestration addon) |
 | Agents | `devtronic/agents/` | 8 |
 | Hooks | `devtronic/hooks/hooks.json` | 5 events |
 | Scripts | `devtronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |
 | Metadata | `devtronic/.claude-plugin/plugin.json` | — |
+
+> **Note**: The `design-best-practices` addon (5 skills + 7 reference docs + 1 rule) is installed separately via `devtronic addon add design-best-practices`. Its files go to `.claude/skills/` and `.claude/rules/`, not the plugin directory. See the [Addon System](#addon-system) section below.
 
 ---
 
@@ -301,6 +303,54 @@ To disable a specific hook without removing the plugin, remove it from `hooks.js
   }
 }
 ```
+
+---
+
+## Addon System
+
+devtronic supports two types of addons:
+
+### Plugin-Mode Addons (orchestration)
+
+The `orchestration` addon installs skills into the Claude Code plugin directory (`.claude-plugins/devtronic/skills/`). These are namespaced as `/devtronic:briefing`, etc.
+
+### File-Mode Addons (design-best-practices)
+
+The `design-best-practices` addon installs files directly into agent directories:
+
+```
+.claude/
+├── skills/
+│   ├── design-init/SKILL.md
+│   ├── design-review/SKILL.md
+│   ├── design-refine/SKILL.md
+│   ├── design-system/SKILL.md
+│   └── design-harden/
+│       ├── SKILL.md
+│       └── reference/          # 7 reference docs
+│           ├── typography.md
+│           ├── color-and-contrast.md
+│           └── ...
+└── rules/
+    └── design-quality.md       # Auto-loaded quality rule
+```
+
+File-mode addons:
+- Are tracked in `devtronic.json` (not the `.ai-template/manifest.json`)
+- Can target multiple agents (`.claude/`, `.cursor/`, `.gemini/`)
+- Support customization detection via checksums
+- Can be synced across agents with `devtronic addon sync`
+
+### Managing Addons
+
+```bash
+devtronic addon list                        # See available addons
+devtronic addon add design-best-practices   # Install
+devtronic addon remove design-best-practices # Uninstall
+devtronic addon sync                        # Regenerate for current agents
+```
+
+See [CLI Reference](./cli-reference.md) and [Customization Guide](./customization.md) for details.
 
 ---
 

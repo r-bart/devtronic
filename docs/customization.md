@@ -444,6 +444,63 @@ paths:
 
 ---
 
+## Customizing Addons
+
+Addons like `design-best-practices` install files into your agent directories (`.claude/skills/`, `.claude/rules/`). These files are tracked in `devtronic.json` so they can be updated or removed cleanly.
+
+### How Addon Files Are Tracked
+
+When you run `devtronic addon add design-best-practices`, the CLI:
+1. Copies skill files to `.claude/skills/design-init/`, `.claude/skills/design-review/`, etc.
+2. Copies rule files to `.claude/rules/design-quality.md`
+3. Copies reference docs to `.claude/skills/design-harden/reference/`
+4. Records installed files and checksums in `devtronic.json`
+
+### Customizing Addon Skills
+
+You can freely edit any installed addon file:
+
+```bash
+# Edit a design skill
+vim .claude/skills/design-review/SKILL.md
+```
+
+The addon system tracks which files you've modified:
+- **Unmodified files** are updated automatically during `addon sync`
+- **Modified files** are preserved during sync (you'll see a warning)
+
+### Changing Agent Targets
+
+By default, addon files are generated for Claude only. To target multiple agents:
+
+```json
+// devtronic.json
+{
+  "addons": {
+    "agents": ["claude", "cursor", "gemini"],
+    "installed": { ... }
+  }
+}
+```
+
+After changing agents, run:
+
+```bash
+npx devtronic addon sync
+```
+
+This generates files for the new agents while keeping existing ones.
+
+### How `addon sync` Works
+
+| File State | Sync Behavior |
+|-----------|---------------|
+| Unmodified (matches original) | Updated to latest version |
+| Modified by user | Preserved, conflict reported |
+| Missing (new agent added) | Created from source |
+
+---
+
 ## Removing Default Content
 
 If you don't want certain default skills or agents:

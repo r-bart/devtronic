@@ -24,7 +24,7 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 3 addon skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 3 orchestration + 5 design addon skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |

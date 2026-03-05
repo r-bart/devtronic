@@ -406,6 +406,92 @@ When the orchestration addon is enabled (`thoughts/CONTEXT.md` exists):
 
 ---
 
+## Design Best Practices Addon Skills
+
+These skills are available when the **design-best-practices** addon is enabled. They provide structured design quality workflows: initialization, critique, refinement, system extraction, and production hardening.
+
+**Enable during init**: Select "Design Best Practices" when prompted for addons.
+
+**Enable after init**: `npx devtronic addon add design-best-practices`
+
+### /design-init - Project Design Context Setup
+
+**Purpose**: One-time setup that gathers your project's visual direction, constraints, and design tokens through a structured interview. Writes a Design Context section to CLAUDE.md.
+
+**When to use**:
+- First time working on frontend/UI for a project
+- After a major design direction change
+- When onboarding a new AI agent to an existing design system
+
+**Process**: Scans codebase for existing design signals (CSS tokens, Tailwind config, component library), then interviews about visual direction, typography, color, spacing, and constraints.
+
+**Output**: Appends `## Design Context` section to CLAUDE.md
+
+---
+
+### /design-review - Design Critique & AI Slop Detection
+
+**Purpose**: Perform a structured design critique covering visual hierarchy, information architecture, emotional resonance, and AI slop detection.
+
+**When to use**:
+- After implementing a new page or component
+- Before shipping UI changes
+- When UI "feels off" but you can't pinpoint why
+
+**Output**: Actionable report with AI Slop Score (0-10), visual hierarchy assessment, and prioritized recommendations
+
+---
+
+### /design-refine - Directional Design Refinement
+
+**Purpose**: Apply a directional design transformation to shift the UI's personality.
+
+**Usage**:
+```
+/design-refine --direction bolder     # More visual impact
+/design-refine --direction quieter    # More restraint and calm
+/design-refine --direction minimal    # Strip to essentials
+/design-refine --direction delightful # Add warmth and personality
+```
+
+Each direction has a distinct set of moves (3-5 per refinement) applied incrementally.
+
+---
+
+### /design-system - Design System Extraction & Normalization
+
+**Purpose**: Two modes for working with design tokens and patterns.
+
+**Usage**:
+```
+/design-system --mode extract    # Scan codebase, find recurring values, propose token system
+/design-system --mode normalize  # Apply existing token system consistently across all files
+```
+
+**Extract**: Clusters similar values (colors within ΔE < 3, spacing within 2px), proposes unified tokens.
+
+**Normalize**: Replaces hardcoded values with token references, generates migration report.
+
+---
+
+### /design-harden - Production Hardening
+
+**Purpose**: Systematically test UI components against real-world edge cases. Produces a severity-ranked report.
+
+**Categories tested**:
+1. Text overflow & content limits
+2. Internationalization (i18n)
+3. Error states
+4. Accessibility audit
+5. Responsive testing (320px → 1920px+)
+6. Edge cases (loading, stale data, concurrent actions)
+
+**Output**: Severity report with Critical / Major / Minor issues and specific fixes
+
+**Reference docs**: Includes 7 reference documents (typography, color, spatial design, motion, interaction, responsive, UX writing) for detailed guidance.
+
+---
+
 ## Other Skills
 
 ### /create-skill - Meta Skill Generator

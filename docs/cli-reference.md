@@ -147,7 +147,7 @@ npx devtronic addon remove <name> [options]
 ```
 
 **Arguments:**
-- `name` - Addon name (currently: `orchestration`)
+- `name` - Addon name (e.g., `orchestration`, `design-best-practices`)
 
 **Options:**
 | Option | Description |
@@ -159,6 +159,7 @@ npx devtronic addon remove <name> [options]
 | Addon | Skills | Description |
 |-------|--------|-------------|
 | `orchestration` | `/briefing`, `/recap`, `/handoff` | Pre-planning alignment, session recaps, context rotation |
+| `design-best-practices` | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
 
 **Examples:**
 
@@ -166,15 +167,52 @@ npx devtronic addon remove <name> [options]
 # Add the orchestration addon
 npx devtronic addon add orchestration
 
-# Remove the orchestration addon
-npx devtronic addon remove orchestration
+# Add the design best practices addon
+npx devtronic addon add design-best-practices
+
+# Remove an addon
+npx devtronic addon remove design-best-practices
 ```
 
 **Notes:**
-- Requires Claude Code in plugin mode (selected during `devtronic init`)
-- Both commands show a preview (name, description, skills, subagents) and ask for confirmation before proceeding
-- Remove will additionally warn about any locally modified skill files before deleting them
-- Restart Claude Code after adding or removing an addon to reload skills
+- `orchestration` requires Claude Code in plugin mode (selected during `devtronic init`)
+- `design-best-practices` works in both standalone and plugin mode — files are placed in `.claude/skills/` and `.claude/rules/`
+- Both commands show a preview and ask for confirmation before proceeding
+- Remove warns about locally modified files before deleting them
+
+---
+
+### addon list
+
+List available and installed addons.
+
+```bash
+npx devtronic addon list [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+Shows all available first-party addons, marks which are installed, and displays agent targets for installed addons.
+
+---
+
+### addon sync
+
+Regenerate addon files for current agent configuration.
+
+```bash
+npx devtronic addon sync [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+Use after changing agent targets in `devtronic.json` (e.g., adding `.cursor/` support). Regenerates files for all configured agents, preserving user-customized files.
 
 ---
 
