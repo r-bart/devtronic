@@ -392,6 +392,9 @@ const ADDON_SKILLS: Record<AddonName, Array<{ name: string; desc: string }>> = {
     { name: 'design-system', desc: 'Design system extraction and normalization' },
     { name: 'design-harden', desc: 'Production hardening for edge cases' },
   ],
+  'auto-devtronic': [
+    { name: 'auto-devtronic', desc: 'Autonomous engineering loop — spec→test→plan→execute→PR' },
+  ],
 };
 
 /**

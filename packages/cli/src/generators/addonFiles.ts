@@ -58,6 +58,14 @@ function buildFileMap(addonSourceDir: string): Map<string, string> {
     }
   }
 
+  // Agents
+  for (const agent of manifest.files.agents ?? []) {
+    const agentFile = join(addonSourceDir, 'agents', `${agent}.md`);
+    if (existsSync(agentFile)) {
+      files.set(`agents/${agent}.md`, readFileSync(agentFile, 'utf-8'));
+    }
+  }
+
   // Reference docs → nested inside design-harden skill
   for (const ref of manifest.files.reference ?? []) {
     const refPath = join(addonSourceDir, 'reference', ref);
@@ -148,6 +156,7 @@ export function removeAddonFiles(
   const sourceDir = addonSourceDir ?? getAddonSourceDir(addonName as AddonName);
   const manifest = readManifest(sourceDir);
   const knownSkills: string[] = manifest.files.skills ?? [];
+  const knownAgents: string[] = manifest.files.agents ?? [];
   const knownRules: string[] = manifest.files.rules ?? [];
 
   for (const agent of agents) {
@@ -158,6 +167,14 @@ export function removeAddonFiles(
       const skillDir = join(projectDir, basePath, 'skills', skill);
       if (existsSync(skillDir)) {
         rmSync(skillDir, { recursive: true, force: true });
+      }
+    }
+
+    // Remove agent files
+    for (const agentName of knownAgents) {
+      const agentPath = join(projectDir, basePath, 'agents', `${agentName}.md`);
+      if (existsSync(agentPath)) {
+        unlinkSync(agentPath);
       }
     }
 

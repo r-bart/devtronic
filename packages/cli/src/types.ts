@@ -1,6 +1,6 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | null;
 
-export type AddonName = 'orchestration' | 'design-best-practices';
+export type AddonName = 'orchestration' | 'design-best-practices' | 'auto-devtronic';
 
 export interface AddonInfo {
   name: AddonName;
@@ -29,6 +29,7 @@ export interface AddonManifest {
   attribution?: string;
   files: {
     skills: string[];
+    agents?: string[];
     reference?: string[];
     rules?: string[];
   };
@@ -48,6 +49,13 @@ export const ADDONS: Record<AddonName, AddonInfo> = {
     description: 'Frontend design quality skills: typography, color, layout, accessibility, motion, and UX writing.',
     skills: ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'],
     agents: [],
+  },
+  'auto-devtronic': {
+    name: 'auto-devtronic',
+    label: 'auto-devtronic — Autonomous Engineering Loop',
+    description: 'Runs the full spec→test→plan→execute→PR pipeline autonomously. Self-corrects via failing tests. HITL and AFK modes.',
+    skills: ['auto-devtronic'],
+    agents: ['issue-parser', 'failure-analyst'],
   },
 };
 
