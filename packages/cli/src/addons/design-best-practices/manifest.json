@@ -1,0 +1,28 @@
+{
+  "name": "design-best-practices",
+  "description": "Frontend design quality skills: typography, color, layout, accessibility, motion, and UX writing.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "attribution": "Reference docs derived from Anthropic frontend-design skill (Apache 2.0). See NOTICE.md for details.",
+  "files": {
+    "skills": [
+      "design-init",
+      "design-review",
+      "design-refine",
+      "design-system",
+      "design-harden"
+    ],
+    "reference": [
+      "typography.md",
+      "color-and-contrast.md",
+      "spatial-design.md",
+      "motion-design.md",
+      "interaction-design.md",
+      "responsive-design.md",
+      "ux-writing.md"
+    ],
+    "rules": [
+      "design-quality.md"
+    ]
+  }
+}
