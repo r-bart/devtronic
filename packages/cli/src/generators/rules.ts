@@ -385,6 +385,13 @@ const ADDON_SKILLS: Record<AddonName, Array<{ name: string; desc: string }>> = {
     { name: 'recap', desc: 'Quick session summary from git activity' },
     { name: 'handoff', desc: 'Context rotation for fresh sessions' },
   ],
+  'design-best-practices': [
+    { name: 'design-init', desc: 'One-time project design context setup' },
+    { name: 'design-review', desc: 'Design critique with AI slop detection' },
+    { name: 'design-refine', desc: 'Directional design refinement' },
+    { name: 'design-system', desc: 'Design system extraction and normalization' },
+    { name: 'design-harden', desc: 'Production hardening for edge cases' },
+  ],
 };
 
 /**
