@@ -547,7 +547,7 @@ Copied from templates:
 
 | Directory | Content |
 |-----------|---------|
-| `.claude/skills/` | 19 workflow skills |
+| `.claude/skills/` | 19 core workflow skills (+5 with design addon) |
 | `.claude/agents/` | 8 specialized agents |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |

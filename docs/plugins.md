@@ -38,7 +38,7 @@ your-project/
 │   └── devtronic/                         # The plugin
 │       ├── .claude-plugin/
 │       │   └── plugin.json             # Plugin metadata + version
-│       ├── skills/                     # 22 skills (19 core + 3 addon)
+│       ├── skills/                     # 22 skills (19 core + 3 orchestration)
 │       │   ├── brief/SKILL.md
 │       │   ├── spec/SKILL.md
 │       │   ├── scaffold/
@@ -81,7 +81,7 @@ Not everything moves into the plugin. These remain outside:
 
 | Content | Path in Plugin | Count |
 |---------|---------------|-------|
-| Skills | `devtronic/skills/` | 22 (19 core + 3 orchestration addon) |
+| Skills | `devtronic/skills/` | 22 (19 core + 3 orchestration). Design addon adds 5 more to `.claude/skills/` |
 | Agents | `devtronic/agents/` | 8 |
 | Hooks | `devtronic/hooks/hooks.json` | 5 events |
 | Scripts | `devtronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |

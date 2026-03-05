@@ -111,7 +111,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             19 core + 3 addon skills                    │
+│       │             19 core + 8 addon skills                    │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             8 agents included                           │
@@ -152,7 +152,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 
 ## What's Included
 
-### Skills (19 core + 3 addon)
+### Skills (19 core + 8 addon)
 
 | Category | Skills |
 |----------|--------|
@@ -163,6 +163,7 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 | **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
 | **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
+| **Design Best Practices** (addon) | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 
