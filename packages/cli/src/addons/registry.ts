@@ -29,6 +29,33 @@ export function getAddonManifest(name: AddonName): AddonManifest {
 }
 
 /**
+ * Parses and validates an addon manifest object.
+ * Throws if required fields are missing or invalid.
+ */
+export function parseAddonManifest(data: Record<string, unknown>): AddonManifest {
+  if (!data.name) throw new Error('Addon manifest missing "name"');
+  if (!data.version) throw new Error('Addon manifest missing "version"');
+
+  const files = data.files as Record<string, unknown> | undefined;
+  if (!files?.skills || !Array.isArray(files.skills) || files.skills.length === 0) {
+    throw new Error('Addon manifest has empty or missing skills array');
+  }
+
+  return {
+    name: data.name as string,
+    description: (data.description as string) ?? '',
+    version: data.version as string,
+    license: (data.license as string) ?? '',
+    attribution: data.attribution as string | undefined,
+    files: {
+      skills: files.skills as string[],
+      reference: (files.reference as string[]) ?? undefined,
+      rules: (files.rules as string[]) ?? undefined,
+    },
+  };
+}
+
+/**
  * Returns all available first-party addons.
  */
 export function getAvailableAddons(): AddonInfo[] {

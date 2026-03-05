@@ -4,7 +4,7 @@ import { join } from 'node:path';
 export interface AddonConfigEntry {
   version: string;
   files: string[];
-  checksums: Record<string, string>;
+  checksums?: Record<string, string>;
 }
 
 export interface AddonConfig {
