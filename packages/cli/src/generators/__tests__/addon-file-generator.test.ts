@@ -1,0 +1,272 @@
+/**
+ * @generated-from thoughts/specs/2026-03-05_addon-system.md
+ * @immutable Do NOT modify these tests — implementation must make them pass as-is.
+ *
+ * These tests encode the spec's acceptance criteria as executable assertions.
+ * If a test seems wrong, update the spec and regenerate — don't edit tests directly.
+ */
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { tmpdir } from 'node:os';
+
+// ─── Types that will be created during implementation ────────────────────────
+// These tests use it.todo() for items requiring types/modules that don't exist yet.
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+let tempDir: string;
+let addonSourceDir: string;
+
+beforeEach(() => {
+  tempDir = mkdtempSync(join(tmpdir(), 'devtronic-addon-gen-'));
+
+  // Create a minimal addon source structure (simulates bundled addon content)
+  addonSourceDir = join(tempDir, '_addon-source', 'design-best-practices');
+  const skillsDir = join(addonSourceDir, 'skills');
+  const refDir = join(addonSourceDir, 'reference');
+  const rulesDir = join(addonSourceDir, 'rules');
+
+  // Skills
+  for (const skill of ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden']) {
+    mkdirSync(join(skillsDir, skill), { recursive: true });
+    writeFileSync(join(skillsDir, skill, 'SKILL.md'), `# ${skill}\nTest content for ${skill}`);
+  }
+
+  // Reference docs (nested in design-harden source)
+  mkdirSync(refDir, { recursive: true });
+  for (const ref of [
+    'typography.md',
+    'color-and-contrast.md',
+    'spatial-design.md',
+    'motion-design.md',
+    'interaction-design.md',
+    'responsive-design.md',
+    'ux-writing.md',
+  ]) {
+    writeFileSync(join(refDir, ref), `# ${ref}\nReference content`);
+  }
+
+  // Rules
+  mkdirSync(rulesDir, { recursive: true });
+  writeFileSync(join(rulesDir, 'design-quality.md'), '# Design Quality\nRule content');
+
+  // Manifest
+  writeFileSync(
+    join(addonSourceDir, 'manifest.json'),
+    JSON.stringify({
+      name: 'design-best-practices',
+      description: 'Frontend design quality skills',
+      version: '1.0.0',
+      license: 'MIT',
+      attribution: 'Reference docs derived from Anthropic frontend-design skill (Apache 2.0).',
+      files: {
+        skills: ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'],
+        reference: [
+          'typography.md',
+          'color-and-contrast.md',
+          'spatial-design.md',
+          'motion-design.md',
+          'interaction-design.md',
+          'responsive-design.md',
+          'ux-writing.md',
+        ],
+        rules: ['design-quality.md'],
+      },
+    })
+  );
+});
+
+afterEach(() => {
+  rmSync(tempDir, { recursive: true, force: true });
+});
+
+// ─── FR-3: File Generation — Single Agent ───────────────────────────────────
+
+describe('Agent file generation — single agent', () => {
+  it.todo('FR-3: should generate skill files in .claude/skills/ for claude agent');
+  // Spec: FR-3, US-2/AC-2
+  // When generateAddonFiles exists:
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-review', 'SKILL.md'))).toBe(true)
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-refine', 'SKILL.md'))).toBe(true)
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-system', 'SKILL.md'))).toBe(true)
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-harden', 'SKILL.md'))).toBe(true)
+
+  it.todo('FR-3: should place rules in .claude/rules/ for claude agent');
+  // Spec: FR-3
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(existsSync(join(projectDir, '.claude', 'rules', 'design-quality.md'))).toBe(true)
+
+  it.todo('FR-3: should nest reference docs inside design-harden skill');
+  // Spec: FR-3
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // const refDir = join(projectDir, '.claude', 'skills', 'design-harden', 'reference')
+  // expect(existsSync(join(refDir, 'typography.md'))).toBe(true)
+  // expect(existsSync(join(refDir, 'color-and-contrast.md'))).toBe(true)
+  // expect(existsSync(join(refDir, 'spatial-design.md'))).toBe(true)
+  // expect(existsSync(join(refDir, 'motion-design.md'))).toBe(true)
+  // expect(existsSync(join(refDir, 'interaction-design.md'))).toBe(true)
+  // expect(existsSync(join(refDir, 'responsive-design.md'))).toBe(true)
+  // expect(existsSync(join(refDir, 'ux-writing.md'))).toBe(true)
+
+  it.todo('FR-3: should generate files in .cursor/skills/ for cursor agent');
+  // Spec: FR-3, US-5/AC-2
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['cursor'])
+  // expect(existsSync(join(projectDir, '.cursor', 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+  // expect(existsSync(join(projectDir, '.cursor', 'rules', 'design-quality.md'))).toBe(true)
+
+  it.todo('FR-3: should generate files in .gemini/skills/ for gemini agent');
+  // Spec: FR-3, US-5/AC-2
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['gemini'])
+  // expect(existsSync(join(projectDir, '.gemini', 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+});
+
+// ─── FR-3: File Generation — Multiple Agents ────────────────────────────────
+
+describe('Agent file generation — multiple agents', () => {
+  it.todo('US-2/AC-2: should generate files for all configured agents');
+  // Spec: US-2/AC-2, US-5/AC-2
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude', 'cursor', 'gemini'])
+  // for (const agent of ['.claude', '.cursor', '.gemini']) {
+  //   expect(existsSync(join(projectDir, agent, 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+  //   expect(existsSync(join(projectDir, agent, 'rules', 'design-quality.md'))).toBe(true)
+  // }
+
+  it.todo('US-5/AC-4: should regenerate on sync when agent config changes');
+  // Spec: US-5/AC-4
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // // First install: claude only
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+  // expect(existsSync(join(projectDir, '.cursor', 'skills', 'design-init', 'SKILL.md'))).toBe(false)
+  // // Sync with new agents
+  // syncAddonFiles(projectDir, addonSourceDir, ['claude', 'cursor'])
+  // expect(existsSync(join(projectDir, '.cursor', 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+});
+
+// ─── Idempotency & Conflict Handling ────────────────────────────────────────
+
+describe('Idempotency and conflict handling', () => {
+  it.todo('US-2/AC-3: should be idempotent — running twice produces identical output');
+  // Spec: US-2/AC-3
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // const firstContent = readFileSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'), 'utf-8')
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // const secondContent = readFileSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'), 'utf-8')
+  // expect(firstContent).toBe(secondContent)
+
+  it.todo('EC-1: should detect customized files via checksum comparison');
+  // Spec: File Conflict Handling
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // // User modifies a file
+  // const skillPath = join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md')
+  // writeFileSync(skillPath, '# User customized content')
+  // const modified = detectModifiedAddonFiles(projectDir, 'design-best-practices')
+  // expect(modified).toContain('skills/design-init/SKILL.md')
+
+  it.todo('EC-2: should skip identical files silently on reinstall');
+  // Spec: File Conflict Handling
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // const result1 = generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // const result2 = generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(result2.skipped).toBeGreaterThan(0)
+  // expect(result2.written).toBe(0)
+});
+
+// ─── Addon Removal ──────────────────────────────────────────────────────────
+
+describe('Addon file removal', () => {
+  it.todo('US-3/AC-1: should remove all addon files for an agent');
+  // Spec: US-3/AC-1
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true)
+  // removeAddonFiles(projectDir, 'design-best-practices', ['claude'])
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-init'))).toBe(false)
+  // expect(existsSync(join(projectDir, '.claude', 'rules', 'design-quality.md'))).toBe(false)
+
+  it.todo('US-3/AC-3: should remove from all configured agent directories');
+  // Spec: US-3/AC-3
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude', 'cursor'])
+  // removeAddonFiles(projectDir, 'design-best-practices', ['claude', 'cursor'])
+  // expect(existsSync(join(projectDir, '.claude', 'skills', 'design-init'))).toBe(false)
+  // expect(existsSync(join(projectDir, '.cursor', 'skills', 'design-init'))).toBe(false)
+});
+
+// ─── Addon Sync & Updates ───────────────────────────────────────────────────
+
+describe('Addon sync and updates', () => {
+  it.todo('EC-3: should update unmodified files during sync');
+  // Spec: Addon Sync & Updates (RESOLVED)
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // // Simulate new version: update source content
+  // writeFileSync(join(addonSourceDir, 'skills', 'design-init', 'SKILL.md'), '# Updated content v2')
+  // const result = syncAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(result.updated).toBeGreaterThan(0)
+  // const content = readFileSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'), 'utf-8')
+  // expect(content).toContain('Updated content v2')
+
+  it.todo('EC-4: should preserve customized files during sync and warn');
+  // Spec: Addon Sync & Updates (RESOLVED)
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // // User customizes a file
+  // const skillPath = join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md')
+  // writeFileSync(skillPath, '# My custom version')
+  // // Update source
+  // writeFileSync(join(addonSourceDir, 'skills', 'design-init', 'SKILL.md'), '# Updated v2')
+  // const result = syncAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(result.conflicts).toContain('skills/design-init/SKILL.md')
+  // // User's version preserved
+  // const content = readFileSync(skillPath, 'utf-8')
+  // expect(content).toBe('# My custom version')
+});
+
+// ─── Attribution — NOTICE.md ────────────────────────────────────────────────
+
+describe('Attribution NOTICE.md', () => {
+  it.todo('should create NOTICE.md on first attributed addon install');
+  // Spec: Attribution (RESOLVED)
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(existsSync(join(projectDir, 'NOTICE.md'))).toBe(true)
+  // const notice = readFileSync(join(projectDir, 'NOTICE.md'), 'utf-8')
+  // expect(notice).toContain('Apache 2.0')
+  // expect(notice).toContain('Anthropic')
+
+  it.todo('should clean up NOTICE.md when last attributed addon removed');
+  // Spec: Attribution (RESOLVED)
+  // const projectDir = join(tempDir, 'project')
+  // mkdirSync(projectDir)
+  // generateAddonFiles(projectDir, addonSourceDir, ['claude'])
+  // expect(existsSync(join(projectDir, 'NOTICE.md'))).toBe(true)
+  // removeAddonFiles(projectDir, 'design-best-practices', ['claude'])
+  // expect(existsSync(join(projectDir, 'NOTICE.md'))).toBe(false)
+});
