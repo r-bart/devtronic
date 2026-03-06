@@ -5,7 +5,7 @@
   "license": "MIT",
   "files": {
     "skills": [
-      "devtronic"
+      "auto-devtronic"
     ],
     "agents": [
       "issue-parser",

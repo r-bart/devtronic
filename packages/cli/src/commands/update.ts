@@ -1,5 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, chmodSync } from 'node:fs';
+import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, chmodSync, rmSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { UpdateOptions, Manifest, ProjectConfig } from '../types.js';
@@ -467,6 +467,13 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
       totalUpdated += (result.updated ?? 0) + result.written;
     }
     syncSpinner.stop(`${symbols.pass} Addon files updated (${totalUpdated} files)`);
+  }
+
+  // Migrate: remove old addon skill path (.claude/skills/auto-devtronic/ → .claude/commands/devtronic.md)
+  const oldAddonSkillPath = join(targetDir, '.claude', 'skills', 'auto-devtronic');
+  if (existsSync(oldAddonSkillPath)) {
+    rmSync(oldAddonSkillPath, { recursive: true, force: true });
+    p.log.warn('Migrated: removed .claude/skills/auto-devtronic/ (now at .claude/commands/devtronic.md)');
   }
 
   p.outro(chalk.green(`Updated to version ${currentVersion}`));

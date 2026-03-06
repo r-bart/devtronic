@@ -30,39 +30,6 @@ const AGENT_PATHS: Record<string, string> = {
 };
 
 /**
- * Parses YAML frontmatter from a Markdown file.
- * Returns the raw frontmatter string (between --- delimiters) and the body.
- */
-function parseFrontmatter(content: string): { fields: Record<string, string>; body: string } {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
-  if (!match) return { fields: {}, body: content };
-  const fields: Record<string, string> = {};
-  for (const line of match[1].split('\n')) {
-    const colonIdx = line.indexOf(':');
-    if (colonIdx > 0) {
-      fields[line.slice(0, colonIdx).trim()] = line.slice(colonIdx + 1).trim();
-    }
-  }
-  return { fields, body: match[2] };
-}
-
-/**
- * Converts a Markdown SKILL.md to Gemini CLI TOML format.
- * Extracts description from frontmatter, uses body as prompt.
- */
-function markdownToGeminiToml(content: string): string {
-  const { fields, body } = parseFrontmatter(content);
-  const description = fields['description'] ?? '';
-  const lines = [
-    `description = ${JSON.stringify(description)}`,
-    `prompt = """`,
-    body.trim(),
-    `"""`,
-  ];
-  return lines.join('\n') + '\n';
-}
-
-/**
  * Strips the `name:` field from YAML frontmatter only.
  * OpenCode derives command name from filename — explicit name: causes conflicts.
  */
@@ -73,37 +40,31 @@ function stripFrontmatterName(content: string): string {
   });
 }
 
-/**
- * Removes the entire YAML frontmatter block.
- * Used for Cursor rules (no frontmatter convention).
- */
-function stripFrontmatter(content: string): string {
-  return content.replace(/^---\n[\s\S]*?---\n/, '').trim() + '\n';
-}
-
 interface RuntimeInstallSpec {
   /** Base directory relative to project root */
   baseDir: string;
   /** Transform skill name + raw content → install relPath + adapted content */
   skillAdapter: (skillName: string, content: string) => { relPath: string; content: string };
-  /** Base directory for agents (if different from baseDir) */
-  agentsDir?: string;
+  /** Subdirectory under baseDir where rules are installed (if supported) */
+  rulesDir?: string;
 }
 
 const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
   claude: {
     baseDir: '.claude',
     skillAdapter: (name, content) => ({
-      relPath: `commands/${name}.md`,
+      relPath: `skills/${name}/SKILL.md`,
       content,
     }),
+    rulesDir: 'rules',
   },
   gemini: {
     baseDir: '.gemini',
     skillAdapter: (name, content) => ({
-      relPath: `commands/${name}.toml`,
-      content: markdownToGeminiToml(content),
+      relPath: `skills/${name}/SKILL.md`,
+      content,
     }),
+    rulesDir: 'rules',
   },
   opencode: {
     baseDir: '.opencode',
@@ -115,9 +76,10 @@ const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
   cursor: {
     baseDir: '.cursor',
     skillAdapter: (name, content) => ({
-      relPath: `rules/${name}.md`,
-      content: stripFrontmatter(content),
+      relPath: `skills/${name}/SKILL.md`,
+      content,
     }),
+    rulesDir: 'rules',
   },
   codex: {
     baseDir: '.codex',
@@ -255,6 +217,42 @@ export function generateAddonFiles(
         ensureDir(dirname(destPath));
         writeFileSync(destPath, content);
         result.written++;
+        result.checksums![`agents/${agentName}.md`] = checksum(content);
+      } else {
+        result.skipped++;
+      }
+    }
+
+    // Install rules (only for runtimes that support them)
+    if (spec.rulesDir) {
+      for (const rule of manifest.files.rules ?? []) {
+        const ruleSrcPath = join(addonSourceDir, 'rules', rule);
+        if (!existsSync(ruleSrcPath)) continue;
+        const content = readFileSync(ruleSrcPath, 'utf-8');
+        const destPath = join(projectDir, spec.baseDir, spec.rulesDir, rule);
+        if (!existsSync(destPath)) {
+          ensureDir(dirname(destPath));
+          writeFileSync(destPath, content);
+          result.written++;
+          result.checksums![`rules/${rule}`] = checksum(content);
+        } else {
+          result.skipped++;
+        }
+      }
+    }
+
+    // Install reference docs nested inside design-harden skill
+    for (const ref of manifest.files.reference ?? []) {
+      const refSrcPath = join(addonSourceDir, 'reference', ref);
+      if (!existsSync(refSrcPath)) continue;
+      const content = readFileSync(refSrcPath, 'utf-8');
+      const relPath = `skills/design-harden/reference/${ref}`;
+      const destPath = join(projectDir, spec.baseDir, relPath);
+      if (!existsSync(destPath)) {
+        ensureDir(dirname(destPath));
+        writeFileSync(destPath, content);
+        result.written++;
+        result.checksums![relPath] = checksum(content);
       } else {
         result.skipped++;
       }
@@ -335,6 +333,14 @@ export function removeAddonFiles(
     for (const agentName of knownAgents) {
       const agentPath = join(projectDir, spec.baseDir, 'agents', `${agentName}.md`);
       if (existsSync(agentPath)) unlinkSync(agentPath);
+    }
+
+    // Remove rules
+    if (spec.rulesDir) {
+      for (const rule of (manifest.files.rules ?? [])) {
+        const rulePath = join(projectDir, spec.baseDir, spec.rulesDir, rule);
+        if (existsSync(rulePath)) unlinkSync(rulePath);
+      }
     }
   }
 
@@ -463,6 +469,41 @@ export function syncAddonFiles(
 
       writeFileSync(destPath, newContent);
       result.updated = (result.updated ?? 0) + 1;
+    }
+
+    // Sync rules (only for runtimes that support them)
+    if (spec.rulesDir) {
+      for (const rule of manifest.files.rules ?? []) {
+        const ruleSrcPath = join(addonSourceDir, 'rules', rule);
+        if (!existsSync(ruleSrcPath)) continue;
+        const newContent = readFileSync(ruleSrcPath, 'utf-8');
+        const destPath = join(projectDir, spec.baseDir, spec.rulesDir, rule);
+        const relPath = `rules/${rule}`;
+
+        if (!existsSync(destPath)) {
+          ensureDir(dirname(destPath));
+          writeFileSync(destPath, newContent);
+          result.written++;
+          continue;
+        }
+
+        const existing = readFileSync(destPath, 'utf-8');
+        const existingChecksum = checksum(existing);
+        const originalChecksum = installedChecksums[relPath];
+
+        if (existing === newContent) {
+          result.skipped++;
+          continue;
+        }
+
+        if (originalChecksum && existingChecksum !== originalChecksum) {
+          result.conflicts.push(relPath);
+          continue;
+        }
+
+        writeFileSync(destPath, newContent);
+        result.updated = (result.updated ?? 0) + 1;
+      }
     }
   }
 
