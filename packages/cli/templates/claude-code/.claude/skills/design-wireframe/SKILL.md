@@ -1,5 +1,5 @@
 ---
-name: design:wireframe
+name: devtronic:design-wireframe
 description: Wireframe specification phase — generates structured text-based wireframe specs per screen. Tool-agnostic. Reads IA and define artifacts.
 allowed-tools: Task, Read, Write, AskUserQuestion
 argument-hint: "[screen-name|--all]"

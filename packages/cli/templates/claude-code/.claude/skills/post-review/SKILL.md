@@ -1,5 +1,5 @@
 ---
-name: post-review
+name: devtronic:post-review
 description: Post-feature review before PR. Checks requirements, architecture, quality, and captures lessons. Auto-invoke after completing a plan implementation. Use --strict for senior engineer mode.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
 argument-hint: "[--strict|--quick|files...]"

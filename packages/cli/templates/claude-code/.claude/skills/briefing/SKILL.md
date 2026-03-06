@@ -1,5 +1,5 @@
 ---
-name: briefing
+name: devtronic:briefing
 description: Pre-planning alignment Q&A. Generates targeted questions to clarify scope, style, priority and constraints before diving into implementation.
 allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion
 argument-hint: "[topic]"

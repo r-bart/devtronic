@@ -44,4 +44,9 @@ export const REMOVED_FILES: Record<string, RemovalInfo> = {
     version: '1.7.1',
     alternative: 'Now at .claude/skills/scaffold/SKILL.md',
   },
+  '.claude/skills/auto-devtronic/SKILL.md': {
+    reason: 'Renamed to /devtronic command — now installed at .claude/commands/devtronic.md',
+    version: '1.1.0',
+    alternative: 'Run `npx devtronic addon enable auto-devtronic` to reinstall at the new path',
+  },
 };

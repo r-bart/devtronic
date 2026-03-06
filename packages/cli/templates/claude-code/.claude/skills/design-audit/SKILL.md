@@ -1,5 +1,5 @@
 ---
-name: design:audit
+name: devtronic:design-audit
 description: UX audit — evaluates designs against Nielsen's 10 heuristics and WCAG 2.1 AA accessibility. Consolidates findings with severity.
 allowed-tools: Task, Read, Glob, Write, Bash
 argument-hint: "[--wireframes|--code|--both]"
