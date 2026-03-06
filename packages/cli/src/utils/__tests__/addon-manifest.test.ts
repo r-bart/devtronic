@@ -10,7 +10,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
-import { parseAddonManifest } from '../../addons/registry.js';
+import { parseAddonManifest, getAddonManifest } from '../../addons/registry.js';
 import { readAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../addonConfig.js';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -160,5 +160,32 @@ describe('Addon config tracking', () => {
     writeJson(tempDir, 'devtronic.json', { addons: { installed: {} } });
     const config = readAddonConfig(tempDir);
     expect(config.agents).toEqual(['claude']);
+  });
+});
+
+// ─── getAddonManifest: bundled addon manifests ───────────────────────────────
+
+describe('getAddonManifest', () => {
+  it('should return valid manifest for design-best-practices', () => {
+    const manifest = getAddonManifest('design-best-practices');
+    expect(manifest.name).toBe('design-best-practices');
+    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(manifest.files.skills.length).toBeGreaterThan(0);
+  });
+
+  it('should return valid manifest for auto-devtronic with agents', () => {
+    const manifest = getAddonManifest('auto-devtronic');
+    expect(manifest.name).toBe('auto-devtronic');
+    expect(manifest.files.agents).toBeDefined();
+    expect(manifest.files.agents!.length).toBe(3);
+    expect(manifest.files.agents).toContain('issue-parser');
+    expect(manifest.files.agents).toContain('failure-analyst');
+    expect(manifest.files.agents).toContain('quality-runner');
+  });
+
+  it('should return attribution for design-best-practices', () => {
+    const manifest = getAddonManifest('design-best-practices');
+    expect(manifest.attribution).toBeDefined();
+    expect(typeof manifest.attribution).toBe('string');
   });
 });

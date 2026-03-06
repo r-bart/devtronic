@@ -328,6 +328,91 @@ describe('Addon sync and updates', () => {
   });
 });
 
+// ─── Addon with agents ──────────────────────────────────────────────────────
+
+describe('Addon file generation — with agents', () => {
+  let agentAddonSourceDir: string;
+  let agentProjectDir: string;
+
+  beforeEach(() => {
+    agentAddonSourceDir = join(tempDir, '_addon-with-agents', 'test-addon');
+    mkdirSync(join(agentAddonSourceDir, 'skills', 'test-skill'), { recursive: true });
+    writeFileSync(join(agentAddonSourceDir, 'skills', 'test-skill', 'SKILL.md'), '# Test skill');
+    mkdirSync(join(agentAddonSourceDir, 'agents'), { recursive: true });
+    writeFileSync(join(agentAddonSourceDir, 'agents', 'test-agent.md'), '# Test agent');
+    writeFileSync(
+      join(agentAddonSourceDir, 'manifest.json'),
+      JSON.stringify({
+        name: 'test-addon',
+        version: '1.0.0',
+        license: 'MIT',
+        files: { skills: ['test-skill'], agents: ['test-agent'] },
+      })
+    );
+    agentProjectDir = join(tempDir, 'agent-project');
+    mkdirSync(agentProjectDir);
+  });
+
+  it('should generate agent files in .claude/agents/', () => {
+    generateAddonFiles(agentProjectDir, agentAddonSourceDir, ['claude']);
+    expect(existsSync(join(agentProjectDir, '.claude', 'agents', 'test-agent.md'))).toBe(true);
+    const content = readFileSync(join(agentProjectDir, '.claude', 'agents', 'test-agent.md'), 'utf-8');
+    expect(content).toBe('# Test agent');
+  });
+
+  it('should remove agent files when removing addon', () => {
+    generateAddonFiles(agentProjectDir, agentAddonSourceDir, ['claude']);
+    expect(existsSync(join(agentProjectDir, '.claude', 'agents', 'test-agent.md'))).toBe(true);
+    removeAddonFiles(agentProjectDir, 'test-addon', ['claude'], agentAddonSourceDir);
+    expect(existsSync(join(agentProjectDir, '.claude', 'agents', 'test-agent.md'))).toBe(false);
+  });
+
+  it('should include agent files in checksums', () => {
+    const result = generateAddonFiles(agentProjectDir, agentAddonSourceDir, ['claude']);
+    expect(result.checksums!['agents/test-agent.md']).toMatch(/^[0-9a-f]{16}$/);
+  });
+});
+
+// ─── generateAddonFiles: pre-existing files with different content ───────────
+
+describe('generateAddonFiles — pre-existing file conflict', () => {
+  it('should skip a pre-existing file with different content (never overwrite)', () => {
+    const projectDir = join(tempDir, 'project');
+    mkdirSync(projectDir);
+    const skillDir = join(projectDir, '.claude', 'skills', 'design-init');
+    mkdirSync(skillDir, { recursive: true });
+    writeFileSync(join(skillDir, 'SKILL.md'), '# Pre-existing custom content');
+
+    const result = generateAddonFiles(projectDir, addonSourceDir, ['claude']);
+
+    // The pre-existing file should be skipped, not overwritten
+    expect(result.skipped).toBeGreaterThan(0);
+    const preserved = readFileSync(join(skillDir, 'SKILL.md'), 'utf-8');
+    expect(preserved).toBe('# Pre-existing custom content');
+    // Not included in checksums (only written files are tracked)
+    expect(result.checksums!['skills/design-init/SKILL.md']).toBeUndefined();
+  });
+});
+
+// ─── detectModifiedAddonFiles edge cases ────────────────────────────────────
+
+describe('detectModifiedAddonFiles edge cases', () => {
+  it('should return empty array when devtronic.json has invalid JSON', () => {
+    const projectDir = join(tempDir, 'project');
+    mkdirSync(projectDir);
+    writeFileSync(join(projectDir, 'devtronic.json'), 'NOT VALID JSON {{{');
+    const modified = detectModifiedAddonFiles(projectDir, 'design-best-practices');
+    expect(modified).toEqual([]);
+  });
+
+  it('should return empty array when devtronic.json does not exist', () => {
+    const projectDir = join(tempDir, 'project');
+    mkdirSync(projectDir);
+    const modified = detectModifiedAddonFiles(projectDir, 'design-best-practices');
+    expect(modified).toEqual([]);
+  });
+});
+
 // ─── Attribution — NOTICE.md ────────────────────────────────────────────────
 
 describe('Attribution NOTICE.md', () => {

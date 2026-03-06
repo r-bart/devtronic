@@ -246,6 +246,35 @@ describe('addon list command', () => {
   });
 });
 
+// ─── auto-devtronic addon ───────────────────────────────────────────────────
+
+describe('auto-devtronic addon', () => {
+  it('should install skill and all 3 agents', async () => {
+    await addonCommand('add', 'auto-devtronic', { path: tempDir });
+    expect(existsSync(join(tempDir, '.claude', 'skills', 'auto-devtronic', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'issue-parser.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'failure-analyst.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-runner.md'))).toBe(true);
+  });
+
+  it('should persist agents in fileList of devtronic.json after install', async () => {
+    await addonCommand('add', 'auto-devtronic', { path: tempDir });
+    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
+    const installed = config.addons.installed['auto-devtronic'];
+    expect(installed.files).toContain('agents/issue-parser.md');
+    expect(installed.files).toContain('agents/failure-analyst.md');
+    expect(installed.files).toContain('agents/quality-runner.md');
+  });
+
+  it('should remove skill and agents on remove', async () => {
+    await addonCommand('add', 'auto-devtronic', { path: tempDir });
+    await addonCommand('remove', 'auto-devtronic', { path: tempDir });
+    expect(existsSync(join(tempDir, '.claude', 'skills', 'auto-devtronic'))).toBe(false);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'issue-parser.md'))).toBe(false);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-runner.md'))).toBe(false);
+  });
+});
+
 // ─── FR-5: Addon Sync ───────────────────────────────────────────────────────
 
 describe('addon sync command', () => {
@@ -264,5 +293,33 @@ describe('addon sync command', () => {
     // Sync should generate cursor files
     await addonSyncCommand({ path: tempDir });
     expect(existsSync(join(tempDir, '.cursor', 'skills', 'design-init', 'SKILL.md'))).toBe(true);
+  });
+
+  it('should warn about conflicts when syncing a modified file', async () => {
+    await addonCommand('add', 'design-best-practices', { path: tempDir });
+
+    // Modify a file to create a conflict
+    const skillPath = join(tempDir, '.claude', 'skills', 'design-init', 'SKILL.md');
+    writeFileSync(skillPath, '# My custom version');
+
+    await addonSyncCommand({ path: tempDir });
+    expect(clack.log.warn).toHaveBeenCalledWith('Customized files were preserved:');
+  });
+
+  it('should handle sync with no installed addons gracefully', async () => {
+    await addonSyncCommand({ path: tempDir });
+    expect(clack.log.info).toHaveBeenCalledWith(
+      expect.stringContaining('No addons installed')
+    );
+  });
+});
+
+// ─── Cancellation paths ──────────────────────────────────────────────────────
+
+describe('addon add cancellation', () => {
+  it('should call process.exit(0) when user declines confirm', async () => {
+    vi.mocked(clack.confirm).mockResolvedValueOnce(false);
+    await addonCommand('add', 'design-best-practices', { path: tempDir });
+    expect(exitSpy).toHaveBeenCalledWith(0);
   });
 });
