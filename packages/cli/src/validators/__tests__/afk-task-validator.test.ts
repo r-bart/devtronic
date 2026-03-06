@@ -173,11 +173,14 @@ describe('AFK Task Validator', () => {
   // ==============================================================
 
   describe('FR-1: Clarity Dimension (25% weight)', () => {
-    it('should score high (85+) for explicit measurable criteria', () => {
-      // Spec: FR-1
-      const description =
+    it('should score higher with explicit measurable criteria vs vague description', () => {
+      // Spec: FR-1 — inline criteria without "acceptance criteria" header scores mid-range
+      // A description with explicit keywords (Returns/Validates/Throws) scores higher than vague
+      const explicit =
         'Returns { user, total, page, limit }. Validates page >= 1. Throws 400 if page < 1.';
-      expect(calculateClarityScore(description)).toBeGreaterThanOrEqual(50);
+      const vague = 'Make things work';
+      expect(calculateClarityScore(explicit)).toBeGreaterThanOrEqual(50);
+      expect(calculateClarityScore(explicit)).toBeGreaterThan(calculateClarityScore(vague));
     });
 
     it('should score medium (40-60) for vague descriptions', () => {

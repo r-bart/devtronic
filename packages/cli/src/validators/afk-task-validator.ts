@@ -133,7 +133,7 @@ export function calculateScopeScore(description: string): number {
   }
 
   // File count estimation (regex for file paths)
-  const filePaths = description.match(/[a-z0-9/_-]+\.(ts|tsx|js|jsx)'/gi) || [];
+  const filePaths = description.match(/[a-z0-9/_-]+\.(ts|tsx|js|jsx)/gi) || [];
   const fileCount = filePaths.length;
 
   if (fileCount > 5) score -= 20;
