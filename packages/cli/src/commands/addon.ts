@@ -319,9 +319,9 @@ async function addFileBasedAddon(
   ];
 
   writeAddonToConfig(targetDir, addonName, {
-    version: '1.0.0',
+    version: addonManifest.version,
     files: fileList,
-    checksums: {},
+    checksums: result.checksums ?? {},
   });
 
   spinner.stop(`${symbols.pass} ${addon.label} added (${result.written} files written)`);

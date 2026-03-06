@@ -105,6 +105,23 @@ describe('addon add command', () => {
     const validAddons = getAvailableAddons().map((a) => a.name);
     expect(validAddons).not.toContain('nonexistent-addon');
   });
+
+  it('should persist file checksums in devtronic.json after install', async () => {
+    await addonCommand('add', 'design-best-practices', { path: tempDir });
+    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
+    const installed = config.addons.installed['design-best-practices'];
+    expect(installed.checksums).toBeDefined();
+    expect(Object.keys(installed.checksums).length).toBeGreaterThan(0);
+    expect(installed.checksums['skills/design-init/SKILL.md']).toMatch(/^[0-9a-f]{16}$/);
+  });
+
+  it('should use manifest version (not hardcoded 1.0.0) in config after install', async () => {
+    await addonCommand('add', 'design-best-practices', { path: tempDir });
+    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
+    const installed = config.addons.installed['design-best-practices'];
+    expect(installed.version).toMatch(/^\d+\.\d+\.\d+$/);
+    expect(installed.version).not.toBe('');
+  });
 });
 
 // ─── US-3: Remove Addon ─────────────────────────────────────────────────────
@@ -168,6 +185,24 @@ describe('addon remove command', () => {
     await addonCommand('remove', 'design-best-practices', { path: tempDir });
     const configAfter = readAddonConfig(tempDir);
     expect(configAfter.installed['design-best-practices']).toBeUndefined();
+  });
+
+  it('US-3/AC-2: should warn about modified files when real checksums are stored', async () => {
+    // Install — now stores real checksums
+    await addonCommand('add', 'design-best-practices', { path: tempDir });
+
+    // Verify real checksums were stored
+    const configAfterInstall = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
+    expect(Object.keys(configAfterInstall.addons.installed['design-best-practices'].checksums).length).toBeGreaterThan(0);
+
+    // Modify an installed file
+    const skillPath = join(tempDir, '.claude', 'skills', 'design-init', 'SKILL.md');
+    writeFileSync(skillPath, '# My custom version');
+
+    // Remove should detect modification and warn
+    vi.mocked(clack.confirm).mockResolvedValueOnce(true);
+    await addonCommand('remove', 'design-best-practices', { path: tempDir });
+    expect(clack.log.warn).toHaveBeenCalledWith(expect.stringContaining('customized'));
   });
 });
 

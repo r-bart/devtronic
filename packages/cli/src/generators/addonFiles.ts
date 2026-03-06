@@ -16,6 +16,7 @@ export interface GenerateResult {
   skipped: number;
   conflicts: string[];
   updated?: number;
+  checksums?: Record<string, string>;
 }
 
 /** Maps agent names to their dot-directory paths */
@@ -96,7 +97,7 @@ export function generateAddonFiles(
 ): GenerateResult {
   const fileMap = buildFileMap(addonSourceDir);
   const manifest = readManifest(addonSourceDir);
-  const result: GenerateResult = { written: 0, skipped: 0, conflicts: [] };
+  const result: GenerateResult = { written: 0, skipped: 0, conflicts: [], checksums: {} };
 
   for (const agent of agents) {
     const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
@@ -118,6 +119,7 @@ export function generateAddonFiles(
       ensureDir(dirname(destPath));
       writeFileSync(destPath, content);
       result.written++;
+      result.checksums![relPath] = checksum(content);
     }
   }
 

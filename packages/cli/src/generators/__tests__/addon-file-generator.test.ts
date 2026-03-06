@@ -139,6 +139,27 @@ describe('Agent file generation — single agent', () => {
     generateAddonFiles(projectDir, addonSourceDir, ['gemini']);
     expect(existsSync(join(projectDir, '.gemini', 'skills', 'design-init', 'SKILL.md'))).toBe(true);
   });
+
+  it('FR-3: should return checksums for written files', () => {
+    const projectDir = join(tempDir, 'project');
+    mkdirSync(projectDir);
+    const result = generateAddonFiles(projectDir, addonSourceDir, ['claude']);
+    expect(result.checksums).toBeDefined();
+    expect(Object.keys(result.checksums!).length).toBeGreaterThan(0);
+    for (const hash of Object.values(result.checksums!)) {
+      expect(hash).toMatch(/^[0-9a-f]{16}$/);
+    }
+    expect(result.checksums!['skills/design-init/SKILL.md']).toBeDefined();
+  });
+
+  it('FR-3: should not include checksums for skipped files', () => {
+    const projectDir = join(tempDir, 'project');
+    mkdirSync(projectDir);
+    generateAddonFiles(projectDir, addonSourceDir, ['claude']); // first run — writes
+    const result2 = generateAddonFiles(projectDir, addonSourceDir, ['claude']); // second run — all skipped
+    expect(result2.skipped).toBeGreaterThan(0);
+    expect(Object.keys(result2.checksums ?? {}).length).toBe(0);
+  });
 });
 
 // ─── FR-3: File Generation — Multiple Agents ────────────────────────────────
