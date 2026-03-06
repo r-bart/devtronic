@@ -1,5 +1,5 @@
 ---
-name: recap
+name: devtronic:recap
 description: Quick structured session summary from git activity and modified files. Compact companion to /summary.
 allowed-tools: Read, Write, Bash, Glob, Grep
 ---

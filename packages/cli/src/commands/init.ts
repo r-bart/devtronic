@@ -528,6 +528,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
     'Next Steps'
   );
 
+  p.note(
+    [
+      `${chalk.dim('Execution mode:')} HITL ${chalk.dim('(default — safe for unfamiliar codebases)')}`,
+      `${chalk.dim('Change anytime:')} ${chalk.cyan('npx devtronic mode afk')}`,
+    ].join('\n'),
+    'Autonomous Mode'
+  );
+
   p.outro(chalk.green('Setup complete!'));
   } catch (err) {
     spinner.stop('Configuration failed');

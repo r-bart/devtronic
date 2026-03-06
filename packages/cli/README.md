@@ -20,8 +20,8 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
-| `addon add <name>` | Add an addon skill pack |
-| `addon remove <name>` | Remove an addon skill pack |
+| `addon enable <name>` | Add an addon skill pack |
+| `addon disable <name>` | Remove an addon skill pack |
 | `addon list` | List available and installed addons |
 | `addon sync` | Regenerate addon files for current agents |
 | `add <ide>` | Add another IDE |
@@ -35,7 +35,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
-- **Skills** (19 core + 9 addon skills) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/summary`, `/audit`, etc.)
+- **Skills** (19 core + 9 addon skills) — Reusable workflows (`/devtronic:brief`, `/devtronic:spec`, `/devtronic:create-plan`, `/devtronic:summary`, `/devtronic:audit`, etc.)
 - **Agents** (8) — Specialized subagents (code-reviewer, quality-runner, etc.)
 - **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
 - **thoughts/** — Structured directory for AI working documents

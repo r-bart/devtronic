@@ -32,7 +32,7 @@ function isFileBasedAddon(addonName: AddonName): boolean {
 }
 
 export async function addonCommand(
-  action: 'add' | 'remove',
+  action: 'add' | 'remove' | 'enable' | 'disable',
   addonName: string,
   options: AddonOptions
 ): Promise<void> {
@@ -49,9 +49,19 @@ export async function addonCommand(
 
   const typedName = addonName as AddonName;
 
+  // Map deprecated actions to canonical names and warn
+  const canonicalAction: 'add' | 'remove' =
+    action === 'enable' ? 'add' : action === 'disable' ? 'remove' : action;
+  if (action === 'add' || action === 'remove') {
+    const canonical = action === 'add' ? 'enable' : 'disable';
+    p.log.warn(
+      `"addon ${action}" is deprecated. Use "addon ${canonical}" instead.`
+    );
+  }
+
   // File-based addons (design-best-practices) use the new system
   if (isFileBasedAddon(typedName)) {
-    if (action === 'add') {
+    if (canonicalAction === 'add') {
       await addFileBasedAddon(targetDir, typedName, options);
     } else {
       await removeFileBasedAddon(targetDir, typedName, options);
@@ -78,7 +88,7 @@ export async function addonCommand(
   const addon = ADDONS[typedName];
   const currentAddons: AddonName[] = manifest.projectConfig?.enabledAddons ?? [];
 
-  if (action === 'add') {
+  if (canonicalAction === 'add') {
     await addAddon(targetDir, manifest, addon.name, currentAddons);
   } else {
     await removeAddon(targetDir, manifest, addon.name, currentAddons);

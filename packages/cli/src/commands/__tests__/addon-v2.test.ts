@@ -6,8 +6,9 @@
  * Note: These tests cover the NEW addon system (v2) described in the spec.
  * The existing addon.test.ts covers the current plugin-mode addon system.
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { mkdtempSync, writeFileSync, rmSync, existsSync, readFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import * as clack from '@clack/prompts';
@@ -55,7 +56,11 @@ afterEach(() => {
 });
 
 function writeDevtronicConfig(dir: string, config: unknown): void {
-  writeFileSync(join(dir, 'devtronic.json'), JSON.stringify(config, null, 2));
+  const claudeDir = join(dir, '.claude');
+  if (!existsSync(claudeDir)) {
+    mkdirSync(claudeDir, { recursive: true });
+  }
+  writeFileSync(join(dir, '.claude', 'devtronic.json'), JSON.stringify(config, null, 2));
 }
 
 // ─── US-2: Add Addon Post-Setup ─────────────────────────────────────────────
@@ -108,8 +113,8 @@ describe('addon add command', () => {
 
   it('should persist file checksums in devtronic.json after install', async () => {
     await addonCommand('add', 'design-best-practices', { path: tempDir });
-    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
-    const installed = config.addons.installed['design-best-practices'];
+    const config = JSON.parse(readFileSync(join(tempDir, '.claude', 'devtronic.json'), 'utf-8'));
+    const installed = config.installed['design-best-practices'];
     expect(installed.checksums).toBeDefined();
     expect(Object.keys(installed.checksums).length).toBeGreaterThan(0);
     expect(installed.checksums['skills/design-init/SKILL.md']).toMatch(/^[0-9a-f]{16}$/);
@@ -117,8 +122,8 @@ describe('addon add command', () => {
 
   it('should use manifest version (not hardcoded 1.0.0) in config after install', async () => {
     await addonCommand('add', 'design-best-practices', { path: tempDir });
-    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
-    const installed = config.addons.installed['design-best-practices'];
+    const config = JSON.parse(readFileSync(join(tempDir, '.claude', 'devtronic.json'), 'utf-8'));
+    const installed = config.installed['design-best-practices'];
     expect(installed.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(installed.version).not.toBe('');
   });
@@ -145,11 +150,11 @@ describe('addon remove command', () => {
     );
     const { createHash } = await import('node:crypto');
     const hash = createHash('sha256').update(originalContent).digest('hex').slice(0, 16);
-    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
-    config.addons.installed['design-best-practices'].checksums = {
+    const config = JSON.parse(readFileSync(join(tempDir, '.claude', 'devtronic.json'), 'utf-8'));
+    config.installed['design-best-practices'].checksums = {
       'skills/design-init/SKILL.md': hash,
     };
-    writeFileSync(join(tempDir, 'devtronic.json'), JSON.stringify(config, null, 2));
+    writeFileSync(join(tempDir, '.claude', 'devtronic.json'), JSON.stringify(config, null, 2));
 
     // Modify the file
     writeFileSync(
@@ -192,8 +197,8 @@ describe('addon remove command', () => {
     await addonCommand('add', 'design-best-practices', { path: tempDir });
 
     // Verify real checksums were stored
-    const configAfterInstall = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
-    expect(Object.keys(configAfterInstall.addons.installed['design-best-practices'].checksums).length).toBeGreaterThan(0);
+    const configAfterInstall = JSON.parse(readFileSync(join(tempDir, '.claude', 'devtronic.json'), 'utf-8'));
+    expect(Object.keys(configAfterInstall.installed['design-best-practices'].checksums).length).toBeGreaterThan(0);
 
     // Modify an installed file
     const skillPath = join(tempDir, '.claude', 'skills', 'design-init', 'SKILL.md');
@@ -259,8 +264,8 @@ describe('auto-devtronic addon', () => {
 
   it('should persist agents in fileList of devtronic.json after install', async () => {
     await addonCommand('add', 'auto-devtronic', { path: tempDir });
-    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
-    const installed = config.addons.installed['auto-devtronic'];
+    const config = JSON.parse(readFileSync(join(tempDir, '.claude', 'devtronic.json'), 'utf-8'));
+    const installed = config.installed['auto-devtronic'];
     expect(installed.files).toContain('agents/issue-parser.md');
     expect(installed.files).toContain('agents/failure-analyst.md');
     expect(installed.files).toContain('agents/quality-runner.md');
@@ -286,9 +291,9 @@ describe('addon sync command', () => {
     expect(existsSync(join(tempDir, '.cursor', 'skills', 'design-init', 'SKILL.md'))).toBe(false);
 
     // Update config to add cursor agent
-    const config = JSON.parse(readFileSync(join(tempDir, 'devtronic.json'), 'utf-8'));
-    config.addons.agents = ['claude', 'cursor'];
-    writeFileSync(join(tempDir, 'devtronic.json'), JSON.stringify(config, null, 2));
+    const config = JSON.parse(readFileSync(join(tempDir, '.claude', 'devtronic.json'), 'utf-8'));
+    config.agents = ['claude', 'cursor'];
+    writeFileSync(join(tempDir, '.claude', 'devtronic.json'), JSON.stringify(config, null, 2));
 
     // Sync should generate cursor files
     await addonSyncCommand({ path: tempDir });
@@ -321,5 +326,27 @@ describe('addon add cancellation', () => {
     vi.mocked(clack.confirm).mockResolvedValueOnce(false);
     await addonCommand('add', 'design-best-practices', { path: tempDir });
     expect(exitSpy).toHaveBeenCalledWith(0);
+  });
+});
+
+// ─── addon enable/disable aliases ───────────────────────────────────────────
+
+describe('addon enable/disable aliases', () => {
+  it('should enable addon using enable action (same as add)', async () => {
+    await addonCommand('enable' as any, 'design-best-practices', { path: tempDir });
+    expect(existsSync(join(tempDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true);
+  });
+
+  it('should show deprecation warning when using add', async () => {
+    await addonCommand('add', 'design-best-practices', { path: tempDir });
+    const warnCalls = vi.mocked(clack.log.warn).mock.calls.flat().join(' ');
+    expect(warnCalls).toContain('deprecated');
+  });
+
+  it('should disable addon using disable action (same as remove)', async () => {
+    await addonCommand('enable' as any, 'design-best-practices', { path: tempDir });
+    vi.clearAllMocks();
+    await addonCommand('disable' as any, 'design-best-practices', { path: tempDir });
+    expect(existsSync(join(tempDir, '.claude', 'skills', 'design-init'))).toBe(false);
   });
 });

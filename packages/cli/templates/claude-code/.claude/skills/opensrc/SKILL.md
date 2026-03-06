@@ -1,5 +1,5 @@
 ---
-name: opensrc
+name: devtronic:opensrc
 description: Fetch source code of npm packages or GitHub repos so AI agents have full implementation context, not just type definitions. Uses vercel-labs/opensrc under the hood.
 allowed-tools: Bash, Read, Glob, Edit
 argument-hint: "<package[@version]|owner/repo[@ref]> [packages...]"

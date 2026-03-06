@@ -13,8 +13,8 @@ devtronic includes a structured design phase that bridges product requirements a
 
 ```
 /brief → /design --research → /design --define → /design --ia → /design --wireframe
-       → /design:system --define → /spec → /create-plan → /generate-tests
-       → /execute-plan → /design:review → /post-review
+       → /devtronic:design-system --define → /spec → /devtronic:create-plan → /generate-tests
+       → /devtronic:execute-plan → /devtronic:design-review → /devtronic:post-review
 ```
 
 ## Skills Reference
@@ -22,17 +22,17 @@ devtronic includes a structured design phase that bridges product requirements a
 | Skill | Purpose | Input | Output |
 |-------|---------|-------|--------|
 | `/design` | Phase orchestrator | flags or auto-detect | routes to sub-skills |
-| `/design:research` | Discovery & competitive analysis | spec + user input | `thoughts/design/research.md` |
-| `/design:define` | Personas, journeys, HMW | research.md | `thoughts/design/define.md` |
-| `/design:ia` | Information architecture | define.md | `thoughts/design/ia.md` |
-| `/design:wireframe` | Screen specifications | ia.md | `thoughts/design/wireframes.md` |
-| `/design:system` | Design system router | flags | routes to sub-skills |
-| `/design:system-define` | Create/extract design system | user input or CSS | `thoughts/design/design-system.md` |
-| `/design:system-audit` | Detect design system drift | codebase + design-system.md | `thoughts/design/design-system-audit.md` |
-| `/design:system-sync` | Sync tokens to project config | design-system.md | tailwind.config / CSS vars |
-| `/design:audit` | UX heuristics + accessibility | wireframes or code | `thoughts/design/audit.md` |
-| `/design:review` | Implementation vs design QA | code + wireframes.md | findings report |
-| `/design:spec` | Developer handoff spec | all design artifacts | `thoughts/design/spec.md` |
+| `/devtronic:design-research` | Discovery & competitive analysis | spec + user input | `thoughts/design/research.md` |
+| `/devtronic:design-define` | Personas, journeys, HMW | research.md | `thoughts/design/define.md` |
+| `/devtronic:design-ia` | Information architecture | define.md | `thoughts/design/ia.md` |
+| `/devtronic:design-wireframe` | Screen specifications | ia.md | `thoughts/design/wireframes.md` |
+| `/devtronic:design-system` | Design system router | flags | routes to sub-skills |
+| `/devtronic:design-system-define` | Create/extract design system | user input or CSS | `thoughts/design/design-system.md` |
+| `/devtronic:design-system-audit` | Detect design system drift | codebase + design-system.md | `thoughts/design/design-system-audit.md` |
+| `/devtronic:design-system-sync` | Sync tokens to project config | design-system.md | tailwind.config / CSS vars |
+| `/devtronic:design-audit` | UX heuristics + accessibility | wireframes or code | `thoughts/design/audit.md` |
+| `/devtronic:design-review` | Implementation vs design QA | code + wireframes.md | findings report |
+| `/devtronic:design-spec` | Developer handoff spec | all design artifacts | `thoughts/design/spec.md` |
 
 ## Agents Reference
 
@@ -65,23 +65,23 @@ thoughts/design/
 
 ### Greenfield project
 ```
-/design:research → /design:define → /design:ia → /design:wireframe → /design:system --define → /design:spec
+/devtronic:design-research → /devtronic:design-define → /devtronic:design-ia → /devtronic:design-wireframe → /devtronic:design-system --define → /devtronic:design-spec
 ```
 
 ### Audit existing UI
 ```
-/design:audit --code → /design:system --audit
+/devtronic:design-audit --code → /devtronic:design-system --audit
 ```
 
 ### Maintain design system
 ```
-/design:system --sync   (after token changes)
-/design:system --audit  (before releases)
+/devtronic:design-system --sync   (after token changes)
+/devtronic:design-system --audit  (before releases)
 ```
 
 ### Quick wireframe-to-code
 ```
-/design:wireframe → /design:system --define → /create-plan
+/devtronic:design-wireframe → /devtronic:design-system --define → /devtronic:create-plan
 ```
 
 ## Tool Integrations (Optional)
@@ -89,7 +89,7 @@ thoughts/design/
 The design phase is tool-agnostic. If you have MCP servers configured:
 
 - **Paper Design MCP**: Use `write_html` to materialize wireframes in Paper, `get_jsx` to extract components.
-- **Figma MCP**: Use `get_design_context` to extract tokens and component specs, then run `/design:system --extract`.
+- **Figma MCP**: Use `get_design_context` to extract tokens and component specs, then run `/devtronic:design-system --extract`.
 
 Without any MCP, all skills work purely from text specifications in `thoughts/design/`.
 
@@ -98,4 +98,4 @@ Without any MCP, all skills work purely from text specifications in `thoughts/de
 - Start with `/design` (no flags) — it detects your current state and proposes the next step.
 - You don't need to complete every phase — enter at the right level for your task.
 - Design artifacts accumulate — each skill reads previous artifacts, so running them in order builds context.
-- `/design:system-guardian` runs automatically from `/post-review` — keeps drift in check without manual audits.
+- `design-system-guardian` runs automatically from `/post-review` — keeps drift in check without manual audits.

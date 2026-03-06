@@ -450,7 +450,7 @@ Addons like `design-best-practices` install files into your agent directories (`
 
 ### How Addon Files Are Tracked
 
-When you run `devtronic addon add design-best-practices`, the CLI:
+When you run `devtronic addon enable design-best-practices`, the CLI:
 1. Copies skill files to `.claude/skills/design-init/`, `.claude/skills/design-review/`, etc.
 2. Copies rule files to `.claude/rules/design-quality.md`
 3. Copies reference docs to `.claude/skills/design-harden/reference/`

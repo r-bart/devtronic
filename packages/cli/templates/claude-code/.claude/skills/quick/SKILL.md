@@ -1,5 +1,5 @@
 ---
-name: quick
+name: devtronic:quick
 description: Fast ad-hoc task execution. Skips spec/research/plan — just implement, verify, commit. For small, well-defined tasks.
 allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 argument-hint: "<task description>"

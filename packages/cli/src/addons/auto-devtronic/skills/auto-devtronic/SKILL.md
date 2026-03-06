@@ -1,11 +1,11 @@
 ---
-name: auto-devtronic
+name: devtronic
 description: Autonomous engineering loop. Takes a GitHub issue or description, runs the full spec→test→plan→execute→review→PR pipeline, and self-corrects via failing tests until done. Two modes: --hitl (human gates, default) and --afk (fully autonomous).
 allowed-tools: Task, Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
-argument-hint: "[issue-url|description] [--hitl|--afk] [--max-retries N] [--skip-spec] [--branch name] [--dry-run]"
+argument-hint: "[issue-url|description] [--hitl|--afk] [--validate] [--max-retries N] [--skip-spec] [--branch name] [--dry-run]"
 ---
 
-# auto-devtronic — Autonomous Engineering Loop
+# devtronic — Autonomous Engineering Loop
 
 Execute the full devtronic pipeline autonomously for `$ARGUMENTS`.
 
@@ -22,6 +22,7 @@ The key innovation over a manual pipeline: the **execute-verify-correct loop**. 
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| `--validate` | no | Validate task AFK-readiness before proceeding (score 70+ = proceed, <70 in AFK mode = ask for HITL) |
 | `--hitl` | yes | Pause at key gates for human approval |
 | `--afk` | no | Fully autonomous, no pauses |
 | `--max-retries N` | 3 | Max loop iterations before escalating |
@@ -29,10 +30,28 @@ The key innovation over a manual pipeline: the **execute-verify-correct loop**. 
 | `--branch name` | auto | Branch name (auto-derived from issue) |
 | `--dry-run` | no | Run everything including code changes, but skip `gh pr create`. Prints PR body to stdout instead. Use to inspect results before publishing. |
 
+## Mode Resolution
+
+Mode is resolved in this order (highest priority first):
+
+1. **CLI flag** (`--afk` / `--hitl`) — overrides all
+2. **Project config** (`.claude/devtronic.json` → `mode` field) — read at pipeline start with the `Read` tool
+3. **Default**: HITL
+
+At pipeline start, before step 0:
+- Attempt to read `.claude/devtronic.json`
+- If `mode` field is present and no CLI flag was passed, use it as the active mode
+- Log the resolved mode: `Mode: afk (from project config)` or `Mode: hitl (default)`
+
 ## Pipeline Position
 
 ```
 INPUT (issue URL or description)
+  │
+  ▼
+0. VALIDATE (if --validate)  — /validate-task-afk
+             Score: 70+? Proceed silently.
+             Score: <70 in AFK mode? Ask for HITL confirmation.
   │
   ▼
 1. INTAKE      — parse issue, extract structured brief
@@ -60,6 +79,41 @@ INPUT (issue URL or description)
 7. PR          — gh pr create, link to issue
                [HITL gate: confirm PR body]
 ```
+
+---
+
+## Step 0: Validate Task (if --validate)
+
+Only if the `--validate` flag is provided:
+
+### Invoke /validate-task-afk
+
+```
+/validate-task-afk <input>
+```
+
+Where `<input>` is the GitHub issue URL or plain text description provided by the user.
+
+### Interpret Score
+
+The validator returns a viability score (0-100) across 5 dimensions:
+
+| Score | Status | Action |
+|-------|--------|--------|
+| **70-100** | ✅ AFK Viable | Proceed to step 1 |
+| **40-70** | ⚠️ Medium Risk | If `--afk`: ask user "Switch to HITL mode?" If yes, set `--hitl`. If no, proceed. If `--hitl`: proceed. |
+| **0-40** | ❌ Needs Refinement | Ask user "Refine the task description and re-validate?" If yes, exit to let user improve. If no, proceed at own risk. |
+
+### Display Results
+
+Show the user:
+1. **Viability score** (0-100)
+2. **Dimension breakdown** (clarity, scope, dependency scores)
+3. **Gaps found** (if any) with suggestions
+4. **Recommended mode** (AFK vs HITL)
+
+**In AFK mode with score <70**: Pause and confirm before proceeding.
+**In HITL mode**: Always show results, but proceed unless user rejects.
 
 ---
 
@@ -106,12 +160,12 @@ git branch --show-current
 
 If there are uncommitted changes, warn in HITL mode. In AFK mode, stash and continue:
 ```bash
-git stash push -m "auto-devtronic: stash before run"
+git stash push -m "devtronic: stash before run"
 ```
 
 > **Note**: The stash will be popped automatically at the end of Step 8 (Report).
 > If the run is aborted or escalated before completion, restore your changes with:
-> `git stash list | grep "auto-devtronic"` then `git stash pop`.
+> `git stash list | grep "devtronic"` then `git stash pop`.
 
 ### Create working branch
 
@@ -141,7 +195,7 @@ Comments: <comments>
 Output the brief in the format specified in your instructions.
 ```
 
-The agent outputs a `thoughts/auto-devtronic/brief.md` file with the 3-layer structure:
+The agent outputs a `thoughts/devtronic/brief.md` file with the 3-layer structure:
 
 ```markdown
 # Brief: <issue title>
@@ -201,11 +255,11 @@ the human review gate. Equivalent to running AFK mode for this one step only.
 
 Follow the same process as `/generate-tests`:
 
-Read `thoughts/auto-devtronic/brief.md`, specifically the **Validation** layer, and generate failing tests that encode each acceptance criterion.
+Read `thoughts/devtronic/brief.md`, specifically the **Validation** layer, and generate failing tests that encode each acceptance criterion.
 
 Save to:
 - Test files in the appropriate test directory (detect from project structure)
-- `thoughts/auto-devtronic/tests-manifest.md` — traceability: criterion → test name → file
+- `thoughts/devtronic/tests-manifest.md` — traceability: criterion → test name → file
 
 **Test naming convention**: `[feature].[criterion-slug].test.ts` or follow existing conventions.
 
@@ -239,10 +293,10 @@ Options:
 ## Step 4: Create Plan
 
 Follow the same process as `/create-plan`, using:
-- `thoughts/auto-devtronic/brief.md` as the spec
-- `thoughts/auto-devtronic/tests-manifest.md` as the DoD
+- `thoughts/devtronic/brief.md` as the spec
+- `thoughts/devtronic/tests-manifest.md` as the DoD
 
-Save plan to `thoughts/auto-devtronic/plan.md`.
+Save plan to `thoughts/devtronic/plan.md`.
 
 The plan **must include**:
 - `## Task Dependencies` YAML block (required for parallel execution)
@@ -260,7 +314,7 @@ This is the RALPH core. Runs until tests pass or retries are exhausted.
 attempt     = 1
 max_retries = N (from --max-retries, default 3)
 last_failure = null
-plan_path   = thoughts/auto-devtronic/plan.md
+plan_path   = thoughts/devtronic/plan.md
 ```
 
 ### Loop body
@@ -319,7 +373,7 @@ WHILE attempt <= max_retries:
 When retries are exhausted or analyst recommends escalating:
 
 ```markdown
-## auto-devtronic: Cannot Self-Correct ⚠️
+## devtronic: Cannot Self-Correct ⚠️
 
 **Attempts**: N / max_retries
 **Last failure**: [quality-runner output summary]
@@ -393,7 +447,7 @@ Output:
 
 **Closes**: #<issue-number> (or "Resolves: <issue-url>")
 **Branch**: <branch-name>
-**Attempts**: N (auto-devtronic)
+**Attempts**: N (devtronic)
 
 ### What changed
 
@@ -411,7 +465,7 @@ Output:
 | 1 | [text] | ✅ |
 | 2 | [text] | ✅ |
 
-🤖 Generated with [auto-devtronic](https://github.com/devtronic/devtronic)
+🤖 Generated with [devtronic](https://github.com/devtronic/devtronic)
 ```
 
 ### HITL gate: confirm PR
@@ -457,13 +511,13 @@ Final summary after PR creation:
 If a stash was created in Step 1, pop it now:
 
 ```bash
-git stash list | grep "auto-devtronic" && git stash pop
+git stash list | grep "devtronic" && git stash pop
 ```
 
 ---
 
 ```markdown
-## auto-devtronic: Complete ✅
+## devtronic: Complete ✅
 
 **Issue**: <title> (<url>)
 **PR**: <pr-url>
@@ -482,9 +536,9 @@ git stash list | grep "auto-devtronic" && git stash pop
 | `path/to/file.ts` | Added / Modified |
 
 ### Session artifacts
-- Brief: `thoughts/auto-devtronic/brief.md`
-- Tests manifest: `thoughts/auto-devtronic/tests-manifest.md`
-- Plan: `thoughts/auto-devtronic/plan.md`
+- Brief: `thoughts/devtronic/brief.md`
+- Tests manifest: `thoughts/devtronic/tests-manifest.md`
+- Plan: `thoughts/devtronic/plan.md`
 ```
 
 ---
@@ -514,7 +568,7 @@ gh auth status
 ```
 
 If fails:
-- Always escalate to human: "Run `gh auth login` before using auto-devtronic"
+- Always escalate to human: "Run `gh auth login` before using devtronic"
 
 ### Merge conflicts during execution
 
@@ -529,29 +583,29 @@ If a subagent task fails due to conflicts:
 
 ```bash
 # Standard HITL run from a GitHub issue
-/auto-devtronic https://github.com/myorg/myapp/issues/42
+/devtronic https://github.com/myorg/myapp/issues/42
 
 # Fully autonomous run
-/auto-devtronic https://github.com/myorg/myapp/issues/42 --afk
+/devtronic https://github.com/myorg/myapp/issues/42 --afk
 
 # From a plain description
-/auto-devtronic "Add rate limiting to /api/auth/login, max 5 requests per minute per IP"
+/devtronic "Add rate limiting to /api/auth/login, max 5 requests per minute per IP"
 
 # Increase retries for complex issue
-/auto-devtronic https://github.com/myorg/myapp/issues/88 --afk --max-retries 5
+/devtronic https://github.com/myorg/myapp/issues/88 --afk --max-retries 5
 
 # Preview without creating PR
-/auto-devtronic https://github.com/myorg/myapp/issues/42 --dry-run
+/devtronic https://github.com/myorg/myapp/issues/42 --dry-run
 
 # Skip spec interview (auto-generate from issue body)
-/auto-devtronic https://github.com/myorg/myapp/issues/42 --skip-spec
+/devtronic https://github.com/myorg/myapp/issues/42 --skip-spec
 ```
 
 ---
 
 ## Notes
 
-- **Requires devtronic core skills** — auto-devtronic uses the same logic as `/generate-tests`, `/create-plan`, and `/execute-plan`. Those skills must be installed.
+- **Requires devtronic core skills** — devtronic uses the same logic as `/generate-tests`, `/create-plan`, and `/execute-plan`. Those skills must be installed.
 - **Requires `gh` CLI** — authenticated with repo write access.
 - **AFK is not magic** — it reduces friction, not mistakes. Start with HITL on unfamiliar codebases.
-- **Session artifacts** — all intermediate files are saved to `thoughts/auto-devtronic/`. Do not delete them until the PR is merged.
+- **Session artifacts** — all intermediate files are saved to `thoughts/devtronic/`. Do not delete them until the PR is merged.

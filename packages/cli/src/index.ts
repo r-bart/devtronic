@@ -15,6 +15,7 @@ import { configCommand, configSetCommand, configResetCommand } from './commands/
 import { doctorCommand } from './commands/doctor.js';
 import { uninstallCommand } from './commands/uninstall.js';
 import { addonCommand, addonListCommand, addonSyncCommand } from './commands/addon.js';
+import { modeCommand } from './commands/mode.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -35,6 +36,7 @@ program
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic info')}                      ${chalk.dim('Version & config summary')}`);
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic doctor')}                    ${chalk.dim('Health diagnostics')}`);
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic status')}                    ${chalk.dim('File status overview')}`);
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic mode')} ${chalk.dim('<afk|hitl|show>')}       ${chalk.dim('Get or set execution mode')}`);
     console.log();
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help')}                      ${chalk.dim('Show all commands')}`);
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help --all')}                ${chalk.dim('Full reference with all options')}`);
@@ -180,6 +182,19 @@ program
     await uninstallCommand({ path: options.path });
   });
 
+program
+  .command('mode')
+  .description('Set or show the execution mode (hitl or afk)')
+  .argument('<mode>', 'Mode: afk, hitl, or show')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (mode, options) => {
+    if (!['afk', 'hitl', 'show'].includes(mode)) {
+      console.error(`Invalid mode: "${mode}". Valid values: afk, hitl, show`);
+      process.exit(1);
+    }
+    await modeCommand(mode as 'afk' | 'hitl' | 'show', { path: options.path });
+  });
+
 // Extended help — devtronic help --all
 program
   .command('help')
@@ -238,6 +253,18 @@ program
         opts: ['--path <path>        Target directory'],
       },
       {
+        title: '',
+        usage: 'addon enable <name>',
+        desc: 'Enable an addon (copies files to .claude/)',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: '',
+        usage: 'addon disable <name>',
+        desc: 'Disable an addon (removes files from .claude/)',
+        opts: ['--path <path>        Target directory'],
+      },
+      {
         title: 'Maintenance',
         usage: 'update',
         desc: 'Update to the latest template version',
@@ -289,6 +316,12 @@ program
         title: '',
         usage: 'presets',
         desc: 'List available configuration presets',
+      },
+      {
+        title: 'Mode',
+        usage: 'mode <afk|hitl|show>',
+        desc: 'Set or show the persistent execution mode for /auto-devtronic',
+        opts: ['--path <path>        Target directory'],
       },
       {
         title: 'Diagnostics',
@@ -367,6 +400,24 @@ addonCmd
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (options) => {
     await addonListCommand({ path: options.path });
+  });
+
+addonCmd
+  .command('enable')
+  .description('Enable an addon (copies files to .claude/)')
+  .argument('<name>', 'Addon name (e.g., auto-devtronic)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (name, options) => {
+    await addonCommand('enable', name, { path: options.path });
+  });
+
+addonCmd
+  .command('disable')
+  .description('Disable an addon (removes files from .claude/)')
+  .argument('<name>', 'Addon name (e.g., auto-devtronic)')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (name, options) => {
+    await addonCommand('disable', name, { path: options.path });
   });
 
 addonCmd

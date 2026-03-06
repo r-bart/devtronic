@@ -1,5 +1,5 @@
 ---
-name: design:define
+name: devtronic:design-define
 description: Synthesis phase — generates personas, user journey maps, and HMW problem statements from research.
 allowed-tools: Task, Read, Write, AskUserQuestion
 argument-hint: "[topic]"

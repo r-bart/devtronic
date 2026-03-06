@@ -7,7 +7,7 @@ How to approach error debugging in a structured way with devtronic.
 ## Objective
 
 By the end of this tutorial:
-- You'll know how to use `/investigate` to analyze errors
+- You'll know how to use `/devtronic:investigate` to analyze errors
 - You'll understand when error-investigator is invoked automatically
 - You'll have a systematic process for resolving bugs
 
@@ -28,16 +28,16 @@ Error occurs
      ├─▶ Automatic: error-investigator analyzes
      │
      ▼
-/investigate [error]   →  Deep analysis if needed
+/devtronic:investigate [error]   →  Deep analysis if needed
      │
      ▼
-/research [area]      →  Understand code context
+/devtronic:research [area]      →  Understand code context
      │
      ▼
 [fix]                 →  Implement solution
      │
      ▼
-/post-review --quick       →  Verify the fix
+/devtronic:post-review --quick       →  Verify the fix
 ```
 
 ---
@@ -117,7 +117,7 @@ what was rendered on the server.
 For complex errors, use the full skill:
 
 ```
-/investigate "hydration mismatch in user dashboard"
+/devtronic:investigate "hydration mismatch in user dashboard"
 ```
 
 Claude will do deep analysis:
@@ -159,7 +159,7 @@ useEffect(() => {
 ### Step 2: Research if You Need More Context
 
 ```
-/research "theme system implementation"
+/devtronic:research "theme system implementation"
 ```
 
 To understand how the theme system works before modifying it.
@@ -173,7 +173,7 @@ Apply the fix for hydration mismatch
 ### Step 4: Review
 
 ```
-/post-review --quick
+/devtronic:post-review --quick
 ```
 
 ---
@@ -229,7 +229,7 @@ Sometimes the bug is incorrect behavior without explicit error.
 ### Describe the Problem
 
 ```
-/investigate "users are not being filtered by role, all users shown regardless of filter"
+/devtronic:investigate "users are not being filtered by role, all users shown regardless of filter"
 ```
 
 Claude will investigate:
@@ -310,7 +310,7 @@ Useful for:
 ## Verification
 
 ✅ You know how to paste errors for automatic analysis
-✅ You can use `/investigate` for deep investigation
+✅ You can use `/devtronic:investigate` for deep investigation
 ✅ You understand the flow: error → analysis → research → fix → verify
 
 ---

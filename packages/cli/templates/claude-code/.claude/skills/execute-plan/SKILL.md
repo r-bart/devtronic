@@ -1,5 +1,5 @@
 ---
-name: execute-plan
+name: devtronic:execute-plan
 description: Execute a plan in parallel phases. Reads task dependencies and runs independent tasks as concurrent subagents. Claude Code only.
 allowed-tools: Task, Read, Write, Bash, Glob, Grep, Edit
 argument-hint: "[plan-path|--latest]"

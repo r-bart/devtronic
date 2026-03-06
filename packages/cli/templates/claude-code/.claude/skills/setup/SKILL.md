@@ -1,5 +1,5 @@
 ---
-name: setup
+name: devtronic:setup
 description: Configure devtronic for this project through interactive conversation. Use when setting up AI assistance in an existing project.
 allowed-tools: Bash, Read, Glob, AskUserQuestion, Write
 ---
