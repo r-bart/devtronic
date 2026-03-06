@@ -492,6 +492,61 @@ Each direction has a distinct set of moves (3-5 per refinement) applied incremen
 
 ---
 
+## Auto-devtronic Addon Skills
+
+Install with: `npx devtronic addon add auto-devtronic`
+
+### /auto-devtronic - Autonomous Engineering Loop
+
+**Purpose**: Takes a GitHub issue or task description and executes the full devtronic pipeline autonomously — spec → tests → plan → implement → quality check → PR. Self-corrects via failing tests without human intervention (in AFK mode).
+
+**When to use**:
+- Routine, well-scoped issues with good test coverage
+- Want the full pipeline run hands-free
+- Trust the codebase enough for autonomous changes
+
+**Modes**:
+
+| Mode | Flag | Human gates | Use when |
+|------|------|-------------|----------|
+| **HITL** | `--hitl` (default) | Brief, tests, each retry, PR | Unfamiliar codebase, risky changes |
+| **AFK** | `--afk` | None | Routine issues, high test coverage, trusted scope |
+
+**Flags**:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--hitl` | yes | Pause at key gates for human approval |
+| `--afk` | no | Fully autonomous, no pauses |
+| `--max-retries N` | 3 | Max loop iterations before escalating |
+| `--skip-spec` | no | Skip spec interview, auto-generate from brief |
+| `--branch name` | auto | Branch name (auto-derived from issue) |
+| `--dry-run` | no | Run everything but skip `gh pr create` — prints PR body to stdout instead |
+
+**Pipeline**:
+```
+INPUT (issue URL or description)
+  → 1. INTAKE       parse issue, extract structured brief
+  → 2. SPEC         brief → spec (HITL gate)
+  → 3. TESTS        generate failing tests as DoD
+  → 4. PLAN         create phased implementation plan
+  → 5. EXECUTE      implement in parallel phases
+  → 6. VERIFY       run quality checks (typecheck + lint + test)
+  → 7. LOOP         on failure: analyze → amend plan → retry (up to --max-retries)
+  → 8. PR           push branch, open PR
+```
+
+**Required**: `/create-plan`, `/generate-tests`, `/execute-plan` skills must be installed (they are part of devtronic core).
+
+**Agents installed alongside**:
+- `issue-parser` — extracts structured brief from GitHub issues
+- `failure-analyst` — diagnoses test/lint failures and proposes targeted fixes
+- `quality-runner` — runs typecheck, lint, and tests; returns structured pass/fail output
+
+**Output**: Branch pushed, PR opened (or `--dry-run` PR body to stdout)
+
+---
+
 ## Other Skills
 
 ### /create-skill - Meta Skill Generator

@@ -156,10 +156,11 @@ npx devtronic addon remove <name> [options]
 
 **Available addons:**
 
-| Addon | Skills | Description |
-|-------|--------|-------------|
-| `orchestration` | `/briefing`, `/recap`, `/handoff` | Pre-planning alignment, session recaps, context rotation |
-| `design-best-practices` | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
+| Addon | Skills | Agents | Description |
+|-------|--------|--------|-------------|
+| `orchestration` | `/briefing`, `/recap`, `/handoff` | — | Pre-planning alignment, session recaps, context rotation |
+| `design-best-practices` | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
+| `auto-devtronic` | `/auto-devtronic` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs the full spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
 **Examples:**
 
@@ -170,14 +171,17 @@ npx devtronic addon add orchestration
 # Add the design best practices addon
 npx devtronic addon add design-best-practices
 
+# Add the autonomous engineering loop
+npx devtronic addon add auto-devtronic
+
 # Remove an addon
 npx devtronic addon remove design-best-practices
 ```
 
 **Notes:**
 - `orchestration` requires Claude Code in plugin mode (selected during `devtronic init`)
-- `design-best-practices` works in both standalone and plugin mode — files are placed in `.claude/skills/` and `.claude/rules/`
-- Both commands show a preview and ask for confirmation before proceeding
+- `design-best-practices` and `auto-devtronic` work in both standalone and plugin mode — files are placed in `.claude/skills/`, `.claude/agents/`, and `.claude/rules/`
+- All commands show a preview and ask for confirmation before proceeding
 - Remove warns about locally modified files before deleting them
 
 ---
