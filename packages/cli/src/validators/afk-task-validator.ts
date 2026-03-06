@@ -84,14 +84,15 @@ export function calculateClarityScore(description: string): number {
   const foundKeywords = clarityKeywords.filter((kw) => lowerDesc.includes(kw));
   const keywordScore = Math.min(100, (foundKeywords.length / clarityKeywords.length) * 100);
 
-  // Acceptance criteria indicators
-  const hasCriteria = /acceptance criter|acceptance criteria|criteria:|-\s*\[/i.test(description);
-  const criteriaScore = hasCriteria ? 80 : 20;
-
   // Measurable outcomes (look for patterns like "returns X", "if Y then Z")
   const measurablePatterns = /returns\s+\{|returns\s+[a-z]+|validates\s+\w+|throws\s+\w+|if\s+\w+\s+then|when\s+\w+/gi;
   const matches = description.match(measurablePatterns) || [];
   const outcomeScore = Math.min(100, (matches.length / 3) * 100);
+
+  // Acceptance criteria indicators — explicit header OR 3+ inline measurable outcomes
+  const hasExplicitCriteria = /acceptance criter|acceptance criteria|criteria:|-\s*\[/i.test(description);
+  const hasInlineOutcomes = matches.length >= 3;
+  const criteriaScore = hasExplicitCriteria || hasInlineOutcomes ? 80 : 20;
 
   // Vague language (negative scoring)
   const vagueWords = ['better', 'improve', 'fix', 'handle', 'work', 'stuff'];
