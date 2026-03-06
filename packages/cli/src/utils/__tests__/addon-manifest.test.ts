@@ -7,8 +7,8 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { mkdtempSync, writeFileSync, rmSync } from 'node:fs';
-import { join } from 'node:path';
+import { mkdtempSync, writeFileSync, rmSync, mkdirSync, existsSync } from 'node:fs';
+import { join, dirname } from 'node:path';
 import { tmpdir } from 'node:os';
 import { parseAddonManifest, getAddonManifest } from '../../addons/registry.js';
 import { readAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../addonConfig.js';
@@ -26,7 +26,12 @@ afterEach(() => {
 });
 
 function writeJson(dir: string, filename: string, data: unknown): void {
-  writeFileSync(join(dir, filename), JSON.stringify(data, null, 2));
+  const fullPath = join(dir, filename);
+  const parentDir = dirname(fullPath);
+  if (!existsSync(parentDir)) {
+    mkdirSync(parentDir, { recursive: true });
+  }
+  writeFileSync(fullPath, JSON.stringify(data, null, 2));
 }
 
 // ─── FR-2: Addon Manifest Parsing ───────────────────────────────────────────
@@ -94,7 +99,7 @@ describe('AddonManifest', () => {
 describe('Addon config tracking', () => {
   it('FR-4: should read addon config from devtronic config file', () => {
     // Spec: FR-4
-    writeJson(tempDir, 'devtronic.json', {
+    writeJson(tempDir, '.claude/devtronic.json', {
       addons: { agents: ['claude'], installed: {} },
     });
     const config = readAddonConfig(tempDir);
@@ -104,7 +109,7 @@ describe('Addon config tracking', () => {
 
   it('FR-4: should write installed addon to config with file tracking', () => {
     // Spec: FR-4
-    writeJson(tempDir, 'devtronic.json', {
+    writeJson(tempDir, '.claude/devtronic.json', {
       addons: { agents: ['claude'], installed: {} },
     });
     writeAddonToConfig(tempDir, 'design-best-practices', {
@@ -119,7 +124,7 @@ describe('Addon config tracking', () => {
 
   it('FR-4: should remove addon from config', () => {
     // Spec: FR-4
-    writeJson(tempDir, 'devtronic.json', {
+    writeJson(tempDir, '.claude/devtronic.json', {
       addons: {
         agents: ['claude'],
         installed: {
@@ -134,7 +139,7 @@ describe('Addon config tracking', () => {
 
   it('FR-4: should track file checksums for each installed addon', () => {
     // Spec: FR-4
-    writeJson(tempDir, 'devtronic.json', {
+    writeJson(tempDir, '.claude/devtronic.json', {
       addons: { agents: ['claude'], installed: {} },
     });
     writeAddonToConfig(tempDir, 'design-best-practices', {
@@ -148,7 +153,7 @@ describe('Addon config tracking', () => {
 
   it('US-5/AC-1: should store agent targets in config', () => {
     // Spec: US-5/AC-1
-    writeJson(tempDir, 'devtronic.json', {
+    writeJson(tempDir, '.claude/devtronic.json', {
       addons: { agents: ['claude', 'cursor'], installed: {} },
     });
     const config = readAddonConfig(tempDir);
@@ -157,7 +162,7 @@ describe('Addon config tracking', () => {
 
   it('US-5/AC-3: should default to claude-only when no agents configured', () => {
     // Spec: US-5/AC-3
-    writeJson(tempDir, 'devtronic.json', { addons: { installed: {} } });
+    writeJson(tempDir, '.claude/devtronic.json', { addons: { installed: {} } });
     const config = readAddonConfig(tempDir);
     expect(config.agents).toEqual(['claude']);
   });

@@ -30,6 +30,9 @@ import {
 import { registerPlugin } from '../utils/settings.js';
 import { getCliVersion } from '../utils/version.js';
 import { introTitle, symbols, formatKV } from '../utils/ui.js';
+import { detectOrphanedAddonFiles, registerAddonInConfig, readAddonConfig } from '../utils/addonConfig.js';
+import { getAddonSourceDir } from '../addons/registry.js';
+import { syncAddonFiles } from '../generators/addonFiles.js';
 
 export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (!options.check && !options.dryRun) {
@@ -439,6 +442,32 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   writeManifest(targetDir, updatedManifest);
 
   spinner.stop('Updates applied');
+
+  // Auto-migrate orphaned addon files (installed before config tracking)
+  const orphaned = detectOrphanedAddonFiles(targetDir);
+  if (orphaned.length > 0) {
+    const migSpinner = p.spinner();
+    migSpinner.start('Migrating detected addon files to config...');
+    for (const addonName of orphaned) {
+      registerAddonInConfig(targetDir, addonName);
+    }
+    migSpinner.stop(`${symbols.pass} Migrated: ${orphaned.join(', ')}`);
+  }
+
+  // Sync enabled addons (update their files from the latest bundle)
+  const addonConfig = readAddonConfig(targetDir);
+  const enabledAddons = Object.keys(addonConfig.installed);
+  if (enabledAddons.length > 0 && !options.check) {
+    const syncSpinner = p.spinner();
+    syncSpinner.start('Updating enabled addon files...');
+    let totalUpdated = 0;
+    for (const name of enabledAddons) {
+      const addonSourceDir = getAddonSourceDir(name as import('../types.js').AddonName);
+      const result = syncAddonFiles(targetDir, addonSourceDir, addonConfig.agents);
+      totalUpdated += (result.updated ?? 0) + result.written;
+    }
+    syncSpinner.stop(`${symbols.pass} Addon files updated (${totalUpdated} files)`);
+  }
 
   p.outro(chalk.green(`Updated to version ${currentVersion}`));
 }
