@@ -10,6 +10,7 @@ import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
 import type { AddonName } from '../types.js';
 import { getAddonSourceDir } from '../addons/registry.js';
+import { readAddonConfig } from '../utils/addonConfig.js';
 
 export interface GenerateResult {
   written: number;
@@ -211,17 +212,14 @@ export function syncAddonFiles(
   const result: GenerateResult = { written: 0, skipped: 0, conflicts: [], updated: 0 };
 
   // Build a checksum map of what was originally installed
-  const configPath = join(projectDir, 'devtronic.json');
   let installedChecksums: Record<string, string> = {};
-  if (existsSync(configPath)) {
-    try {
-      const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-      const installed = config.addons?.installed?.[addonName];
-      if (installed?.checksums) {
-        installedChecksums = installed.checksums;
-      }
-    } catch { /* ignore */ }
-  }
+  try {
+    const config = readAddonConfig(projectDir);
+    const installed = config.installed?.[addonName];
+    if (installed?.checksums) {
+      installedChecksums = installed.checksums;
+    }
+  } catch { /* ignore */ }
 
   for (const agent of agents) {
     const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
@@ -270,16 +268,12 @@ export function detectModifiedAddonFiles(
   projectDir: string,
   addonName: string
 ): string[] {
-  const configPath = join(projectDir, 'devtronic.json');
-  if (!existsSync(configPath)) return [];
-
   let installedChecksums: Record<string, string> = {};
   try {
-    const config = JSON.parse(readFileSync(configPath, 'utf-8'));
-    const installed = config.addons?.installed?.[addonName];
-    if (installed?.checksums) {
-      installedChecksums = installed.checksums;
-    }
+    const config = readAddonConfig(projectDir);
+    const installed = config.installed?.[addonName];
+    if (!installed?.checksums) return [];
+    installedChecksums = installed.checksums;
   } catch { return []; }
 
   const modified: string[] = [];
