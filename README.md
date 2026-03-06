@@ -173,9 +173,38 @@ For UI-heavy features, run the design phase before `/devtronic:spec`. See [Desig
 | **Design Phase** | `/devtronic:design`, `/devtronic:design-research`, `/devtronic:design-define`, `/devtronic:design-ia`, `/devtronic:design-wireframe`, `/devtronic:design-system`, `/devtronic:design-system-define`, `/devtronic:design-system-audit`, `/devtronic:design-system-sync`, `/devtronic:design-audit`, `/devtronic:design-review`, `/devtronic:design-spec` |
 | **Orchestration** (addon) | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` |
 | **Design Best Practices** (addon) | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` |
-| **Auto-devtronic** (addon) | `/devtronic` |
+| **Auto-devtronic** (addon) | `/devtronic` — Autonomous engineering loop |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
+
+### Autonomous Engineering Loop (`/devtronic`)
+
+The `auto-devtronic` addon runs the full pipeline autonomously — spec → tests → plan → implement → PR — and self-corrects via failing tests.
+
+```bash
+npx devtronic addon enable auto-devtronic
+
+/devtronic https://github.com/org/repo/issues/42   # HITL mode (default, human gates)
+/devtronic <issue> --afk                           # AFK mode (fully autonomous)
+/devtronic <issue> --afk --validate                # Validate task first, then run
+```
+
+**Two modes:**
+
+| Mode | Flag | Human gates |
+|------|------|-------------|
+| **HITL** | `--hitl` (default) | Pauses at spec, tests, each retry, and PR |
+| **AFK** | `--afk` | Fully autonomous, no interruptions |
+
+Set the default mode project-wide:
+
+```bash
+npx devtronic mode afk    # set AFK as default
+npx devtronic mode hitl   # set HITL as default
+npx devtronic mode show   # show current mode
+```
+
+See [auto-devtronic Addon](./docs/auto-devtronic-addon.md) for full documentation.
 
 ### Agents (15)
 
