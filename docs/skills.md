@@ -519,6 +519,7 @@ Install with: `npx devtronic addon add auto-devtronic`
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| `--validate` | no | Validate task AFK-readiness before proceeding (score 70+ = proceed, <70 in AFK mode = ask for HITL) |
 | `--hitl` | yes | Pause at key gates for human approval |
 | `--afk` | no | Fully autonomous, no pauses |
 | `--max-retries N` | 3 | Max loop iterations before escalating |
@@ -529,6 +530,7 @@ Install with: `npx devtronic addon add auto-devtronic`
 **Pipeline**:
 ```
 INPUT (issue URL or description)
+  → 0. VALIDATE (if --validate)  score 70+: proceed; <70 AFK: ask HITL; <40: refine
   → 1. INTAKE       parse issue, extract structured brief
   → 2. SPEC         brief → spec (HITL gate)
   → 3. TESTS        generate failing tests as DoD
@@ -545,8 +547,47 @@ INPUT (issue URL or description)
 - `issue-parser` — extracts structured brief from GitHub issues
 - `failure-analyst` — diagnoses test/lint failures and proposes targeted fixes
 - `quality-runner` — runs typecheck, lint, and tests; returns structured pass/fail output
+- `afk-task-validator` — analyzes task descriptions for AFK-readiness and detects quality gaps
 
 **Output**: Branch pushed, PR opened (or `--dry-run` PR body to stdout)
+
+---
+
+### /validate-task-afk - AFK Viability Validator
+
+**Purpose**: Pre-flight validation that scores a GitHub issue or task description on AFK-readiness (0-100) across 5 dimensions and guides iterative refinement.
+
+**When to use**:
+- Before running `/auto-devtronic <issue> --afk`
+- Uncertain if a task is well-defined enough for autonomous execution
+- Want guidance on improving a task description before committing to AFK
+
+**Skip for**: Tasks already validated inline via `--validate` flag.
+
+**Dimensions scored**:
+
+| Dimension | Weight | Measures |
+|-----------|--------|---------|
+| Clarity | 25% | Measurable acceptance criteria (Returns/Validates/Throws) |
+| Scope | 25% | 1-4 files, no architectural keywords |
+| Precedent | 20% | Similar patterns exist in codebase |
+| Coverage | 20% | Test coverage >70% in affected files |
+| Dependencies | 10% | Self-contained, not blocked by external PRs |
+
+**Score interpretation**:
+
+| Score | Status | Action |
+|-------|--------|--------|
+| 70-100 | ✅ AFK Viable | Run with `--afk` |
+| 40-70 | ⚠️ Medium Risk | Use `--hitl` (human gates) |
+| 0-40 | ❌ Needs Work | Refine and re-validate |
+
+**Flags**:
+- `--refine` — interactive mode: detects gaps, asks questions, re-scores after each answer
+
+**Delegates to**: `afk-task-validator` agent
+
+**Output**: Markdown report with score breakdown, gap list, and recommended command to run
 
 ---
 

@@ -16,6 +16,7 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 | test-generator | sonnet | On request | Generate unit tests following project patterns |
 | dependency-checker | haiku | Delegated by `/audit` | Audit dependencies for vulnerabilities and issues |
 | doc-sync | haiku | On request | Verify docs match the actual codebase |
+| afk-task-validator | haiku | Delegated by `/validate-task-afk`, `/auto-devtronic --validate` | Score task AFK-readiness, detect quality gaps |
 | ux-researcher | sonnet | Delegated by `/design:research`, `/design:define` | Synthesize research, personas, user journeys |
 | ia-architect | sonnet | Delegated by `/design:ia` | Navigation structure, user flows, sitemaps |
 | design-critic | sonnet | Delegated by `/design:audit` | Nielsen's 10 heuristics evaluation |
@@ -29,19 +30,24 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 Which skills delegate to which agents:
 
 ```
-/execute-plan  ──→  commit-changes    (after each phase passes quality checks)
-/quick         ──→  commit-changes    (step 5: commit)
-/audit         ──→  dependency-checker (--security mode: dependency health)
-/post-review   ──→  architecture-checker (architecture compliance check)
-/design:research   ──→  ux-researcher          (competitive analysis, persona generation)
-/design:define     ──→  ux-researcher          (personas, journeys, HMW questions)
-/design:ia         ──→  ia-architect           (sitemap, navigation model, user flows)
-/design:audit      ──→  design-critic          (Nielsen's 10 heuristics)
-                   ──→  a11y-auditor           (WCAG 2.1 AA checks)
-/design:system-*   ──→  design-token-extractor (extract and normalize tokens)
-/design:system-audit──→ design-system-guardian (drift detection)
-/design:review     ──→  visual-qa              (implementation vs spec comparison)
-/post-review       ──→  design-system-guardian (design system compliance on changed files)
+/execute-plan        ──→  commit-changes        (after each phase passes quality checks)
+/quick               ──→  commit-changes        (step 5: commit)
+/audit               ──→  dependency-checker    (--security mode: dependency health)
+/post-review         ──→  architecture-checker  (architecture compliance check)
+/validate-task-afk   ──→  afk-task-validator    (score + gap analysis)
+/auto-devtronic      ──→  afk-task-validator    (--validate flag: step 0)
+                     ──→  issue-parser          (brief extraction)
+                     ──→  failure-analyst       (failure diagnosis in execute loop)
+                     ──→  quality-runner        (quality checks per loop iteration)
+/design:research     ──→  ux-researcher         (competitive analysis, persona generation)
+/design:define       ──→  ux-researcher         (personas, journeys, HMW questions)
+/design:ia           ──→  ia-architect          (sitemap, navigation model, user flows)
+/design:audit        ──→  design-critic         (Nielsen's 10 heuristics)
+                     ──→  a11y-auditor          (WCAG 2.1 AA checks)
+/design:system-*     ──→  design-token-extractor (extract and normalize tokens)
+/design:system-audit ──→  design-system-guardian (drift detection)
+/design:review       ──→  visual-qa             (implementation vs spec comparison)
+/post-review         ──→  design-system-guardian (design system compliance on changed files)
 ```
 
 Standalone agents (invoked by Claude or user directly):
@@ -736,6 +742,82 @@ Overall: [IN SYNC / NEEDS UPDATE]
 Files needing updates:
 1. [path] — [what to fix]
 ```
+
+---
+
+## afk-task-validator
+
+**Model**: Haiku (fast heuristic analysis)
+
+**Purpose**: Analyzes GitHub issues and task descriptions for autonomous (AFK) execution readiness. Calculates a viability score (0-100) across 5 dimensions, detects quality gaps, and provides actionable guidance for refinement.
+
+**Part of**: auto-devtronic addon (`npx devtronic addon add auto-devtronic`)
+
+### When Invoked
+
+Delegated by:
+- **`/validate-task-afk`** — standalone pre-flight validation
+- **`/auto-devtronic --validate`** — inline validation as step 0 of the pipeline
+
+### Scoring Dimensions
+
+| Dimension | Weight | Scoring Method |
+|-----------|--------|----------------|
+| **Clarity** | 25% | Count measurable outcomes (Returns/Validates/Throws); penalize vague words |
+| **Scope** | 25% | File count from description; penalize architectural keywords and cross-layer changes |
+| **Precedent** | 20% | Grep codebase for similar patterns; returns neutral 50 if unavailable |
+| **Coverage** | 20% | Run `vitest --coverage` on affected files; returns 0 if unavailable |
+| **Dependencies** | 10% | Detect blocking keywords: "depends on", "PR #", "requires", "after" |
+
+### Gap Detection
+
+Detects and reports these gap types:
+
+| Type | Condition | Suggestion |
+|------|-----------|------------|
+| `missing-criteria` | Clarity score < 50 | Add "Returns X", "Validates Y", "Throws error Z" |
+| `low-coverage` | Coverage 0-60% | Write tests first or use HITL mode |
+| `architectural-risk` | Refactor/migrate/redesign keywords | Break into smaller tasks, use HITL |
+| `external-dependency` | "depends on", "PR #" keywords | Wait for dependency or split independent part |
+| `scope-creep` | Multiple features or scope score < 40 | Split into separate tasks |
+
+### Score Interpretation
+
+| Score | Status | Action |
+|-------|--------|--------|
+| 70-100 | ✅ AFK Viable | Proceed to step 1 |
+| 40-70 | ⚠️ Medium Risk | If `--afk`: ask "Switch to HITL?"; if `--hitl`: proceed |
+| 0-40 | ❌ Needs Refinement | Ask user to refine and re-validate |
+
+### Output Format
+
+Generates a markdown report:
+
+```
+# AFK Viability Analysis
+
+**Score: 87/100** ✅ AFK Viable
+
+## Dimensions
+✅ Clarity: 90/100
+✅ Scope: 85/100
+⚠️  Coverage: 72/100
+✅ Precedent: 80/100
+✅ Dependencies: 100/100
+
+## Recommendation
+→ Run: /auto-devtronic <issue> --afk --max-retries 5
+
+## Gaps Found
+None — ready to proceed!
+```
+
+### Critical Rules
+
+- Always scores all 5 dimensions — never skips one
+- Notes when a dimension can't be computed (e.g., coverage requires vitest)
+- Never rejects a task outright — always suggests a path to improvement
+- Interactive refinement: if score < 70, asks clarifying questions and re-scores
 
 ---
 
