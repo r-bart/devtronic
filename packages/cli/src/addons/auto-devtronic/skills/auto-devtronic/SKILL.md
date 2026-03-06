@@ -2,7 +2,7 @@
 name: auto-devtronic
 description: Autonomous engineering loop. Takes a GitHub issue or description, runs the full spec→test→plan→execute→review→PR pipeline, and self-corrects via failing tests until done. Two modes: --hitl (human gates, default) and --afk (fully autonomous).
 allowed-tools: Task, Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
-argument-hint: "[issue-url|description] [--hitl|--afk] [--max-retries N] [--skip-spec] [--branch name] [--dry-run]"
+argument-hint: "[issue-url|description] [--hitl|--afk] [--validate] [--max-retries N] [--skip-spec] [--branch name] [--dry-run]"
 ---
 
 # auto-devtronic — Autonomous Engineering Loop
@@ -22,6 +22,7 @@ The key innovation over a manual pipeline: the **execute-verify-correct loop**. 
 
 | Flag | Default | Description |
 |------|---------|-------------|
+| `--validate` | no | Validate task AFK-readiness before proceeding (score 70+ = proceed, <70 in AFK mode = ask for HITL) |
 | `--hitl` | yes | Pause at key gates for human approval |
 | `--afk` | no | Fully autonomous, no pauses |
 | `--max-retries N` | 3 | Max loop iterations before escalating |
@@ -33,6 +34,11 @@ The key innovation over a manual pipeline: the **execute-verify-correct loop**. 
 
 ```
 INPUT (issue URL or description)
+  │
+  ▼
+0. VALIDATE (if --validate)  — /validate-task-afk
+             Score: 70+? Proceed silently.
+             Score: <70 in AFK mode? Ask for HITL confirmation.
   │
   ▼
 1. INTAKE      — parse issue, extract structured brief
@@ -60,6 +66,41 @@ INPUT (issue URL or description)
 7. PR          — gh pr create, link to issue
                [HITL gate: confirm PR body]
 ```
+
+---
+
+## Step 0: Validate Task (if --validate)
+
+Only if the `--validate` flag is provided:
+
+### Invoke /validate-task-afk
+
+```
+/validate-task-afk <input>
+```
+
+Where `<input>` is the GitHub issue URL or plain text description provided by the user.
+
+### Interpret Score
+
+The validator returns a viability score (0-100) across 5 dimensions:
+
+| Score | Status | Action |
+|-------|--------|--------|
+| **70-100** | ✅ AFK Viable | Proceed to step 1 |
+| **40-70** | ⚠️ Medium Risk | If `--afk`: ask user "Switch to HITL mode?" If yes, set `--hitl`. If no, proceed. If `--hitl`: proceed. |
+| **0-40** | ❌ Needs Refinement | Ask user "Refine the task description and re-validate?" If yes, exit to let user improve. If no, proceed at own risk. |
+
+### Display Results
+
+Show the user:
+1. **Viability score** (0-100)
+2. **Dimension breakdown** (clarity, scope, dependency scores)
+3. **Gaps found** (if any) with suggestions
+4. **Recommended mode** (AFK vs HITL)
+
+**In AFK mode with score <70**: Pause and confirm before proceeding.
+**In HITL mode**: Always show results, but proceed unless user rejects.
 
 ---
 
