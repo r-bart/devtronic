@@ -30,6 +30,19 @@ The key innovation over a manual pipeline: the **execute-verify-correct loop**. 
 | `--branch name` | auto | Branch name (auto-derived from issue) |
 | `--dry-run` | no | Run everything including code changes, but skip `gh pr create`. Prints PR body to stdout instead. Use to inspect results before publishing. |
 
+## Mode Resolution
+
+Mode is resolved in this order (highest priority first):
+
+1. **CLI flag** (`--afk` / `--hitl`) — overrides all
+2. **Project config** (`.claude/devtronic.json` → `mode` field) — read at pipeline start with the `Read` tool
+3. **Default**: HITL
+
+At pipeline start, before step 0:
+- Attempt to read `.claude/devtronic.json`
+- If `mode` field is present and no CLI flag was passed, use it as the active mode
+- Log the resolved mode: `Mode: afk (from project config)` or `Mode: hitl (default)`
+
 ## Pipeline Position
 
 ```
