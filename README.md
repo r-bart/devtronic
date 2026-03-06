@@ -59,11 +59,11 @@ The CLI will:
 ### Option B: Claude Code Skill
 
 ```
-/setup      # For existing projects
-/scaffold   # For new projects from scratch
+/devtronic:setup      # For existing projects
+/devtronic:scaffold   # For new projects from scratch
 ```
 
-Same functionality through conversation. Use `/scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
+Same functionality through conversation. Use `/devtronic:scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
 
 ### Update Later
 
@@ -133,28 +133,28 @@ npx devtronic init
 ## Core Workflow
 
 ```
-/brief [topic]         →  Orientation + pre-flight checks
+/devtronic:brief [topic]         →  Orientation + pre-flight checks
         │
 [ /design phase ]      →  (optional) UX discovery → wireframes → design system
         │                  See Design Phase Guide ↗
-/spec [idea]           →  Define WHAT to build (PRD)
+/devtronic:spec [idea]           →  Define WHAT to build (PRD)
         │
-/create-plan [feature] →  Design implementation phases
+/devtronic:create-plan [feature] →  Design implementation phases
         │
-/generate-tests        →  Encode acceptance criteria as failing tests
+/devtronic:generate-tests  →  Encode acceptance criteria as failing tests
         │
-/execute-plan          →  Implement in parallel phases
+/devtronic:execute-plan    →  Implement in parallel phases
         │
-[ /design:review ]     →  (optional) QA vs wireframes + design system
+[ /devtronic:design-review ]     →  (optional) QA vs wireframes + design system
         │
 /summary               →  Document what changed and why
         │
-/post-review           →  Final quality check
+/devtronic:post-review     →  Final quality check
 ```
 
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.
 
-For UI-heavy features, run the design phase before `/spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
+For UI-heavy features, run the design phase before `/devtronic:spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
 
 ---
 
@@ -164,16 +164,16 @@ For UI-heavy features, run the design phase before `/spec`. See [Design Phase Gu
 
 | Category | Skills |
 |----------|--------|
-| **Orientation & Research** | `/brief`, `/research`, `/opensrc` |
-| **Planning** | `/spec`, `/create-plan` |
-| **Development** | `/scaffold`, `/setup`, `/investigate`, `/worktree` |
-| **Execution** | `/quick`, `/execute-plan` |
-| **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
-| **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
-| **Design Phase** | `/design`, `/design:research`, `/design:define`, `/design:ia`, `/design:wireframe`, `/design:system`, `/design:system-define`, `/design:system-audit`, `/design:system-sync`, `/design:audit`, `/design:review`, `/design:spec` |
-| **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
-| **Design Best Practices** (addon) | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` |
-| **Auto-devtronic** (addon) | `/auto-devtronic` |
+| **Orientation & Research** | `/devtronic:brief`, `/devtronic:research`, `/devtronic:opensrc` |
+| **Planning** | `/devtronic:spec`, `/devtronic:create-plan` |
+| **Development** | `/devtronic:scaffold`, `/devtronic:setup`, `/devtronic:investigate`, `/devtronic:worktree` |
+| **Execution** | `/devtronic:quick`, `/devtronic:execute-plan` |
+| **Quality & Review** | `/devtronic:audit`, `/devtronic:post-review`, `/devtronic:generate-tests` |
+| **Session & Meta** | `/devtronic:checkpoint`, `/devtronic:summary`, `/devtronic:backlog`, `/devtronic:learn`, `/devtronic:create-skill` |
+| **Design Phase** | `/devtronic:design`, `/devtronic:design-research`, `/devtronic:design-define`, `/devtronic:design-ia`, `/devtronic:design-wireframe`, `/devtronic:design-system`, `/devtronic:design-system-define`, `/devtronic:design-system-audit`, `/devtronic:design-system-sync`, `/devtronic:design-audit`, `/devtronic:design-review`, `/devtronic:design-spec` |
+| **Orchestration** (addon) | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` |
+| **Design Best Practices** (addon) | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` |
+| **Auto-devtronic** (addon) | `/devtronic` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 

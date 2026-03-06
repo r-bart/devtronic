@@ -137,13 +137,13 @@ npx devtronic add antigravity
 
 ---
 
-### addon add / addon remove
+### addon enable / addon disable
 
 Manage optional addon skill packs after initial setup.
 
 ```bash
-npx devtronic addon add <name> [options]
-npx devtronic addon remove <name> [options]
+npx devtronic addon enable <name> [options]
+npx devtronic addon disable <name> [options]
 ```
 
 **Arguments:**
@@ -158,24 +158,24 @@ npx devtronic addon remove <name> [options]
 
 | Addon | Skills | Agents | Description |
 |-------|--------|--------|-------------|
-| `orchestration` | `/briefing`, `/recap`, `/handoff` | — | Pre-planning alignment, session recaps, context rotation |
-| `design-best-practices` | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `/auto-devtronic` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs the full spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
+| `orchestration` | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` | — | Pre-planning alignment, session recaps, context rotation |
+| `design-best-practices` | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
+| `auto-devtronic` | `/devtronic` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs the full spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
 **Examples:**
 
 ```bash
 # Add the orchestration addon
-npx devtronic addon add orchestration
+npx devtronic addon enable orchestration
 
 # Add the design best practices addon
-npx devtronic addon add design-best-practices
+npx devtronic addon enable design-best-practices
 
 # Add the autonomous engineering loop
-npx devtronic addon add auto-devtronic
+npx devtronic addon enable auto-devtronic
 
 # Remove an addon
-npx devtronic addon remove design-best-practices
+npx devtronic addon disable design-best-practices
 ```
 
 **Notes:**

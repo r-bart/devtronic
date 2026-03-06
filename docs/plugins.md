@@ -106,7 +106,7 @@ Not everything moves into the plugin. These remain outside:
 | Scripts | `devtronic/scripts/` | 2 (checkpoint.sh, stop-guard.sh) |
 | Metadata | `devtronic/.claude-plugin/plugin.json` | — |
 
-> **Note**: The `design-best-practices` addon (5 skills + 7 reference docs + 1 rule) is installed separately via `devtronic addon add design-best-practices`. Its files go to `.claude/skills/` and `.claude/rules/`, not the plugin directory. See the [Addon System](#addon-system) section below.
+> **Note**: The `design-best-practices` addon (5 skills + 7 reference docs + 1 rule) is installed separately via `devtronic addon enable design-best-practices`. Its files go to `.claude/skills/` and `.claude/rules/`, not the plugin directory. See the [Addon System](#addon-system) section below.
 
 ---
 
@@ -364,8 +364,8 @@ File-mode addons:
 
 ```bash
 devtronic addon list                        # See available addons
-devtronic addon add design-best-practices   # Install
-devtronic addon remove design-best-practices # Uninstall
+devtronic addon enable design-best-practices   # Install
+devtronic addon disable design-best-practices # Uninstall
 devtronic addon sync                        # Regenerate for current agents
 ```
 
