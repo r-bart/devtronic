@@ -102,6 +102,18 @@ Update `thoughts/STATE.md` with handoff context:
 - [Decision 1]: [rationale]
 - [Decision 2]: [rationale]
 
+## Design Phase State
+
+<!-- Only include if thoughts/design/ exists or design work was done -->
+
+- **Research**: [done | partial | pending | n/a]
+- **Define**: [done | partial | pending | n/a]
+- **IA**: [done | partial | pending | n/a]
+- **Wireframes**: [done | partial | pending | n/a]
+- **Design System**: [defined | not defined]
+- **Audit**: [done | pending | n/a]
+- **Artifacts**: [list files present in thoughts/design/]
+
 ## Pending Work
 
 - [ ] [Next task 1]
@@ -116,7 +128,8 @@ Update `thoughts/STATE.md` with handoff context:
 1. Read this file: `thoughts/STATE.md`
 2. Read the recap: `thoughts/RECAP.md`
 3. Read the context: `thoughts/CONTEXT.md` (if exists)
-4. Continue with: [specific next step]
+4. Read design artifacts: `thoughts/design/` (if design work is in progress)
+5. Continue with: [specific next step]
 ```
 
 ### Merge with existing STATE.md

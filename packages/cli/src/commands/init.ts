@@ -43,6 +43,8 @@ import {
   MARKETPLACE_NAME,
   PLUGIN_DIR,
   BASE_SKILL_COUNT,
+  DESIGN_SKILL_COUNT,
+  BASE_AGENT_COUNT,
 } from '../generators/plugin.js';
 import { registerPlugin } from '../utils/settings.js';
 import { introTitle, showLogo, symbols, formatKV } from '../utils/ui.js';
@@ -333,10 +335,11 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
     const addonSkillCount = (projectConfig.enabledAddons || [])
       .reduce((sum, a) => sum + (ADDONS[a]?.skills.length ?? 0), 0);
+    const baseTotal = BASE_SKILL_COUNT + DESIGN_SKILL_COUNT;
     const skillLabel = addonSkillCount > 0
-      ? `${BASE_SKILL_COUNT} + ${addonSkillCount} addon skills`
-      : `${BASE_SKILL_COUNT} skills`;
-    generatedFiles.push(`Plugin ${PLUGIN_NAME} (${skillLabel}, 8 agents, 5 hooks)`);
+      ? `${baseTotal} + ${addonSkillCount} addon skills`
+      : `${baseTotal} skills`;
+    generatedFiles.push(`Plugin ${PLUGIN_NAME} (${skillLabel}, ${BASE_AGENT_COUNT} agents, 5 hooks)`);
   }
 
   // Copy IDE templates (except dynamic rule files)
@@ -585,10 +588,11 @@ async function showPreview(
   if (selectedIDEs.includes('claude-code')) {
     const previewAddonCount = (projectConfig.enabledAddons || [])
       .reduce((sum, a) => sum + (ADDONS[a]?.skills.length ?? 0), 0);
+    const previewBaseTotal = BASE_SKILL_COUNT + DESIGN_SKILL_COUNT;
     const previewSkillLabel = previewAddonCount > 0
-      ? `${BASE_SKILL_COUNT} + ${previewAddonCount} addon skills`
-      : `${BASE_SKILL_COUNT} skills`;
-    fileLines.push(`  ${symbols.star} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim(`(${previewSkillLabel}, 8 agents, 5 hooks)`)}`);
+      ? `${previewBaseTotal} + ${previewAddonCount} addon skills`
+      : `${previewBaseTotal} skills`;
+    fileLines.push(`  ${symbols.star} Plugin ${chalk.cyan(PLUGIN_NAME)} ${chalk.dim(`(${previewSkillLabel}, ${BASE_AGENT_COUNT} agents, 5 hooks)`)}`);
   }
 
   // Architecture rules preview (null when 'none')

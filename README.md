@@ -24,14 +24,15 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 9 addon skills (orchestration, design, auto-devtronic) |
-| [Agents Reference](./docs/agents.md) | Detailed documentation of all 8 core agents + 3 auto-devtronic addon agents |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 12 design phase + 9 addon skills |
+| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 3 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
 | [Existing Projects](./docs/existing-projects.md) | Integration with existing configurations |
 | [Customization](./docs/customization.md) | How to customize rules, skills, agents |
 | [Philosophy](./docs/philosophy.md) | Why this workflow works |
 | [Worktrees Guide](./docs/worktrees.md) | Parallel Claude sessions |
+| [Design Phase Guide](./docs/design-phase.md) | Design phase skills, agents, and workflow |
 | [Multi-Account Setup](./docs/multi-account-setup.md) | Multiple Claude Code accounts |
 | [auto-devtronic Addon](./docs/auto-devtronic-addon.md) | Autonomous engineering loop addon |
 
@@ -112,10 +113,10 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             19 core + 9 addon skills                    │
+│       │             19 core + 12 design phase + 9 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
-│       │             8 agents included                           │
+│       │             15 agents included                          │
 │       │                                                         │
 │       ├── Rules     Quality standards (IDE-specific format)    │
 │       │                                                         │
@@ -134,6 +135,8 @@ npx devtronic init
 ```
 /brief [topic]         →  Orientation + pre-flight checks
         │
+[ /design phase ]      →  (optional) UX discovery → wireframes → design system
+        │                  See Design Phase Guide ↗
 /spec [idea]           →  Define WHAT to build (PRD)
         │
 /create-plan [feature] →  Design implementation phases
@@ -142,6 +145,8 @@ npx devtronic init
         │
 /execute-plan          →  Implement in parallel phases
         │
+[ /design:review ]     →  (optional) QA vs wireframes + design system
+        │
 /summary               →  Document what changed and why
         │
 /post-review           →  Final quality check
@@ -149,11 +154,13 @@ npx devtronic init
 
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.
 
+For UI-heavy features, run the design phase before `/spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
+
 ---
 
 ## What's Included
 
-### Skills (19 core + 9 addon)
+### Skills (19 core + 12 design phase + 9 addon)
 
 | Category | Skills |
 |----------|--------|
@@ -163,13 +170,14 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 | **Execution** | `/quick`, `/execute-plan` |
 | **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
+| **Design Phase** | `/design`, `/design:research`, `/design:define`, `/design:ia`, `/design:wireframe`, `/design:system`, `/design:system-define`, `/design:system-audit`, `/design:system-sync`, `/design:audit`, `/design:review`, `/design:spec` |
 | **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
 | **Design Best Practices** (addon) | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` |
 | **Auto-devtronic** (addon) | `/auto-devtronic` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 
-### Agents (8)
+### Agents (15)
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
@@ -181,6 +189,13 @@ See [Skills Reference](./docs/skills.md) for detailed documentation of each skil
 | test-generator | sonnet | Generate unit tests following project patterns |
 | dependency-checker | haiku | Audit dependencies for vulnerabilities and issues |
 | doc-sync | haiku | Verify docs match the actual codebase |
+| ux-researcher | sonnet | Synthesize research, personas, user journeys |
+| ia-architect | sonnet | Navigation structure, user flows, sitemaps |
+| design-critic | sonnet | Nielsen's 10 heuristics evaluation |
+| a11y-auditor | haiku | WCAG 2.1 AA accessibility compliance |
+| design-token-extractor | haiku | Extract and normalize design tokens |
+| design-system-guardian | haiku | Detect design system drift (read-only) |
+| visual-qa | sonnet | Compare implementation vs design specs |
 
 See [Agents Reference](./docs/agents.md) for detailed documentation of each agent.
 
@@ -202,8 +217,8 @@ your-project/
 ├── .claude-plugins/                    # Plugin (Claude Code only)
 │   ├── .claude-plugin/marketplace.json
 │   └── devtronic/                         # ← the plugin
-│       ├── skills/                     # 19 skills (/devtronic:brief, etc.)
-│       ├── agents/                     # 8 agents
+│       ├── skills/                     # 34 skills (/devtronic:brief, etc.)
+│       ├── agents/                     # 15 agents
 │       ├── hooks/hooks.json            # 5 workflow hooks
 │       └── scripts/checkpoint.sh
 │
@@ -222,6 +237,7 @@ your-project/
     ├── notes/                          # Project notes
     ├── debug/                          # Debug analysis
     ├── audit/                          # Audit reports from /audit
+    ├── design/                         # Design artifacts (research, wireframes, tokens...)
     └── archive/                        # Archived items
 ```
 

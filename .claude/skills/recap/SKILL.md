@@ -79,6 +79,16 @@ git diff --name-only HEAD~10..HEAD 2>/dev/null
 git diff --name-only 2>/dev/null
 ```
 
+### Design Artifacts
+
+If `thoughts/design/` exists, list which artifacts are present:
+
+```bash
+ls thoughts/design/ 2>/dev/null
+```
+
+Include design phase state in the recap (which stages are complete).
+
 ---
 
 ## Step 2: Analyze
@@ -130,6 +140,18 @@ Write to `thoughts/RECAP.md`:
 | `src/auth/login.ts` | new | Auth module |
 | `src/api/users.ts` | modified | API endpoints |
 | `tests/auth.test.ts` | new | Test coverage |
+
+## Design Phase
+
+<!-- Only include if thoughts/design/ exists -->
+
+| Artifact | Status |
+|----------|--------|
+| `thoughts/design/research.md` | done / partial / missing |
+| `thoughts/design/define.md` | done / partial / missing |
+| `thoughts/design/ia.md` | done / partial / missing |
+| `thoughts/design/wireframes.md` | done / partial / missing |
+| `thoughts/design/design-system.md` | done / partial / missing |
 
 ## Pending Work
 

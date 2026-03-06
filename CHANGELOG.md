@@ -18,6 +18,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.1.0] - 2026-03-04
+
+Design phase — full UX/design workflow as first-class skills and agents.
+
+### Added
+
+- **12 design skills**: `/design` (dispatcher), `/design:research`, `/design:define`, `/design:ia`, `/design:wireframe`, `/design:system` (dispatcher), `/design:system-define`, `/design:system-audit`, `/design:system-sync`, `/design:audit`, `/design:review`, `/design:spec`
+- **7 design agents**: `ux-researcher`, `ia-architect`, `design-critic`, `a11y-auditor`, `design-token-extractor`, `design-system-guardian`, `visual-qa`
+- **Design-first workflow**: `research → define → ia → wireframe → design:system → spec → create-plan → execute-plan → design:review`
+- Design artifacts persist in `thoughts/design/` across sessions
+- Design phase documentation: `docs/design-phase.md`, `docs/tutorials/07-design-workflow.md`
+
+### Updated
+
+- `/briefing` skill: scans `thoughts/design/` and asks design context questions
+- `/recap` skill: includes design artifact status in session summaries
+- `/handoff` skill: captures design phase state in STATE.md
+- `docs/philosophy.md`: design as high-leverage stage in Error Impact diagram
+- `docs/tutorials/03-feature-workflow.md`: "Feature with Design" workflow variant
+
+---
+
 ## [1.0.0] - 2026-03-01
 
 First public release.
