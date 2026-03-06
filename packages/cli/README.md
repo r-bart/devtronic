@@ -22,6 +22,8 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `config` | View or manage project configuration |
 | `addon add <name>` | Add an addon skill pack |
 | `addon remove <name>` | Remove an addon skill pack |
+| `addon list` | List available and installed addons |
+| `addon sync` | Regenerate addon files for current agents |
 | `add <ide>` | Add another IDE |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
@@ -33,7 +35,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
-- **Skills** (19) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/summary`, `/audit`, etc.)
+- **Skills** (19 core + 9 addon skills) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/summary`, `/audit`, etc.)
 - **Agents** (8) — Specialized subagents (code-reviewer, quality-runner, etc.)
 - **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
 - **thoughts/** — Structured directory for AI working documents

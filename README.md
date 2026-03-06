@@ -24,8 +24,8 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 12 design + 3 addon skills |
-| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 agents |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 12 design phase + 9 addon skills |
+| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 3 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
 | [Existing Projects](./docs/existing-projects.md) | Integration with existing configurations |
@@ -34,6 +34,7 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | [Worktrees Guide](./docs/worktrees.md) | Parallel Claude sessions |
 | [Design Phase Guide](./docs/design-phase.md) | Design phase skills, agents, and workflow |
 | [Multi-Account Setup](./docs/multi-account-setup.md) | Multiple Claude Code accounts |
+| [auto-devtronic Addon](./docs/auto-devtronic-addon.md) | Autonomous engineering loop addon |
 
 ---
 
@@ -112,7 +113,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             19 core + 12 design + 3 addon skills        │
+│       │             19 core + 12 design phase + 9 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             15 agents included                          │
@@ -159,7 +160,7 @@ For UI-heavy features, run the design phase before `/spec`. See [Design Phase Gu
 
 ## What's Included
 
-### Skills (19 core + 12 design + 3 addon)
+### Skills (19 core + 12 design phase + 9 addon)
 
 | Category | Skills |
 |----------|--------|
@@ -171,6 +172,8 @@ For UI-heavy features, run the design phase before `/spec`. See [Design Phase Gu
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
 | **Design Phase** | `/design`, `/design:research`, `/design:define`, `/design:ia`, `/design:wireframe`, `/design:system`, `/design:system-define`, `/design:system-audit`, `/design:system-sync`, `/design:audit`, `/design:review`, `/design:spec` |
 | **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
+| **Design Best Practices** (addon) | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` |
+| **Auto-devtronic** (addon) | `/auto-devtronic` |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
 
@@ -286,6 +289,8 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `add <ide>` | Add another IDE |
 | `addon add <name>` | Add an optional skill pack |
 | `addon remove <name>` | Remove an optional skill pack |
+| `addon list` | List available and installed addons |
+| `addon sync` | Regenerate addon files for current agent config |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |

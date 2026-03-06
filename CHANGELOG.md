@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Addon system with multi-agent support (`.claude/`, `.cursor/`, `.gemini/`)
+- `devtronic addon list` — list available and installed addons
+- `devtronic addon sync` — regenerate addon files for current agent config
+- `design-best-practices` addon: 5 design skills + 7 reference docs + 1 quality rule
+- Design skills: `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden`
+- `devtronic.json` config file for addon tracking
+- `NOTICE.md` global attribution file for licensed addon content
+
 ---
 
 ## [1.1.0] - 2026-03-04

@@ -210,7 +210,20 @@ export async function initCommand(options: InitOptions): Promise<void> {
       process.exit(0);
     }
     if (wantOrchestration) {
-      enabledAddons = ['orchestration'];
+      enabledAddons.push('orchestration');
+    }
+
+    // Offer design-best-practices addon
+    const wantDesign = await p.confirm({
+      message: 'Enable design best practices? (design-init → design-review → design-refine → design-harden)',
+      initialValue: false,
+    });
+    if (p.isCancel(wantDesign)) {
+      p.cancel('Operation cancelled');
+      process.exit(0);
+    }
+    if (wantDesign) {
+      enabledAddons.push('design-best-practices');
     }
   }
 
