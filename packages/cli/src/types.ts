@@ -17,6 +17,8 @@ export interface AddonConfigEntry {
 }
 
 export interface AddonConfig {
+  version?: 1;
+  mode?: DevtronicMode;
   agents: string[];
   installed: Record<string, AddonConfigEntry>;
 }
@@ -209,6 +211,8 @@ export interface RegenerateOptions {
   all?: boolean;
   plugin?: boolean;
 }
+
+export type DevtronicMode = 'hitl' | 'afk';
 
 export interface AddonOptions {
   path?: string;
