@@ -9,7 +9,8 @@
     ],
     "agents": [
       "issue-parser",
-      "failure-analyst"
+      "failure-analyst",
+      "quality-runner"
     ]
   }
 }

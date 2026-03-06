@@ -1,5 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { existsSync, unlinkSync, rmSync } from 'node:fs';
+import { existsSync, unlinkSync, rmSync, readFileSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { AddonName, AddonOptions } from '../types.js';
@@ -23,8 +23,9 @@ import { readAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../u
 import { generateAddonFiles, removeAddonFiles, syncAddonFiles, detectModifiedAddonFiles } from '../generators/addonFiles.js';
 
 /**
- * Returns true if the addon uses the file-based system (non-plugin mode).
- * Orchestration uses plugin mode; design-best-practices uses file mode.
+ * Returns true if the addon uses the file-based system.
+ * orchestration → plugin mode (legacy)
+ * design-best-practices, auto-devtronic → file-based mode
  */
 function isFileBasedAddon(addonName: AddonName): boolean {
   return addonName !== 'orchestration';
@@ -308,8 +309,14 @@ async function addFileBasedAddon(
   const result = generateAddonFiles(targetDir, addonSourceDir, config.agents);
 
   // Track in config
-  const fileList = addon.skills.map((s) => `skills/${s}`);
-  fileList.push('rules/design-quality.md');
+  const addonManifest = JSON.parse(
+    readFileSync(join(addonSourceDir, 'manifest.json'), 'utf-8')
+  );
+  const fileList: string[] = [
+    ...(addonManifest.files.skills ?? []).map((s: string) => `skills/${s}`),
+    ...(addonManifest.files.agents ?? []).map((a: string) => `agents/${a}.md`),
+    ...(addonManifest.files.rules ?? []).map((r: string) => `rules/${r}`),
+  ];
 
   writeAddonToConfig(targetDir, addonName, {
     version: '1.0.0',

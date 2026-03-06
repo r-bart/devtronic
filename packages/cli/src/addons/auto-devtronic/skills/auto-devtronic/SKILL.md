@@ -27,7 +27,7 @@ The key innovation over a manual pipeline: the **execute-verify-correct loop**. 
 | `--max-retries N` | 3 | Max loop iterations before escalating |
 | `--skip-spec` | no | Skip spec interview, auto-generate from brief |
 | `--branch name` | auto | Branch name (auto-derived from issue) |
-| `--dry-run` | no | Run everything but skip PR creation |
+| `--dry-run` | no | Run everything including code changes, but skip `gh pr create`. Prints PR body to stdout instead. Use to inspect results before publishing. |
 
 ## Pipeline Position
 
@@ -65,6 +65,20 @@ INPUT (issue URL or description)
 
 ## Step 1: Parse Input
 
+### Verify core skills
+
+Before proceeding, confirm the required devtronic core skills are present:
+
+```bash
+ls .claude/skills/ 2>/dev/null | grep -E "generate-tests|create-plan|execute-plan"
+```
+
+If any are missing:
+- **HITL mode**: warn and ask "Required skills not found. Continue anyway?"
+- **AFK mode**: escalate immediately — "Required skills missing. Install devtronic core first: `npx devtronic init`"
+
+---
+
 ### Detect input type
 
 **If `$ARGUMENTS` contains a GitHub issue URL** (e.g. `https://github.com/org/repo/issues/42`):
@@ -94,6 +108,10 @@ If there are uncommitted changes, warn in HITL mode. In AFK mode, stash and cont
 ```bash
 git stash push -m "auto-devtronic: stash before run"
 ```
+
+> **Note**: The stash will be popped automatically at the end of Step 8 (Report).
+> If the run is aborted or escalated before completion, restore your changes with:
+> `git stash list | grep "auto-devtronic"` then `git stash pop`.
 
 ### Create working branch
 
@@ -171,6 +189,11 @@ Options:
 ```
 
 Wait for user response before continuing.
+
+**If `--skip-spec`**: Skip the HITL confirmation gate above. Treat the
+issue-parser output as approved and proceed directly to Step 3.
+Note: `--skip-spec` does not change brief generation — it only bypasses
+the human review gate. Equivalent to running AFK mode for this one step only.
 
 ---
 
@@ -409,12 +432,16 @@ Create this PR?
 ### Create PR
 
 ```bash
+# Detect base branch (use repo default)
+BASE_BRANCH=$(gh repo view --json defaultBranchRef --jq '.defaultBranchRef.name' 2>/dev/null || echo "main")
+
 git push -u origin <branch-name>
 
 gh pr create \
   --title "<issue title>" \
   --body "<pr-description>" \
-  --head <branch-name>
+  --head <branch-name> \
+  --base "$BASE_BRANCH"
 ```
 
 If `--dry-run`: skip `gh pr create`, print PR body to stdout instead.
@@ -424,6 +451,16 @@ If `--dry-run`: skip `gh pr create`, print PR body to stdout instead.
 ## Step 8: Report
 
 Final summary after PR creation:
+
+### Restore stash (AFK mode only)
+
+If a stash was created in Step 1, pop it now:
+
+```bash
+git stash list | grep "auto-devtronic" && git stash pop
+```
+
+---
 
 ```markdown
 ## auto-devtronic: Complete ✅

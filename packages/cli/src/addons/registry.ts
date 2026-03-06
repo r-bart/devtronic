@@ -49,8 +49,9 @@ export function parseAddonManifest(data: Record<string, unknown>): AddonManifest
     attribution: data.attribution as string | undefined,
     files: {
       skills: files.skills as string[],
-      reference: (files.reference as string[]) ?? undefined,
-      rules: (files.rules as string[]) ?? undefined,
+      agents: (files.agents as string[] | undefined) ?? undefined,
+      reference: (files.reference as string[] | undefined) ?? undefined,
+      rules: (files.rules as string[] | undefined) ?? undefined,
     },
   };
 }
