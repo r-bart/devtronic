@@ -9,6 +9,8 @@ import {
 } from '../utils/files.js';
 import { introTitle, formatKV, symbols } from '../utils/ui.js';
 import { getCliVersion, getLatestVersion, compareSemver } from '../utils/version.js';
+import { readAddonConfig, readMode } from '../utils/addonConfig.js';
+import { getAvailableAddons } from '../addons/registry.js';
 
 export async function statusCommand(options: { path?: string } = {}): Promise<void> {
   const targetDir = resolve(options.path || '.');
@@ -26,6 +28,26 @@ export async function statusCommand(options: { path?: string } = {}): Promise<vo
     p.outro('');
     return;
   }
+
+  // Execution mode
+  const mode = readMode(targetDir);
+  const addonConfig = readAddonConfig(targetDir);
+  const allAddons = getAvailableAddons();
+
+  p.note(
+    [
+      `${formatKV('Mode:', chalk.cyan(mode))}`,
+      `${formatKV('Config:', chalk.dim('.claude/devtronic.json'))}`,
+    ].join('\n'),
+    'Execution Mode'
+  );
+
+  const addonLines = allAddons.map((addon) => {
+    const isEnabled = !!addonConfig.installed[addon.name];
+    const statusStr = isEnabled ? chalk.green('enabled') : chalk.dim('disabled');
+    return `  ${chalk.bold((addon.name + ':').padEnd(28))} ${statusStr}`;
+  });
+  p.note(addonLines.join('\n'), 'Addons');
 
   // Basic info
   p.note(

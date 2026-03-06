@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.0] - 2026-03-06
+
+Command system refactor — `devtronic:` namespace, autonomous engineering loop, multi-IDE runtime adapters.
+
+### Added
+
+- **`devtronic:` namespace** — All 19 core + 12 design skills renamed to `/devtronic:brief`, `/devtronic:spec`, etc. Slash command is derived from `name:` field in SKILL.md frontmatter
+- **`/devtronic` command** — Main entrypoint for the `auto-devtronic` addon (autonomous engineering loop); distinct from all namespaced skills
+- **Per-IDE runtime adapters** — `RUNTIME_SPECS` generates correct skill invocation syntax for claude, gemini, opencode, cursor, codex
+- **`devtronic mode` command** — `devtronic mode afk|hitl|show` persists execution mode to `.claude/devtronic.json`
+- **`addon enable/disable`** — Canonical replacements for `addon add/remove` (aliases kept for backwards compatibility)
+- **`auto-devtronic` addon** — Full autonomous engineering loop: spec → tests → plan → implement → PR, with HITL (default) and AFK modes
+- **`validate-task-afk` skill + `afk-task-validator` agent** — Step 0 of the autonomous loop; scores GitHub issues for AFK-readiness before execution
+- **Addon system v2** — Multi-agent support (`.claude/`, `.cursor/`, `.gemini/`), `devtronic addon list/sync`, `devtronic.json` config, `NOTICE.md` attribution
+- **`design-best-practices` addon** — 5 design skills + 7 reference docs + 1 quality rule
+- **`orchestration` addon** — `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` for context rotation
+
+### Updated
+
+- All documentation updated to reflect `devtronic:` namespace and new CLI commands
+- README: new "Autonomous Engineering Loop" section documenting HITL/AFK modes
+- `thoughts/` fully gitignored — AI session documents are internal
+
+---
+
 ## [1.1.0] - 2026-03-04
 
 Design phase — full UX/design workflow as first-class skills and agents.

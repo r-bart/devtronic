@@ -1,5 +1,5 @@
 ---
-name: generate-tests
+name: devtronic:generate-tests
 description: Generate failing tests from a spec before implementation (Tests-as-DoD). Creates test files encoding acceptance criteria as executable tests, plus a traceability manifest.
 allowed-tools: Read, Write, Glob, Grep, Bash
 argument-hint: "[--from-spec|spec-path]"

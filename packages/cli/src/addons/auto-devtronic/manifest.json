@@ -1,0 +1,16 @@
+{
+  "name": "auto-devtronic",
+  "description": "Autonomous engineering loop. Runs the full spec→test→plan→execute→PR pipeline and self-corrects via failing tests. HITL and AFK modes.",
+  "version": "1.0.0",
+  "license": "MIT",
+  "files": {
+    "skills": [
+      "auto-devtronic"
+    ],
+    "agents": [
+      "issue-parser",
+      "failure-analyst",
+      "quality-runner"
+    ]
+  }
+}

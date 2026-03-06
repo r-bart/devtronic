@@ -1,5 +1,5 @@
 ---
-name: design:review
+name: devtronic:design-review
 description: QA visual review — compares implementation against wireframe specs and design system. Surfaces deviations with severity.
 allowed-tools: Task, Read, Glob, Bash, Write
 argument-hint: "[component-name|--all]"

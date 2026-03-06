@@ -1,6 +1,6 @@
 export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun' | null;
 
-export type AddonName = 'orchestration';
+export type AddonName = 'orchestration' | 'design-best-practices' | 'auto-devtronic';
 
 export interface AddonInfo {
   name: AddonName;
@@ -10,6 +10,33 @@ export interface AddonInfo {
   agents: string[]; // subagent names this addon adds
 }
 
+export interface AddonConfigEntry {
+  version: string;
+  files: string[];
+  checksums?: Record<string, string>;
+}
+
+export interface AddonConfig {
+  version?: 1;
+  mode?: DevtronicMode;
+  agents: string[];
+  installed: Record<string, AddonConfigEntry>;
+}
+
+export interface AddonManifest {
+  name: string;
+  description: string;
+  version: string;
+  license: string;
+  attribution?: string;
+  files: {
+    skills: string[];
+    agents?: string[];
+    reference?: string[];
+    rules?: string[];
+  };
+}
+
 export const ADDONS: Record<AddonName, AddonInfo> = {
   orchestration: {
     name: 'orchestration',
@@ -17,6 +44,20 @@ export const ADDONS: Record<AddonName, AddonInfo> = {
     description: 'Structured pre-planning alignment, session recaps, and context rotation for long multi-session work.',
     skills: ['briefing', 'recap', 'handoff'],
     agents: [],
+  },
+  'design-best-practices': {
+    name: 'design-best-practices',
+    label: 'Design Best Practices',
+    description: 'Frontend design quality skills: typography, color, layout, accessibility, motion, and UX writing.',
+    skills: ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'],
+    agents: [],
+  },
+  'auto-devtronic': {
+    name: 'auto-devtronic',
+    label: 'auto-devtronic — Autonomous Engineering Loop',
+    description: 'Runs the full spec→test→plan→execute→PR pipeline autonomously. Self-corrects via failing tests. HITL and AFK modes.',
+    skills: ['auto-devtronic'],
+    agents: ['issue-parser', 'failure-analyst', 'quality-runner'],
   },
 };
 
@@ -170,6 +211,8 @@ export interface RegenerateOptions {
   all?: boolean;
   plugin?: boolean;
 }
+
+export type DevtronicMode = 'hitl' | 'afk';
 
 export interface AddonOptions {
   path?: string;

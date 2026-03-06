@@ -1,6 +1,6 @@
 # Skills Reference
 
-Skills are invocable workflows in Claude Code. Use them with `/skill-name` in your Claude Code session.
+Skills are invocable workflows in Claude Code. Use them with `/devtronic:skill-name` in your Claude Code session.
 
 ---
 
@@ -9,20 +9,20 @@ Skills are invocable workflows in Claude Code. Use them with `/skill-name` in yo
 These skills form the recommended development workflow:
 
 ```
-/brief → /spec → /create-plan → /generate-tests → /execute-plan → /summary → /post-review
+/devtronic:brief → /devtronic:spec → /devtronic:create-plan → /devtronic:generate-tests → /devtronic:execute-plan → /devtronic:summary → /devtronic:post-review
 
 Design workflow:
-/brief → /design --research → /design --define → /design --ia → /design --wireframe → /design:system --define → /spec → /create-plan → /generate-tests → /execute-plan → /design:review → /post-review
+/devtronic:brief → /devtronic:design --research → /devtronic:design --define → /devtronic:design --ia → /devtronic:design --wireframe → /devtronic:design-system --define → /devtronic:spec → /devtronic:create-plan → /devtronic:generate-tests → /devtronic:execute-plan → /devtronic:design-review → /devtronic:post-review
 ```
 
-### /brief - Quick Session Briefing
+### /devtronic:brief - Quick Session Briefing
 
 **Purpose**: Fast contextual briefing with pre-flight validation when starting work. Scans docs, code, and git activity, plus runs health checks (typecheck, lint, state freshness).
 
 **When to use**:
 - Starting a new session on existing work
 - Quickly orienting yourself on a feature
-- Checking what exists before `/research` or `/spec`
+- Checking what exists before `/devtronic:research` or `/devtronic:spec`
 - Resuming after a break
 
 **Skip for**: Brand new features with no prior work, or when you need deep analysis.
@@ -30,16 +30,16 @@ Design workflow:
 **Comparison**:
 | Skill | Creates File | Depth |
 |-------|--------------|-------|
-| `/brief` | No (display only) | Superficial |
-| `/research` | Yes (with --deep) | Deep |
+| `/devtronic:brief` | No (display only) | Superficial |
+| `/devtronic:research` | Yes (with --deep) | Deep |
 
-**Rule of thumb**: Start with `/brief`, escalate to `/research` if you need more.
+**Rule of thumb**: Start with `/devtronic:brief`, escalate to `/devtronic:research` if you need more.
 
 **Output**: Display only (no file created)
 
 ---
 
-### /spec - Product Specification
+### /devtronic:spec - Product Specification
 
 **Purpose**: Create a Product Requirements Document (PRD) through structured interviewing.
 
@@ -52,31 +52,31 @@ Design workflow:
 
 **Design mockups**: If you have mockups (Figma, Sketch, etc.), Claude will ask and use the appropriate MCP to extract design system alignment (tokens, existing components, gaps) and visual specs.
 
-**Output**: `thoughts/specs/YYYY-MM-DD_[feature-slug].md`
+**Output**: `thoughts/devtronic:specs/YYYY-MM-DD_[feature-slug].md`
 
 ---
 
-### /research - Codebase Investigation
+### /devtronic:research - Codebase Investigation
 
 **Purpose**: Investigate the codebase and gather context with multiple modes.
 
 **Modes**:
 | Mode | Command | Creates File | Use When |
 |------|---------|--------------|----------|
-| **Quick** | `/research [topic]` | No | Starting a session, fast orientation |
-| **Deep** | `/research [topic] --deep` | Yes | Before complex features, unfamiliar code |
-| **External** | `/research [topic] --external` | Yes | Need GitHub issues, PRs, Slack context |
-| **All** | `/research [topic] --all` | Yes | Maximum coverage (deep + external) |
+| **Quick** | `/devtronic:research [topic]` | No | Starting a session, fast orientation |
+| **Deep** | `/devtronic:research [topic] --deep` | Yes | Before complex features, unfamiliar code |
+| **External** | `/devtronic:research [topic] --external` | Yes | Need GitHub issues, PRs, Slack context |
+| **All** | `/devtronic:research [topic] --all` | Yes | Maximum coverage (deep + external) |
 
 **Rule of thumb**: Start with quick, escalate as needed.
 
 **Output**:
 - Quick: Display only (no file)
-- Others: `thoughts/research/YYYY-MM-DD_[topic].md`
+- Others: `thoughts/devtronic:research/YYYY-MM-DD_[topic].md`
 
 ---
 
-### /opensrc - Fetch Package Source Code
+### /devtronic:opensrc - Fetch Package Source Code
 
 **Purpose**: Fetch source code of npm packages or GitHub repos so AI agents have full implementation context, not just type definitions.
 
@@ -97,16 +97,16 @@ Design workflow:
 
 ---
 
-### /create-plan - Implementation Planning
+### /devtronic:create-plan - Implementation Planning
 
 **Purpose**: Create detailed implementation plans for complex tasks.
 
 **Modes**:
 | Mode | Command | Output |
 |------|---------|--------|
-| **Strategic** | `/create-plan [feature]` | Phased plan with architecture decisions |
-| **Detailed** | `/create-plan [task] --detailed` | Pseudocode, file changes, test cases |
-| **From Spec** | `/create-plan --from-spec` | Generate plan from existing spec |
+| **Strategic** | `/devtronic:create-plan [feature]` | Phased plan with architecture decisions |
+| **Detailed** | `/devtronic:create-plan [task] --detailed` | Pseudocode, file changes, test cases |
+| **From Spec** | `/devtronic:create-plan --from-spec` | Generate plan from existing spec |
 
 **When to use**:
 - Starting a complex feature (3+ files)
@@ -119,27 +119,27 @@ Design workflow:
 
 ---
 
-### /summary - Post-Change Documentation
+### /devtronic:summary - Post-Change Documentation
 
 **Purpose**: Generate a structured summary of what changed, why, decisions made, and what's pending.
 
 **When to use**:
 - After completing a feature or significant change
-- Before creating a PR (complements `/post-review`)
+- Before creating a PR (complements `/devtronic:post-review`)
 - At the end of a work session
 - When handing off work to someone else
 
-**Difference from /checkpoint**: Checkpoint saves *how to resume* (state + next steps). Summary documents *what was done and why* (change log + rationale).
+**Difference from /devtronic:checkpoint**: Checkpoint saves *how to resume* (state + next steps). Summary documents *what was done and why* (change log + rationale).
 
-**Difference from /post-review**: Post-review validates quality. Summary documents the narrative of changes.
+**Difference from /devtronic:post-review**: Post-review validates quality. Summary documents the narrative of changes.
 
 **Output**:
-- `thoughts/SUMMARY.md` (overwrite — latest summary, read by `/brief`)
+- `thoughts/SUMMARY.md` (overwrite — latest summary, read by `/devtronic:brief`)
 - `thoughts/summaries/YYYY-MM-DD_[slug].md` (timestamped archive)
 
 ---
 
-### /checkpoint - Session State Compaction
+### /devtronic:checkpoint - Session State Compaction
 
 **Purpose**: Save current progress to a file so you can start a fresh session without losing context.
 
@@ -149,19 +149,19 @@ Design workflow:
 - After completing a major phase
 - When the AI starts making obvious mistakes
 
-**Auto-suggestion**: Claude proactively suggests `/checkpoint` when conversations exceed ~40-50 messages.
+**Auto-suggestion**: Claude proactively suggests `/devtronic:checkpoint` when conversations exceed ~40-50 messages.
 
-**Output**: `thoughts/checkpoints/YYYY-MM-DD_HH-MM_[task-slug].md`
+**Output**: `thoughts/devtronic:checkpoints/YYYY-MM-DD_HH-MM_[task-slug].md`
 
 **Resuming**:
 ```
-Please read my checkpoint: thoughts/checkpoints/YYYY-MM-DD_HH-MM_[slug].md
+Please read my checkpoint: thoughts/devtronic:checkpoints/YYYY-MM-DD_HH-MM_[slug].md
 Continue from where I left off.
 ```
 
 ---
 
-### /setup - Interactive Configuration
+### /devtronic:setup - Interactive Configuration
 
 **Purpose**: Configure devtronic through conversation instead of CLI.
 
@@ -169,13 +169,13 @@ Continue from where I left off.
 - First time setting up AI assistance in an **existing** project
 - Want conversational setup instead of CLI
 
-**For new projects**: Use `/scaffold` instead.
+**For new projects**: Use `/devtronic:scaffold` instead.
 
 **Behind the scenes**: Invokes `npx devtronic init`
 
 ---
 
-### /scaffold - Create New Projects
+### /devtronic:scaffold - Create New Projects
 
 **Purpose**: Create new projects from scratch with guided architecture and structure.
 
@@ -189,7 +189,7 @@ Continue from where I left off.
 
 ---
 
-### /worktree - Git Worktree Manager
+### /devtronic:worktree - Git Worktree Manager
 
 **Purpose**: Manage git worktrees for parallel development sessions.
 
@@ -209,7 +209,7 @@ Continue from where I left off.
 
 ## Execution Skills
 
-### /quick - Fast Ad-Hoc Task Execution
+### /devtronic:quick - Fast Ad-Hoc Task Execution
 
 **Purpose**: Execute small, well-defined tasks without the full workflow ceremony. Implement, verify, commit.
 
@@ -219,7 +219,7 @@ Continue from where I left off.
 - Simple config changes
 - Adding a single test or function
 
-**Escalates to `/create-plan`** if task touches 5+ files or needs design decisions.
+**Escalates to `/devtronic:create-plan`** if task touches 5+ files or needs design decisions.
 
 **Delegates to**: `commit-changes` agent for atomic commits after verification.
 
@@ -227,14 +227,14 @@ Continue from where I left off.
 
 ---
 
-### /execute-plan - Parallel Phase Execution
+### /devtronic:execute-plan - Parallel Phase Execution
 
 **Purpose**: Execute a plan in parallel phases by reading task dependencies and running independent tasks as concurrent subagents.
 
 **When to use**:
 - A plan with `## Task Dependencies` exists
 - You want to execute tasks in optimal parallel order
-- The plan was created with `/create-plan`
+- The plan was created with `/devtronic:create-plan`
 
 **Process**: Load plan → Validate dependencies → Compute phases → Execute parallel subagents → Verify done criteria
 
@@ -248,17 +248,17 @@ Continue from where I left off.
 
 ## Quality & Review Skills
 
-### /post-review - Post-Feature Review
+### /devtronic:post-review - Post-Feature Review
 
 **Purpose**: Review implemented changes before PR creation.
 
 **Modes**:
 | Mode | Command | Purpose |
 |------|---------|---------|
-| **Standard** | `/post-review` | Full review with lessons learned |
-| **Strict** | `/post-review --strict` | Senior engineer "grill me" mode |
-| **Quick** | `/post-review --quick` | Automated checks only |
-| **Files** | `/post-review src/file.ts` | Review specific files |
+| **Standard** | `/devtronic:post-review` | Full review with lessons learned |
+| **Strict** | `/devtronic:post-review --strict` | Senior engineer "grill me" mode |
+| **Quick** | `/devtronic:post-review --quick` | Automated checks only |
+| **Files** | `/devtronic:post-review src/file.ts` | Review specific files |
 
 **Includes**:
 - Requirements verification
@@ -269,11 +269,11 @@ Continue from where I left off.
 
 **Output**: Notes saved to `thoughts/notes/YYYY-MM-DD_[feature-name].md`
 
-**Note**: Claude Code has a built-in `/review` for GitHub PR review. Use `/post-review` for pre-PR feature review.
+**Note**: Claude Code has a built-in `/review` for GitHub PR review. Use `/devtronic:post-review` for pre-PR feature review.
 
 ---
 
-### /investigate - Deep Error Analysis
+### /devtronic:investigate - Deep Error Analysis
 
 **Purpose**: Systematic error investigation that identifies root cause and proposes concrete solutions.
 
@@ -282,20 +282,20 @@ Continue from where I left off.
 - A bug is not obvious and requires investigation
 - The error repeats and you want to document the solution
 
-**Note**: For simple errors, the `error-investigator` agent is invoked automatically. Use `/investigate` for deeper analysis.
+**Note**: For simple errors, the `error-investigator` agent is invoked automatically. Use `/devtronic:investigate` for deeper analysis.
 
 **Output**: Fix suggestion + optional `thoughts/debug/YYYY-MM-DD_[description].md`
 
 ---
 
-### /audit - Comprehensive Codebase Audit (SonarQube lite)
+### /devtronic:audit - Comprehensive Codebase Audit (SonarQube lite)
 
 **Purpose**: One-stop skill for auditing codebase health: architecture, code quality, code smells, complexity, security, test coverage, and technical debt.
 
 **Modes**:
 | Mode | Command | What it checks |
 |------|---------|----------------|
-| **Full** | `/audit` | Everything (architecture + code + smells + complexity + security + coverage) |
+| **Full** | `/devtronic:audit` | Everything (architecture + code + smells + complexity + security + coverage) |
 | **Architecture** | `/audit --architecture` | Layer violations, dependency direction |
 | **Code** | `/audit --code` | TODOs, unused code, duplicates, code smells |
 | **Complexity** | `/audit --complexity` | Cyclomatic + cognitive complexity per function |
@@ -304,29 +304,29 @@ Continue from where I left off.
 
 **Delegates to**: `dependency-checker` agent for dependency audit in `--security` mode (vulnerabilities, outdated, unused, licenses).
 
-**Different from `/post-review`**: Post-review checks recent changes. Audit scans full codebase.
+**Different from `/devtronic:post-review`**: Post-review checks recent changes. Audit scans full codebase.
 
 **Output**: `thoughts/audit/YYYY-MM-DD_audit.md` with health score (0-100), technical debt estimation, and trend comparison
 
 ---
 
-### /generate-tests - Tests as Definition of Done
+### /devtronic:generate-tests - Tests as Definition of Done
 
 **Purpose**: Generate failing tests from a spec before implementation begins. Encodes acceptance criteria as executable tests.
 
 **When to use**:
-- After a spec is approved (via `/spec`)
-- Before creating an implementation plan (via `/create-plan`)
+- After a spec is approved (via `/devtronic:spec`)
+- Before creating an implementation plan (via `/devtronic:create-plan`)
 - When you want tests to define "done" before writing production code
 
 **Skip for**: Bug fixes with obvious test scope, pure refactoring with existing coverage.
 
 **Pipeline Position**:
 ```
-/spec → /generate-tests → /create-plan → /execute-plan → /post-review
+/devtronic:spec → /devtronic:generate-tests → /devtronic:create-plan → /devtronic:execute-plan → /devtronic:post-review
 ```
 
-**Output**: Test files + `thoughts/specs/[spec-slug]_test-manifest.json` traceability manifest
+**Output**: Test files + `thoughts/devtronic:specs/[spec-slug]_test-manifest.json` traceability manifest
 
 ---
 
@@ -336,18 +336,18 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 **Enable during init**: Select "Orchestration Workflow" when prompted for addons.
 
-**Enable after init**: `npx devtronic addon add orchestration`
+**Enable after init**: `npx devtronic addon enable orchestration`
 
-### /briefing - Pre-Planning Alignment
+### /devtronic:briefing - Pre-Planning Alignment
 
 **Purpose**: Ask 3-5 targeted questions to clarify scope, style, priority, and constraints before diving into planning or implementation.
 
 **When to use**:
-- Before `/create-plan` on complex features
+- Before `/devtronic:create-plan` on complex features
 - Requirements are vague or ambiguous
 - Multiple valid approaches exist
 
-**Skip for**: Well-defined tasks, when a detailed `/spec` already exists.
+**Skip for**: Well-defined tasks, when a detailed `/devtronic:spec` already exists.
 
 **Process**:
 1. Analyze task context (STATE.md, CLAUDE.md, existing specs)
@@ -360,17 +360,17 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 ---
 
-### /recap - Quick Session Summary
+### /devtronic:recap - Quick Session Summary
 
 **Purpose**: Generate a compact, structured summary from git activity and modified files.
 
 **When to use**:
 - End of a work session
-- After ad-hoc work not driven by `/execute-plan`
-- Before `/handoff` to capture session details
+- After ad-hoc work not driven by `/devtronic:execute-plan`
+- Before `/devtronic:handoff` to capture session details
 
-**Comparison with `/summary`**:
-| | `/recap` | `/summary` |
+**Comparison with `/devtronic:summary`**:
+| | `/devtronic:recap` | `/devtronic:summary` |
 |-|----------|------------|
 | Purpose | Quick compact overview | Detailed narrative with rationale |
 | Output | Tree-style + bullets | Full markdown document |
@@ -380,7 +380,7 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 ---
 
-### /handoff - Context Rotation
+### /devtronic:handoff - Context Rotation
 
 **Purpose**: Save current state and signal to start a fresh session with clean context.
 
@@ -390,8 +390,8 @@ These skills are available when the **orchestration** addon is enabled during `d
 - Model making inconsistent decisions
 - End of day / wrapping up
 
-**Comparison with `/checkpoint`**:
-| | `/handoff` | `/checkpoint` |
+**Comparison with `/devtronic:checkpoint`**:
+| | `/devtronic:handoff` | `/devtronic:checkpoint` |
 |-|------------|---------------|
 | Purpose | End session, rotate | Save progress, can continue |
 | Signal | "Start new session" | "Can resume from here" |
@@ -400,12 +400,194 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 ---
 
-### Enhanced /execute-plan
+### Enhanced /devtronic:execute-plan
 
 When the orchestration addon is enabled (`thoughts/CONTEXT.md` exists):
 - **Visual progress**: Text-based phase progress with status indicators
 - **Inter-phase handoff**: Summary of what each phase accomplished, passed to next phase as context
 - **Automatic recap**: Writes `thoughts/RECAP.md` after completion
+
+---
+
+## Design Best Practices Addon Skills
+
+These skills are available when the **design-best-practices** addon is enabled. They provide structured design quality workflows: initialization, critique, refinement, system extraction, and production hardening.
+
+**Enable during init**: Select "Design Best Practices" when prompted for addons.
+
+**Enable after init**: `npx devtronic addon enable design-best-practices`
+
+### /devtronic:design-init - Project Design Context Setup
+
+**Purpose**: One-time setup that gathers your project's visual direction, constraints, and design tokens through a structured interview. Writes a Design Context section to CLAUDE.md.
+
+**When to use**:
+- First time working on frontend/UI for a project
+- After a major design direction change
+- When onboarding a new AI agent to an existing design system
+
+**Process**: Scans codebase for existing design signals (CSS tokens, Tailwind config, component library), then interviews about visual direction, typography, color, spacing, and constraints.
+
+**Output**: Appends `## Design Context` section to CLAUDE.md
+
+---
+
+### /devtronic:design-review - Design Critique & AI Slop Detection
+
+**Purpose**: Perform a structured design critique covering visual hierarchy, information architecture, emotional resonance, and AI slop detection.
+
+**When to use**:
+- After implementing a new page or component
+- Before shipping UI changes
+- When UI "feels off" but you can't pinpoint why
+
+**Output**: Actionable report with AI Slop Score (0-10), visual hierarchy assessment, and prioritized recommendations
+
+---
+
+### /devtronic:design-refine - Directional Design Refinement
+
+**Purpose**: Apply a directional design transformation to shift the UI's personality.
+
+**Usage**:
+```
+/design-refine --direction bolder     # More visual impact
+/design-refine --direction quieter    # More restraint and calm
+/design-refine --direction minimal    # Strip to essentials
+/design-refine --direction delightful # Add warmth and personality
+```
+
+Each direction has a distinct set of moves (3-5 per refinement) applied incrementally.
+
+---
+
+### /design-system - Design System Extraction & Normalization
+
+**Purpose**: Two modes for working with design tokens and patterns.
+
+**Usage**:
+```
+/design-system --mode extract    # Scan codebase, find recurring values, propose token system
+/design-system --mode normalize  # Apply existing token system consistently across all files
+```
+
+**Extract**: Clusters similar values (colors within ΔE < 3, spacing within 2px), proposes unified tokens.
+
+**Normalize**: Replaces hardcoded values with token references, generates migration report.
+
+---
+
+### /devtronic:design-harden - Production Hardening
+
+**Purpose**: Systematically test UI components against real-world edge cases. Produces a severity-ranked report.
+
+**Categories tested**:
+1. Text overflow & content limits
+2. Internationalization (i18n)
+3. Error states
+4. Accessibility audit
+5. Responsive testing (320px → 1920px+)
+6. Edge cases (loading, stale data, concurrent actions)
+
+**Output**: Severity report with Critical / Major / Minor issues and specific fixes
+
+**Reference docs**: Includes 7 reference documents (typography, color, spatial design, motion, interaction, responsive, UX writing) for detailed guidance.
+
+---
+
+## Auto-devtronic Addon Skills
+
+Install with: `npx devtronic addon enable auto-devtronic`
+
+### /devtronic - Autonomous Engineering Loop
+
+**Purpose**: Takes a GitHub issue or task description and executes the full devtronic pipeline autonomously — spec → tests → plan → implement → quality check → PR. Self-corrects via failing tests without human intervention (in AFK mode).
+
+**When to use**:
+- Routine, well-scoped issues with good test coverage
+- Want the full pipeline run hands-free
+- Trust the codebase enough for autonomous changes
+
+**Modes**:
+
+| Mode | Flag | Human gates | Use when |
+|------|------|-------------|----------|
+| **HITL** | `--hitl` (default) | Brief, tests, each retry, PR | Unfamiliar codebase, risky changes |
+| **AFK** | `--afk` | None | Routine issues, high test coverage, trusted scope |
+
+**Flags**:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--validate` | no | Validate task AFK-readiness before proceeding (score 70+ = proceed, <70 in AFK mode = ask for HITL) |
+| `--hitl` | yes | Pause at key gates for human approval |
+| `--afk` | no | Fully autonomous, no pauses |
+| `--max-retries N` | 3 | Max loop iterations before escalating |
+| `--skip-spec` | no | Skip spec interview, auto-generate from brief |
+| `--branch name` | auto | Branch name (auto-derived from issue) |
+| `--dry-run` | no | Run everything but skip `gh pr create` — prints PR body to stdout instead |
+
+**Pipeline**:
+```
+INPUT (issue URL or description)
+  → 0. VALIDATE (if --validate)  score 70+: proceed; <70 AFK: ask HITL; <40: refine
+  → 1. INTAKE       parse issue, extract structured brief
+  → 2. SPEC         brief → spec (HITL gate)
+  → 3. TESTS        generate failing tests as DoD
+  → 4. PLAN         create phased implementation plan
+  → 5. EXECUTE      implement in parallel phases
+  → 6. VERIFY       run quality checks (typecheck + lint + test)
+  → 7. LOOP         on failure: analyze → amend plan → retry (up to --max-retries)
+  → 8. PR           push branch, open PR
+```
+
+**Required**: `/devtronic:create-plan`, `/devtronic:generate-tests`, `/devtronic:execute-plan` skills must be installed (they are part of devtronic core).
+
+**Agents installed alongside**:
+- `issue-parser` — extracts structured brief from GitHub issues
+- `failure-analyst` — diagnoses test/lint failures and proposes targeted fixes
+- `quality-runner` — runs typecheck, lint, and tests; returns structured pass/fail output
+- `afk-task-validator` — analyzes task descriptions for AFK-readiness and detects quality gaps
+
+**Output**: Branch pushed, PR opened (or `--dry-run` PR body to stdout)
+
+---
+
+### /devtronic:validate-task-afk - AFK Viability Validator
+
+**Purpose**: Pre-flight validation that scores a GitHub issue or task description on AFK-readiness (0-100) across 5 dimensions and guides iterative refinement.
+
+**When to use**:
+- Before running `/devtronic <issue> --afk`
+- Uncertain if a task is well-defined enough for autonomous execution
+- Want guidance on improving a task description before committing to AFK
+
+**Skip for**: Tasks already validated inline via `--validate` flag.
+
+**Dimensions scored**:
+
+| Dimension | Weight | Measures |
+|-----------|--------|---------|
+| Clarity | 25% | Measurable acceptance criteria (Returns/Validates/Throws) |
+| Scope | 25% | 1-4 files, no architectural keywords |
+| Precedent | 20% | Similar patterns exist in codebase |
+| Coverage | 20% | Test coverage >70% in affected files |
+| Dependencies | 10% | Self-contained, not blocked by external PRs |
+
+**Score interpretation**:
+
+| Score | Status | Action |
+|-------|--------|--------|
+| 70-100 | ✅ AFK Viable | Run with `--afk` |
+| 40-70 | ⚠️ Medium Risk | Use `--hitl` (human gates) |
+| 0-40 | ❌ Needs Work | Refine and re-validate |
+
+**Flags**:
+- `--refine` — interactive mode: detects gaps, asks questions, re-scores after each answer
+
+**Delegates to**: `afk-task-validator` agent
+
+**Output**: Markdown report with score breakdown, gap list, and recommended command to run
 
 ---
 
@@ -420,14 +602,14 @@ A structured UX/UI design phase that bridges product requirements and implementa
 **Flags**:
 | Flag | Routes to | When |
 |------|----------|------|
-| `--research` | `/design:research` | Start discovery phase |
-| `--define` | `/design:define` | Build personas and journeys |
-| `--ia` | `/design:ia` | Define information architecture |
-| `--wireframe` | `/design:wireframe` | Specify screen layouts |
-| `--system` | `/design:system` | Manage design system |
-| `--audit` | `/design:audit` | UX + accessibility audit |
-| `--review` | `/design:review` | QA implementation vs design |
-| `--spec` | `/design:spec` | Generate dev handoff spec |
+| `--research` | `/devtronic:design-research` | Start discovery phase |
+| `--define` | `/devtronic:design-define` | Build personas and journeys |
+| `--ia` | `/devtronic:design-ia` | Define information architecture |
+| `--wireframe` | `/devtronic:design-wireframe` | Specify screen layouts |
+| `--system` | `/devtronic:design-system` | Manage design system |
+| `--audit` | `/devtronic:design-audit` | UX + accessibility audit |
+| `--review` | `/devtronic:design-review` | QA implementation vs design |
+| `--spec` | `/devtronic:design-spec` | Generate dev handoff spec |
 
 **No flag**: Detects state from `thoughts/design/` and proposes next step.
 
@@ -435,25 +617,25 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:research - Discovery & Competitive Analysis
+### /devtronic:design-research - Discovery & Competitive Analysis
 
 **Purpose**: Synthesizes competitive analysis, target audience, and business context from user input and existing specs.
 
 **When to use**:
 - Starting a new product or feature with no prior research
-- After `/spec` to enrich requirements with market context
+- After `/devtronic:spec` to enrich requirements with market context
 
-**Skip for**: Internal tools with no competition, or when `thoughts/design/research.md` already exists.
+**Skip for**: Internal tools with no competition, or when `thoughts/design/devtronic:research.md` already exists.
 
-**Output**: `thoughts/design/research.md`
+**Output**: `thoughts/design/devtronic:research.md`
 
 ---
 
-### /design:define - Personas, Journeys & Problem Framing
+### /devtronic:design-define - Personas, Journeys & Problem Framing
 
 **Purpose**: Generates 2-3 personas, user journey maps, HMW questions, and a crisp problem statement.
 
-**When to use**: After `/design:research` — reads `thoughts/design/research.md` as input.
+**When to use**: After `/devtronic:design-research` — reads `thoughts/design/devtronic:research.md` as input.
 
 **Skip for**: B2B internal tools where users are well-known.
 
@@ -461,11 +643,11 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:ia - Information Architecture
+### /devtronic:design-ia - Information Architecture
 
 **Purpose**: Defines navigation structure, sitemap, content hierarchy, and user flows.
 
-**When to use**: After `/design:define` — reads personas and journeys as input.
+**When to use**: After `/devtronic:design-define` — reads personas and journeys as input.
 
 **Skip for**: Single-screen tools with no navigation.
 
@@ -473,11 +655,11 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:wireframe - Screen Specifications
+### /devtronic:design-wireframe - Screen Specifications
 
 **Purpose**: Generates structured text-based wireframe specs per screen — components, states, layout zones, interactive elements.
 
-**When to use**: After `/design:ia` — uses screen list from IA as input.
+**When to use**: After `/devtronic:design-ia` — uses screen list from IA as input.
 
 **Arguments**: `[screen-name]` for a specific screen, `--all` for all screens.
 
@@ -487,20 +669,20 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:system - Design System Router
+### /devtronic:design-system - Design System Router
 
 **Purpose**: Routes to the appropriate design system sub-skill based on flag.
 
 **Flags**:
 | Flag | Routes to | Purpose |
 |------|----------|---------|
-| `--define` | `/design:system-define` | Create or extract design system |
-| `--audit` | `/design:system-audit` | Detect drift and hardcoded values |
-| `--sync` | `/design:system-sync` | Sync tokens to project config files |
+| `--define` | `/devtronic:design-system-define` | Create or extract design system |
+| `--audit` | `/devtronic:design-system-audit` | Detect drift and hardcoded values |
+| `--sync` | `/devtronic:design-system-sync` | Sync tokens to project config files |
 
 ---
 
-### /design:system-define - Create or Extract Design System
+### /devtronic:design-system-define - Create or Extract Design System
 
 **Purpose**: Interactively defines design tokens (colors, typography, spacing, borders, shadows) or extracts them from existing CSS/Tailwind config.
 
@@ -512,17 +694,17 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:system-audit - Design System Drift Detection
+### /devtronic:design-system-audit - Design System Drift Detection
 
 **Purpose**: Scans the codebase for design system drift — hardcoded hex values, arbitrary spacing, tokens defined but unused, components that bypass the system.
 
-**When to use**: Before PRs, before releases, periodically on growing codebases. Also runs automatically from `/post-review` via `design-system-guardian` agent.
+**When to use**: Before PRs, before releases, periodically on growing codebases. Also runs automatically from `/devtronic:post-review` via `design-system-guardian` agent.
 
 **Output**: `thoughts/design/design-system-audit.md`
 
 ---
 
-### /design:system-sync - Token Synchronization
+### /devtronic:design-system-sync - Token Synchronization
 
 **Purpose**: Syncs `thoughts/design/design-system.md` → project config files (Tailwind, CSS vars, tokens.json). Always one-directional: design system is the source of truth.
 
@@ -532,7 +714,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:audit - UX Heuristics & Accessibility
+### /devtronic:design-audit - UX Heuristics & Accessibility
 
 **Purpose**: Evaluates designs against Nielsen's 10 heuristics and WCAG 2.1 AA. Can audit wireframe specs (text) or implementation (code).
 
@@ -549,33 +731,33 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design:review - Implementation vs Design QA
+### /devtronic:design-review - Implementation vs Design QA
 
 **Purpose**: Compares what was built against wireframe specs and design system. Surfaces deviations with severity (blocker / warning / suggestion).
 
-**When to use**: After `/execute-plan` completes UI work, before PR.
+**When to use**: After `/devtronic:execute-plan` completes UI work, before PR.
 
 **Arguments**: `[component-name]` for specific component, `--all` for all screens.
 
 **Delegates to**: `visual-qa` agent if screenshots are available.
 
-**Note**: Not a code quality review — use `/post-review` for that. This reviews visual/UX fidelity.
+**Note**: Not a code quality review — use `/devtronic:post-review` for that. This reviews visual/UX fidelity.
 
 ---
 
-### /design:spec - Developer Handoff Specification
+### /devtronic:design-spec - Developer Handoff Specification
 
 **Purpose**: Generates a structured developer spec from all design artifacts — component breakdown, props, token references, interaction specs, states, and edge cases.
 
-**When to use**: After the design phase is complete, before `/create-plan`. The spec informs the component breakdown in the implementation plan.
+**When to use**: After the design phase is complete, before `/devtronic:create-plan`. The spec informs the component breakdown in the implementation plan.
 
-**Output**: `thoughts/design/spec.md`
+**Output**: `thoughts/design/devtronic:spec.md`
 
 ---
 
 ## Other Skills
 
-### /create-skill - Meta Skill Generator
+### /devtronic:create-skill - Meta Skill Generator
 
 **Purpose**: Conversationally create new custom skills.
 
@@ -594,7 +776,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /backlog - Issue Management
+### /devtronic:backlog - Issue Management
 
 **Purpose**: Manage the issue backlog efficiently, keeping the file clean and manageable.
 
@@ -629,7 +811,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 - **Description**: Brief description
 - **Success criteria**: How we know it's done
 - **Docs**:
-  - Spec: thoughts/specs/BACK-042_feature.md
+  - Spec: thoughts/devtronic:specs/BACK-042_feature.md
   - Plan: thoughts/plans/BACK-042_feature.md
 - **Added**: 2026-02-05
 - **Completed**: 2026-02-05 (PR #234)
@@ -637,7 +819,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /learn - Post-Task Teaching
+### /devtronic:learn - Post-Task Teaching
 
 **Purpose**: Transform completed work into a learning opportunity.
 
@@ -658,7 +840,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ## Creating Custom Skills
 
-Use `/create-skill` for guided skill creation, or create manually in `.claude/skills/`.
+Use `/devtronic:create-skill` for guided skill creation, or create manually in `.claude/skills/`.
 
 ### Simple skills (single file)
 

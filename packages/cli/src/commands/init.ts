@@ -210,7 +210,20 @@ export async function initCommand(options: InitOptions): Promise<void> {
       process.exit(0);
     }
     if (wantOrchestration) {
-      enabledAddons = ['orchestration'];
+      enabledAddons.push('orchestration');
+    }
+
+    // Offer design-best-practices addon
+    const wantDesign = await p.confirm({
+      message: 'Enable design best practices? (design-init → design-review → design-refine → design-harden)',
+      initialValue: false,
+    });
+    if (p.isCancel(wantDesign)) {
+      p.cancel('Operation cancelled');
+      process.exit(0);
+    }
+    if (wantDesign) {
+      enabledAddons.push('design-best-practices');
     }
   }
 
@@ -513,6 +526,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
       `  To update later: ${chalk.cyan('npx devtronic update')}`,
     ].join('\n'),
     'Next Steps'
+  );
+
+  p.note(
+    [
+      `${chalk.dim('Execution mode:')} HITL ${chalk.dim('(default — safe for unfamiliar codebases)')}`,
+      `${chalk.dim('Change anytime:')} ${chalk.cyan('npx devtronic mode afk')}`,
+    ].join('\n'),
+    'Autonomous Mode'
   );
 
   p.outro(chalk.green('Setup complete!'));

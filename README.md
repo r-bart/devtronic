@@ -24,8 +24,8 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 12 design + 3 addon skills |
-| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 agents |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 19 core + 12 design phase + 9 addon skills |
+| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 3 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
 | [Existing Projects](./docs/existing-projects.md) | Integration with existing configurations |
@@ -34,6 +34,7 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | [Worktrees Guide](./docs/worktrees.md) | Parallel Claude sessions |
 | [Design Phase Guide](./docs/design-phase.md) | Design phase skills, agents, and workflow |
 | [Multi-Account Setup](./docs/multi-account-setup.md) | Multiple Claude Code accounts |
+| [auto-devtronic Addon](./docs/auto-devtronic-addon.md) | Autonomous engineering loop addon |
 
 ---
 
@@ -58,11 +59,11 @@ The CLI will:
 ### Option B: Claude Code Skill
 
 ```
-/setup      # For existing projects
-/scaffold   # For new projects from scratch
+/devtronic:setup      # For existing projects
+/devtronic:scaffold   # For new projects from scratch
 ```
 
-Same functionality through conversation. Use `/scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
+Same functionality through conversation. Use `/devtronic:scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
 
 ### Update Later
 
@@ -112,7 +113,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/devtronic:spec, etc.)    │
-│       │             19 core + 12 design + 3 addon skills        │
+│       │             19 core + 12 design phase + 9 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             15 agents included                          │
@@ -132,47 +133,78 @@ npx devtronic init
 ## Core Workflow
 
 ```
-/brief [topic]         →  Orientation + pre-flight checks
+/devtronic:brief [topic]         →  Orientation + pre-flight checks
         │
 [ /design phase ]      →  (optional) UX discovery → wireframes → design system
         │                  See Design Phase Guide ↗
-/spec [idea]           →  Define WHAT to build (PRD)
+/devtronic:spec [idea]           →  Define WHAT to build (PRD)
         │
-/create-plan [feature] →  Design implementation phases
+/devtronic:create-plan [feature] →  Design implementation phases
         │
-/generate-tests        →  Encode acceptance criteria as failing tests
+/devtronic:generate-tests  →  Encode acceptance criteria as failing tests
         │
-/execute-plan          →  Implement in parallel phases
+/devtronic:execute-plan    →  Implement in parallel phases
         │
-[ /design:review ]     →  (optional) QA vs wireframes + design system
+[ /devtronic:design-review ]     →  (optional) QA vs wireframes + design system
         │
 /summary               →  Document what changed and why
         │
-/post-review           →  Final quality check
+/devtronic:post-review     →  Final quality check
 ```
 
 Human review at earlier stages has higher leverage. See [Philosophy](./docs/philosophy.md) for details.
 
-For UI-heavy features, run the design phase before `/spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
+For UI-heavy features, run the design phase before `/devtronic:spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
 
 ---
 
 ## What's Included
 
-### Skills (19 core + 12 design + 3 addon)
+### Skills (19 core + 12 design phase + 9 addon)
 
 | Category | Skills |
 |----------|--------|
-| **Orientation & Research** | `/brief`, `/research`, `/opensrc` |
-| **Planning** | `/spec`, `/create-plan` |
-| **Development** | `/scaffold`, `/setup`, `/investigate`, `/worktree` |
-| **Execution** | `/quick`, `/execute-plan` |
-| **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
-| **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
-| **Design Phase** | `/design`, `/design:research`, `/design:define`, `/design:ia`, `/design:wireframe`, `/design:system`, `/design:system-define`, `/design:system-audit`, `/design:system-sync`, `/design:audit`, `/design:review`, `/design:spec` |
-| **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
+| **Orientation & Research** | `/devtronic:brief`, `/devtronic:research`, `/devtronic:opensrc` |
+| **Planning** | `/devtronic:spec`, `/devtronic:create-plan` |
+| **Development** | `/devtronic:scaffold`, `/devtronic:setup`, `/devtronic:investigate`, `/devtronic:worktree` |
+| **Execution** | `/devtronic:quick`, `/devtronic:execute-plan` |
+| **Quality & Review** | `/devtronic:audit`, `/devtronic:post-review`, `/devtronic:generate-tests` |
+| **Session & Meta** | `/devtronic:checkpoint`, `/devtronic:summary`, `/devtronic:backlog`, `/devtronic:learn`, `/devtronic:create-skill` |
+| **Design Phase** | `/devtronic:design`, `/devtronic:design-research`, `/devtronic:design-define`, `/devtronic:design-ia`, `/devtronic:design-wireframe`, `/devtronic:design-system`, `/devtronic:design-system-define`, `/devtronic:design-system-audit`, `/devtronic:design-system-sync`, `/devtronic:design-audit`, `/devtronic:design-review`, `/devtronic:design-spec` |
+| **Orchestration** (addon) | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` |
+| **Design Best Practices** (addon) | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` |
+| **Auto-devtronic** (addon) | `/devtronic` — Autonomous engineering loop |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.
+
+### Autonomous Engineering Loop (`/devtronic`)
+
+The `auto-devtronic` addon runs the full pipeline autonomously — spec → tests → plan → implement → PR — and self-corrects via failing tests.
+
+```bash
+npx devtronic addon enable auto-devtronic
+
+/devtronic https://github.com/org/repo/issues/42   # HITL mode (default, human gates)
+/devtronic <issue> --afk                           # AFK mode (fully autonomous)
+/devtronic <issue> --afk --validate                # Validate task first, then run
+```
+
+**Two modes:**
+
+| Mode | Flag | Human gates |
+|------|------|-------------|
+| **HITL** | `--hitl` (default) | Pauses at spec, tests, each retry, and PR |
+| **AFK** | `--afk` | Fully autonomous, no interruptions |
+
+Set the default mode project-wide:
+
+```bash
+npx devtronic mode afk    # set AFK as default
+npx devtronic mode hitl   # set HITL as default
+npx devtronic mode show   # show current mode
+```
+
+See [auto-devtronic Addon](./docs/auto-devtronic-addon.md) for full documentation.
 
 ### Agents (15)
 
@@ -286,6 +318,8 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `add <ide>` | Add another IDE |
 | `addon add <name>` | Add an optional skill pack |
 | `addon remove <name>` | Remove an optional skill pack |
+| `addon list` | List available and installed addons |
+| `addon sync` | Regenerate addon files for current agent config |
 | `regenerate` | Regenerate files |
 | `status` | Show installation status |
 | `diff` | Show differences with template |

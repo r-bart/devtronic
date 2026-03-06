@@ -357,25 +357,25 @@ ${skillsSection}
 
 /** Core skills always available */
 export const CORE_SKILLS: Array<{ name: string; desc: string }> = [
-  { name: 'brief', desc: 'Session orientation with pre-flight checks' },
-  { name: 'spec', desc: 'Product specification interview (PRD)' },
-  { name: 'research', desc: 'Codebase investigation (--deep, --external)' },
-  { name: 'create-plan', desc: 'Phased implementation plan with task dependencies' },
-  { name: 'execute-plan', desc: 'Parallel phase execution of plans' },
-  { name: 'quick', desc: 'Fast ad-hoc tasks: implement, verify, commit' },
-  { name: 'generate-tests', desc: 'Failing tests from spec (Tests-as-DoD)' },
-  { name: 'post-review', desc: 'Pre-PR review (architecture, quality, requirements)' },
-  { name: 'audit', desc: 'Codebase audit (security, complexity, architecture)' },
-  { name: 'summary', desc: 'Post-change documentation' },
-  { name: 'checkpoint', desc: 'Save session progress for resumption' },
-  { name: 'backlog', desc: 'Issue management with BACK-### IDs' },
-  { name: 'investigate', desc: 'Deep error and bug analysis' },
-  { name: 'learn', desc: 'Post-task teaching breakdown' },
-  { name: 'scaffold', desc: 'Create new projects from scratch' },
-  { name: 'setup', desc: 'Interactive project configuration' },
-  { name: 'worktree', desc: 'Git worktree management' },
-  { name: 'opensrc', desc: 'Fetch npm/GitHub source for full context' },
-  { name: 'create-skill', desc: 'Generate new custom skills' },
+  { name: 'devtronic:brief', desc: 'Session orientation with pre-flight checks' },
+  { name: 'devtronic:spec', desc: 'Product specification interview (PRD)' },
+  { name: 'devtronic:research', desc: 'Codebase investigation (--deep, --external)' },
+  { name: 'devtronic:create-plan', desc: 'Phased implementation plan with task dependencies' },
+  { name: 'devtronic:execute-plan', desc: 'Parallel phase execution of plans' },
+  { name: 'devtronic:quick', desc: 'Fast ad-hoc tasks: implement, verify, commit' },
+  { name: 'devtronic:generate-tests', desc: 'Failing tests from spec (Tests-as-DoD)' },
+  { name: 'devtronic:post-review', desc: 'Pre-PR review (architecture, quality, requirements)' },
+  { name: 'devtronic:audit', desc: 'Codebase audit (security, complexity, architecture)' },
+  { name: 'devtronic:summary', desc: 'Post-change documentation' },
+  { name: 'devtronic:checkpoint', desc: 'Save session progress for resumption' },
+  { name: 'devtronic:backlog', desc: 'Issue management with BACK-### IDs' },
+  { name: 'devtronic:investigate', desc: 'Deep error and bug analysis' },
+  { name: 'devtronic:learn', desc: 'Post-task teaching breakdown' },
+  { name: 'devtronic:scaffold', desc: 'Create new projects from scratch' },
+  { name: 'devtronic:setup', desc: 'Interactive project configuration' },
+  { name: 'devtronic:worktree', desc: 'Git worktree management' },
+  { name: 'devtronic:opensrc', desc: 'Fetch npm/GitHub source for full context' },
+  { name: 'devtronic:create-skill', desc: 'Generate new custom skills' },
 ];
 
 /** Addon skills keyed by addon name */
@@ -384,6 +384,16 @@ const ADDON_SKILLS: Record<AddonName, Array<{ name: string; desc: string }>> = {
     { name: 'briefing', desc: 'Pre-planning alignment Q&A' },
     { name: 'recap', desc: 'Quick session summary from git activity' },
     { name: 'handoff', desc: 'Context rotation for fresh sessions' },
+  ],
+  'design-best-practices': [
+    { name: 'design-init', desc: 'One-time project design context setup' },
+    { name: 'design-review', desc: 'Design critique with AI slop detection' },
+    { name: 'design-refine', desc: 'Directional design refinement' },
+    { name: 'design-system', desc: 'Design system extraction and normalization' },
+    { name: 'design-harden', desc: 'Production hardening for edge cases' },
+  ],
+  'auto-devtronic': [
+    { name: 'devtronic', desc: 'Autonomous engineering loop — spec→test→plan→execute→PR' },
   ],
 };
 

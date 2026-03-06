@@ -1,5 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { existsSync, unlinkSync, rmSync } from 'node:fs';
+import { existsSync, unlinkSync, rmSync, readFileSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { AddonName, AddonOptions } from '../types.js';
@@ -18,9 +18,21 @@ import { introTitle, symbols } from '../utils/ui.js';
 import { getCliVersion } from '../utils/version.js';
 import { generatePluginJson, generateMarketplaceJson, PLUGIN_DIR } from '../generators/plugin.js';
 import { TEMPLATES_DIR } from './init.js';
+import { getAddonSourceDir, getAvailableAddons } from '../addons/registry.js';
+import { readAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../utils/addonConfig.js';
+import { generateAddonFiles, removeAddonFiles, syncAddonFiles, detectModifiedAddonFiles } from '../generators/addonFiles.js';
+
+/**
+ * Returns true if the addon uses the file-based system.
+ * orchestration → plugin mode (legacy)
+ * design-best-practices, auto-devtronic → file-based mode
+ */
+function isFileBasedAddon(addonName: AddonName): boolean {
+  return addonName !== 'orchestration';
+}
 
 export async function addonCommand(
-  action: 'add' | 'remove',
+  action: 'add' | 'remove' | 'enable' | 'disable',
   addonName: string,
   options: AddonOptions
 ): Promise<void> {
@@ -28,7 +40,36 @@ export async function addonCommand(
 
   p.intro(introTitle(`Addon ${action}`));
 
-  // 1. Read manifest
+  // Validate addon name
+  const validAddons = Object.keys(ADDONS) as AddonName[];
+  if (!validAddons.includes(addonName as AddonName)) {
+    p.cancel(`Unknown addon: ${addonName}\n\nValid addons: ${validAddons.join(', ')}`);
+    process.exit(1);
+  }
+
+  const typedName = addonName as AddonName;
+
+  // Map deprecated actions to canonical names and warn
+  const canonicalAction: 'add' | 'remove' =
+    action === 'enable' ? 'add' : action === 'disable' ? 'remove' : action;
+  if (action === 'add' || action === 'remove') {
+    const canonical = action === 'add' ? 'enable' : 'disable';
+    p.log.warn(
+      `"addon ${action}" is deprecated. Use "addon ${canonical}" instead.`
+    );
+  }
+
+  // File-based addons (design-best-practices) use the new system
+  if (isFileBasedAddon(typedName)) {
+    if (canonicalAction === 'add') {
+      await addFileBasedAddon(targetDir, typedName, options);
+    } else {
+      await removeFileBasedAddon(targetDir, typedName, options);
+    }
+    return;
+  }
+
+  // Plugin-based addons (orchestration) use the legacy system
   const manifest = readManifest(targetDir);
   if (!manifest) {
     p.log.warn('No devtronic installation found.');
@@ -37,7 +78,6 @@ export async function addonCommand(
     return;
   }
 
-  // 2. Must be in plugin mode
   if (manifest.installMode !== 'plugin' || !manifest.pluginPath) {
     p.log.warn('Addons require Claude Code in plugin mode.');
     p.log.info('Run `npx devtronic init` with Claude Code selected.');
@@ -45,17 +85,10 @@ export async function addonCommand(
     return;
   }
 
-  // 3. Validate addon name
-  const validAddons = Object.keys(ADDONS) as AddonName[];
-  if (!validAddons.includes(addonName as AddonName)) {
-    p.cancel(`Unknown addon: ${addonName}\n\nValid addons: ${validAddons.join(', ')}`);
-    process.exit(1);
-  }
-
-  const addon = ADDONS[addonName as AddonName];
+  const addon = ADDONS[typedName];
   const currentAddons: AddonName[] = manifest.projectConfig?.enabledAddons ?? [];
 
-  if (action === 'add') {
+  if (canonicalAction === 'add') {
     await addAddon(targetDir, manifest, addon.name, currentAddons);
   } else {
     await removeAddon(targetDir, manifest, addon.name, currentAddons);
@@ -242,6 +275,194 @@ async function removeAddon(
   );
 
   p.outro('Done. Restart Claude Code to apply the changes.');
+}
+
+// ─── File-Based Addon System ────────────────────────────────────────────────
+
+async function addFileBasedAddon(
+  targetDir: string,
+  addonName: AddonName,
+  _options: AddonOptions // eslint-disable-line @typescript-eslint/no-unused-vars
+): Promise<void> {
+  const addon = ADDONS[addonName];
+  const config = readAddonConfig(targetDir);
+
+  // Already installed?
+  if (config.installed[addonName]) {
+    p.log.warn(`Addon "${addonName}" is already installed.`);
+    p.outro('');
+    return;
+  }
+
+  p.note(
+    [
+      `  ${chalk.dim('Name:')}        ${addon.label}`,
+      `  ${chalk.dim('Description:')} ${addon.description}`,
+      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.cyan(`/${s}`)).join(', ')}`,
+      addon.agents.length
+        ? `  ${chalk.dim('Agents:')}      ${addon.agents.map((a) => chalk.cyan(a)).join(', ')}`
+        : `  ${chalk.dim('Agents:')}      ${chalk.dim('—')}`,
+    ].join('\n'),
+    'Adding addon'
+  );
+
+  const confirmed = await p.confirm({ message: 'Add this addon?' });
+  if (p.isCancel(confirmed) || !confirmed) {
+    p.cancel('Addon installation cancelled.');
+    process.exit(0);
+  }
+
+  const spinner = p.spinner();
+  spinner.start(`Adding ${addon.label}...`);
+
+  const addonSourceDir = getAddonSourceDir(addonName);
+  const result = generateAddonFiles(targetDir, addonSourceDir, config.agents);
+
+  // Track in config
+  const addonManifest = JSON.parse(
+    readFileSync(join(addonSourceDir, 'manifest.json'), 'utf-8')
+  );
+  const fileList: string[] = [
+    ...(addonManifest.files.skills ?? []).map((s: string) => `skills/${s}`),
+    ...(addonManifest.files.agents ?? []).map((a: string) => `agents/${a}.md`),
+    ...(addonManifest.files.rules ?? []).map((r: string) => `rules/${r}`),
+  ];
+
+  writeAddonToConfig(targetDir, addonName, {
+    version: addonManifest.version,
+    files: fileList,
+    checksums: result.checksums ?? {},
+  });
+
+  spinner.stop(`${symbols.pass} ${addon.label} added (${result.written} files written)`);
+
+  p.note(
+    addon.skills.map((s) => `  ${chalk.cyan(`/${s}`)}`).join('\n'),
+    'New skills available'
+  );
+
+  p.outro('Done. Skills are now available in your agent directories.');
+}
+
+async function removeFileBasedAddon(
+  targetDir: string,
+  addonName: AddonName,
+  _options: AddonOptions // eslint-disable-line @typescript-eslint/no-unused-vars
+): Promise<void> {
+  const addon = ADDONS[addonName];
+  const config = readAddonConfig(targetDir);
+
+  if (!config.installed[addonName]) {
+    p.log.warn(`Addon "${addonName}" is not currently installed.`);
+    p.outro('');
+    return;
+  }
+
+  // Check for customized files
+  const modified = detectModifiedAddonFiles(targetDir, addonName);
+  if (modified.length > 0) {
+    p.log.warn('The following files have been customized:');
+    for (const f of modified) {
+      p.log.message(`  ${chalk.yellow(f)}`);
+    }
+    const confirm = await p.confirm({
+      message: 'Remove them anyway? (customizations will be lost)',
+    });
+    if (p.isCancel(confirm) || !confirm) {
+      p.cancel('Addon removal cancelled.');
+      process.exit(0);
+    }
+  }
+
+  const spinner = p.spinner();
+  spinner.start(`Removing ${addon.label}...`);
+
+  removeAddonFiles(targetDir, addonName, config.agents);
+  removeAddonFromConfig(targetDir, addonName);
+
+  spinner.stop(`${symbols.pass} ${addon.label} removed`);
+
+  p.note(
+    addon.skills.map((s) => `  ${chalk.dim(`/${s}`)}`).join('\n'),
+    'Skills removed'
+  );
+
+  p.outro('Done.');
+}
+
+// ─── List & Sync Commands ───────────────────────────────────────────────────
+
+export interface AddonListItem {
+  name: string;
+  label: string;
+  description: string;
+  installed: boolean;
+  agents?: string[];
+}
+
+export function getAddonListInfo(targetDir: string): AddonListItem[] {
+  const config = readAddonConfig(targetDir);
+  return getAvailableAddons().map((addon) => ({
+    name: addon.name,
+    label: addon.label,
+    description: addon.description,
+    installed: !!config.installed[addon.name],
+    agents: config.installed[addon.name] ? config.agents : undefined,
+  }));
+}
+
+export async function addonListCommand(options: AddonOptions): Promise<void> {
+  const targetDir = resolve(options.path || '.');
+  p.intro(introTitle('Addon List'));
+
+  const items = getAddonListInfo(targetDir);
+
+  const lines = items.map((item) => {
+    const status = item.installed ? chalk.green('✓ installed') : chalk.dim('available');
+    const agents = item.agents ? chalk.dim(` → ${item.agents.join(', ')}`) : '';
+    return `  ${chalk.bold(item.name)} ${status}${agents}\n    ${chalk.dim(item.description)}`;
+  });
+
+  p.note(lines.join('\n\n'), 'Addons');
+  p.outro(`Use ${chalk.cyan('devtronic addon add <name>')} to install.`);
+}
+
+export async function addonSyncCommand(options: AddonOptions): Promise<void> {
+  const targetDir = resolve(options.path || '.');
+  p.intro(introTitle('Addon Sync'));
+
+  const config = readAddonConfig(targetDir);
+  const installedNames = Object.keys(config.installed);
+
+  if (installedNames.length === 0) {
+    p.log.info('No addons installed. Nothing to sync.');
+    p.outro('');
+    return;
+  }
+
+  const spinner = p.spinner();
+  spinner.start('Syncing addon files...');
+
+  let totalWritten = 0;
+  let totalConflicts: string[] = [];
+
+  for (const name of installedNames) {
+    const addonSourceDir = getAddonSourceDir(name as AddonName);
+    const result = syncAddonFiles(targetDir, addonSourceDir, config.agents);
+    totalWritten += result.written + (result.updated ?? 0);
+    totalConflicts = totalConflicts.concat(result.conflicts);
+  }
+
+  spinner.stop(`${symbols.pass} Sync complete (${totalWritten} files updated)`);
+
+  if (totalConflicts.length > 0) {
+    p.log.warn('Customized files were preserved:');
+    for (const f of totalConflicts) {
+      p.log.message(`  ${chalk.yellow(f)}`);
+    }
+  }
+
+  p.outro('Done.');
 }
 
 /**

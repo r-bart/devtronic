@@ -1,5 +1,5 @@
 ---
-name: handoff
+name: devtronic:handoff
 description: Context rotation for fresh sessions. Saves current state and signals to start a new session with clean context.
 allowed-tools: Read, Write, Bash, Glob
 argument-hint: "[reason]"

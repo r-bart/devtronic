@@ -24,8 +24,7 @@ dist/
 coverage/
 
 # AI session state (internal, no value for contributors)
-thoughts/checkpoints/
-thoughts/STATE.md
+thoughts/
 .claude/plans/
 
 # Internal skills (not distributed)

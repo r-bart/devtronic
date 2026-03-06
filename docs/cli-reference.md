@@ -137,17 +137,17 @@ npx devtronic add antigravity
 
 ---
 
-### addon add / addon remove
+### addon enable / addon disable
 
 Manage optional addon skill packs after initial setup.
 
 ```bash
-npx devtronic addon add <name> [options]
-npx devtronic addon remove <name> [options]
+npx devtronic addon enable <name> [options]
+npx devtronic addon disable <name> [options]
 ```
 
 **Arguments:**
-- `name` - Addon name (currently: `orchestration`)
+- `name` - Addon name (e.g., `orchestration`, `design-best-practices`)
 
 **Options:**
 | Option | Description |
@@ -156,25 +156,67 @@ npx devtronic addon remove <name> [options]
 
 **Available addons:**
 
-| Addon | Skills | Description |
-|-------|--------|-------------|
-| `orchestration` | `/briefing`, `/recap`, `/handoff` | Pre-planning alignment, session recaps, context rotation |
+| Addon | Skills | Agents | Description |
+|-------|--------|--------|-------------|
+| `orchestration` | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` | — | Pre-planning alignment, session recaps, context rotation |
+| `design-best-practices` | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
+| `auto-devtronic` | `/devtronic` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs the full spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
 **Examples:**
 
 ```bash
 # Add the orchestration addon
-npx devtronic addon add orchestration
+npx devtronic addon enable orchestration
 
-# Remove the orchestration addon
-npx devtronic addon remove orchestration
+# Add the design best practices addon
+npx devtronic addon enable design-best-practices
+
+# Add the autonomous engineering loop
+npx devtronic addon enable auto-devtronic
+
+# Remove an addon
+npx devtronic addon disable design-best-practices
 ```
 
 **Notes:**
-- Requires Claude Code in plugin mode (selected during `devtronic init`)
-- Both commands show a preview (name, description, skills, subagents) and ask for confirmation before proceeding
-- Remove will additionally warn about any locally modified skill files before deleting them
-- Restart Claude Code after adding or removing an addon to reload skills
+- `orchestration` requires Claude Code in plugin mode (selected during `devtronic init`)
+- `design-best-practices` and `auto-devtronic` work in both standalone and plugin mode — files are placed in `.claude/skills/`, `.claude/agents/`, and `.claude/rules/`
+- All commands show a preview and ask for confirmation before proceeding
+- Remove warns about locally modified files before deleting them
+
+---
+
+### addon list
+
+List available and installed addons.
+
+```bash
+npx devtronic addon list [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+Shows all available first-party addons, marks which are installed, and displays agent targets for installed addons.
+
+---
+
+### addon sync
+
+Regenerate addon files for current agent configuration.
+
+```bash
+npx devtronic addon sync [options]
+```
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
+
+Use after changing agent targets in `devtronic.json` (e.g., adding `.cursor/` support). Regenerates files for all configured agents, preserving user-customized files.
 
 ---
 
