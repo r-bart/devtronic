@@ -5,6 +5,8 @@ import {
   mkdirSync,
   rmSync,
   unlinkSync,
+  readdirSync,
+  rmdirSync,
 } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { createHash } from 'node:crypto';
@@ -25,6 +27,105 @@ const AGENT_PATHS: Record<string, string> = {
   claude: '.claude',
   cursor: '.cursor',
   gemini: '.gemini',
+};
+
+/**
+ * Parses YAML frontmatter from a Markdown file.
+ * Returns the raw frontmatter string (between --- delimiters) and the body.
+ */
+function parseFrontmatter(content: string): { fields: Record<string, string>; body: string } {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+  if (!match) return { fields: {}, body: content };
+  const fields: Record<string, string> = {};
+  for (const line of match[1].split('\n')) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx > 0) {
+      fields[line.slice(0, colonIdx).trim()] = line.slice(colonIdx + 1).trim();
+    }
+  }
+  return { fields, body: match[2] };
+}
+
+/**
+ * Converts a Markdown SKILL.md to Gemini CLI TOML format.
+ * Extracts description from frontmatter, uses body as prompt.
+ */
+function markdownToGeminiToml(content: string): string {
+  const { fields, body } = parseFrontmatter(content);
+  const description = fields['description'] ?? '';
+  const lines = [
+    `description = ${JSON.stringify(description)}`,
+    `prompt = """`,
+    body.trim(),
+    `"""`,
+  ];
+  return lines.join('\n') + '\n';
+}
+
+/**
+ * Strips the `name:` field from YAML frontmatter only.
+ * OpenCode derives command name from filename — explicit name: causes conflicts.
+ */
+function stripFrontmatterName(content: string): string {
+  return content.replace(/^(---\n)([\s\S]*?)(---)/m, (_match, open, body, close) => {
+    const cleaned = body.split('\n').filter((l: string) => !l.startsWith('name:')).join('\n');
+    return `${open}${cleaned}${close}`;
+  });
+}
+
+/**
+ * Removes the entire YAML frontmatter block.
+ * Used for Cursor rules (no frontmatter convention).
+ */
+function stripFrontmatter(content: string): string {
+  return content.replace(/^---\n[\s\S]*?---\n/, '').trim() + '\n';
+}
+
+interface RuntimeInstallSpec {
+  /** Base directory relative to project root */
+  baseDir: string;
+  /** Transform skill name + raw content → install relPath + adapted content */
+  skillAdapter: (skillName: string, content: string) => { relPath: string; content: string };
+  /** Base directory for agents (if different from baseDir) */
+  agentsDir?: string;
+}
+
+const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
+  claude: {
+    baseDir: '.claude',
+    skillAdapter: (name, content) => ({
+      relPath: `commands/${name}.md`,
+      content,
+    }),
+  },
+  gemini: {
+    baseDir: '.gemini',
+    skillAdapter: (name, content) => ({
+      relPath: `commands/${name}.toml`,
+      content: markdownToGeminiToml(content),
+    }),
+  },
+  opencode: {
+    baseDir: '.opencode',
+    skillAdapter: (name, content) => ({
+      relPath: `command/${name}.md`,
+      content: stripFrontmatterName(content),
+    }),
+  },
+  cursor: {
+    baseDir: '.cursor',
+    skillAdapter: (name, content) => ({
+      relPath: `rules/${name}.md`,
+      content: stripFrontmatter(content),
+    }),
+  },
+  codex: {
+    baseDir: '.codex',
+    skillAdapter: (name, content) => ({
+      relPath: `skills/${name}/SKILL.md`,
+      content,
+    }),
+  },
 };
 
 function checksum(content: string): string {
@@ -101,10 +202,32 @@ export function generateAddonFiles(
   const result: GenerateResult = { written: 0, skipped: 0, conflicts: [], checksums: {} };
 
   for (const agent of agents) {
-    const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
+    const spec = RUNTIME_SPECS[agent];
+    if (!spec) {
+      // Fallback: use old AGENT_PATHS behavior for unknown runtimes
+      const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
+      for (const [relPath, content] of fileMap) {
+        const destPath = join(projectDir, basePath, relPath);
+        if (existsSync(destPath)) {
+          result.skipped++;
+          continue;
+        }
+        ensureDir(dirname(destPath));
+        writeFileSync(destPath, content);
+        result.written++;
+        result.checksums![relPath] = checksum(content);
+      }
+      continue;
+    }
 
-    for (const [relPath, content] of fileMap) {
-      const destPath = join(projectDir, basePath, relPath);
+    // Install skills via runtime-specific adapter
+    for (const skillName of manifest.files.skills ?? []) {
+      const skillFile = join(addonSourceDir, 'skills', skillName, 'SKILL.md');
+      if (!existsSync(skillFile)) continue;
+      const rawContent = readFileSync(skillFile, 'utf-8');
+
+      const { relPath, content } = spec.skillAdapter(skillName, rawContent);
+      const destPath = join(projectDir, spec.baseDir, relPath);
 
       if (existsSync(destPath)) {
         const existing = readFileSync(destPath, 'utf-8');
@@ -112,7 +235,6 @@ export function generateAddonFiles(
           result.skipped++;
           continue;
         }
-        // File exists but differs — skip silently on generate (not a conflict for initial install)
         result.skipped++;
         continue;
       }
@@ -122,9 +244,24 @@ export function generateAddonFiles(
       result.written++;
       result.checksums![relPath] = checksum(content);
     }
+
+    // Install agents to baseDir/agents/[name].md (same across runtimes)
+    for (const agentName of manifest.files.agents ?? []) {
+      const agentFile = join(addonSourceDir, 'agents', `${agentName}.md`);
+      if (!existsSync(agentFile)) continue;
+      const content = readFileSync(agentFile, 'utf-8');
+      const destPath = join(projectDir, spec.baseDir, 'agents', `${agentName}.md`);
+      if (!existsSync(destPath)) {
+        ensureDir(dirname(destPath));
+        writeFileSync(destPath, content);
+        result.written++;
+      } else {
+        result.skipped++;
+      }
+    }
   }
 
-  // Handle NOTICE.md for attributed addons
+  // Handle NOTICE.md for attributed addons (keep existing logic)
   if (manifest.attribution) {
     const noticePath = join(projectDir, 'NOTICE.md');
     const noticeContent = [
@@ -160,41 +297,50 @@ export function removeAddonFiles(
   const manifest = readManifest(sourceDir);
   const knownSkills: string[] = manifest.files.skills ?? [];
   const knownAgents: string[] = manifest.files.agents ?? [];
-  const knownRules: string[] = manifest.files.rules ?? [];
 
   for (const agent of agents) {
-    const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
+    const spec = RUNTIME_SPECS[agent];
 
-    // Remove skill directories
-    for (const skill of knownSkills) {
-      const skillDir = join(projectDir, basePath, 'skills', skill);
-      if (existsSync(skillDir)) {
-        rmSync(skillDir, { recursive: true, force: true });
+    if (!spec) {
+      // Fallback: old AGENT_PATHS removal
+      const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
+      for (const skill of knownSkills) {
+        const skillDir = join(projectDir, basePath, 'skills', skill);
+        if (existsSync(skillDir)) rmSync(skillDir, { recursive: true, force: true });
+      }
+      for (const agentName of knownAgents) {
+        const agentPath = join(projectDir, basePath, 'agents', `${agentName}.md`);
+        if (existsSync(agentPath)) unlinkSync(agentPath);
+      }
+      continue;
+    }
+
+    // Remove skill files via runtime spec
+    for (const skillName of knownSkills) {
+      // Derive relPath using a dummy content (we just need the path)
+      const { relPath } = spec.skillAdapter(skillName, '');
+      const destPath = join(projectDir, spec.baseDir, relPath);
+      if (existsSync(destPath)) unlinkSync(destPath);
+      // Also remove parent dir if empty (e.g. .codex/skills/devtronic/)
+      const parentDir = dirname(destPath);
+      if (existsSync(parentDir)) {
+        try {
+          const entries = readdirSync(parentDir);
+          if (entries.length === 0) rmdirSync(parentDir);
+        } catch { /* ignore */ }
       }
     }
 
-    // Remove agent files
+    // Remove agents
     for (const agentName of knownAgents) {
-      const agentPath = join(projectDir, basePath, 'agents', `${agentName}.md`);
-      if (existsSync(agentPath)) {
-        unlinkSync(agentPath);
-      }
-    }
-
-    // Remove rule files
-    for (const rule of knownRules) {
-      const rulePath = join(projectDir, basePath, 'rules', rule);
-      if (existsSync(rulePath)) {
-        unlinkSync(rulePath);
-      }
+      const agentPath = join(projectDir, spec.baseDir, 'agents', `${agentName}.md`);
+      if (existsSync(agentPath)) unlinkSync(agentPath);
     }
   }
 
   // Remove NOTICE.md
   const noticePath = join(projectDir, 'NOTICE.md');
-  if (existsSync(noticePath)) {
-    unlinkSync(noticePath);
-  }
+  if (existsSync(noticePath)) unlinkSync(noticePath);
 }
 
 /**
@@ -222,13 +368,46 @@ export function syncAddonFiles(
   } catch { /* ignore */ }
 
   for (const agent of agents) {
-    const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
+    const spec = RUNTIME_SPECS[agent];
 
-    for (const [relPath, newContent] of fileMap) {
-      const destPath = join(projectDir, basePath, relPath);
+    if (!spec) {
+      // Fallback: old AGENT_PATHS behavior
+      const basePath = AGENT_PATHS[agent] ?? `.${agent}`;
+      for (const [relPath, newContent] of fileMap) {
+        const destPath = join(projectDir, basePath, relPath);
+        if (!existsSync(destPath)) {
+          ensureDir(dirname(destPath));
+          writeFileSync(destPath, newContent);
+          result.written++;
+          continue;
+        }
+        const existing = readFileSync(destPath, 'utf-8');
+        const existingChecksum = checksum(existing);
+        const originalChecksum = installedChecksums[relPath];
+        if (existing === newContent) {
+          result.skipped++;
+          continue;
+        }
+        if (originalChecksum && existingChecksum !== originalChecksum) {
+          result.conflicts.push(relPath);
+          continue;
+        }
+        writeFileSync(destPath, newContent);
+        result.updated = (result.updated ?? 0) + 1;
+      }
+      continue;
+    }
+
+    // Sync skills via runtime-specific adapter
+    for (const skillName of manifest.files.skills ?? []) {
+      const skillFile = join(addonSourceDir, 'skills', skillName, 'SKILL.md');
+      if (!existsSync(skillFile)) continue;
+      const rawContent = readFileSync(skillFile, 'utf-8');
+
+      const { relPath, content: newContent } = spec.skillAdapter(skillName, rawContent);
+      const destPath = join(projectDir, spec.baseDir, relPath);
 
       if (!existsSync(destPath)) {
-        // File doesn't exist — write it
         ensureDir(dirname(destPath));
         writeFileSync(destPath, newContent);
         result.written++;
@@ -240,19 +419,48 @@ export function syncAddonFiles(
       const originalChecksum = installedChecksums[relPath];
 
       if (existing === newContent) {
-        // Already up to date
         result.skipped++;
         continue;
       }
 
-      // Check if user modified the file
       if (originalChecksum && existingChecksum !== originalChecksum) {
-        // User customized — preserve and report conflict
         result.conflicts.push(relPath);
         continue;
       }
 
-      // Unmodified — safe to update
+      writeFileSync(destPath, newContent);
+      result.updated = (result.updated ?? 0) + 1;
+    }
+
+    // Sync agents
+    for (const agentName of manifest.files.agents ?? []) {
+      const agentFile = join(addonSourceDir, 'agents', `${agentName}.md`);
+      if (!existsSync(agentFile)) continue;
+      const newContent = readFileSync(agentFile, 'utf-8');
+      const destPath = join(projectDir, spec.baseDir, 'agents', `${agentName}.md`);
+      const relPath = `agents/${agentName}.md`;
+
+      if (!existsSync(destPath)) {
+        ensureDir(dirname(destPath));
+        writeFileSync(destPath, newContent);
+        result.written++;
+        continue;
+      }
+
+      const existing = readFileSync(destPath, 'utf-8');
+      const existingChecksum = checksum(existing);
+      const originalChecksum = installedChecksums[relPath];
+
+      if (existing === newContent) {
+        result.skipped++;
+        continue;
+      }
+
+      if (originalChecksum && existingChecksum !== originalChecksum) {
+        result.conflicts.push(relPath);
+        continue;
+      }
+
       writeFileSync(destPath, newContent);
       result.updated = (result.updated ?? 0) + 1;
     }
