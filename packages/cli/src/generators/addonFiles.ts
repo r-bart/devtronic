@@ -342,6 +342,20 @@ export function removeAddonFiles(
         if (existsSync(rulePath)) unlinkSync(rulePath);
       }
     }
+
+    // Remove reference docs nested inside design-harden skill
+    for (const ref of (manifest.files.reference ?? [])) {
+      const refPath = join(projectDir, spec.baseDir, 'skills', 'design-harden', 'reference', ref);
+      if (existsSync(refPath)) unlinkSync(refPath);
+    }
+    // Clean up empty reference dir
+    const refDir = join(projectDir, spec.baseDir, 'skills', 'design-harden', 'reference');
+    if (existsSync(refDir)) {
+      try {
+        const entries = readdirSync(refDir);
+        if (entries.length === 0) rmdirSync(refDir);
+      } catch { /* ignore */ }
+    }
   }
 
   // Remove NOTICE.md
@@ -504,6 +518,39 @@ export function syncAddonFiles(
         writeFileSync(destPath, newContent);
         result.updated = (result.updated ?? 0) + 1;
       }
+    }
+
+    // Sync reference docs nested inside design-harden skill
+    for (const ref of manifest.files.reference ?? []) {
+      const refSrcPath = join(addonSourceDir, 'reference', ref);
+      if (!existsSync(refSrcPath)) continue;
+      const newContent = readFileSync(refSrcPath, 'utf-8');
+      const relPath = `skills/design-harden/reference/${ref}`;
+      const destPath = join(projectDir, spec.baseDir, relPath);
+
+      if (!existsSync(destPath)) {
+        ensureDir(dirname(destPath));
+        writeFileSync(destPath, newContent);
+        result.written++;
+        continue;
+      }
+
+      const existing = readFileSync(destPath, 'utf-8');
+      const existingChecksum = checksum(existing);
+      const originalChecksum = installedChecksums[relPath];
+
+      if (existing === newContent) {
+        result.skipped++;
+        continue;
+      }
+
+      if (originalChecksum && existingChecksum !== originalChecksum) {
+        result.conflicts.push(relPath);
+        continue;
+      }
+
+      writeFileSync(destPath, newContent);
+      result.updated = (result.updated ?? 0) + 1;
     }
   }
 
