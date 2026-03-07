@@ -161,9 +161,18 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   // Detect removed files (in manifest but not in any template)
   const removedFromTemplate: Array<{ path: string; info?: RemovalInfo }> = [];
 
+  // Plugin files are generated dynamically — they don't exist in the static
+  // template directory. Skip them in "removed" detection to avoid false positives.
+  const pluginPathPrefix = manifest.pluginPath ? manifest.pluginPath + '/' : null;
+
   for (const [relativePath, fileInfo] of Object.entries(manifest.files)) {
     // Skip files already marked as ignored
     if (fileInfo.ignored) continue;
+
+    // Skip plugin-generated files — they're regenerated, not copied from templates
+    if (pluginPathPrefix && relativePath.startsWith(pluginPathPrefix)) continue;
+    // Also skip the marketplace descriptor that sits one level above the plugin dir
+    if (manifest.pluginPath && relativePath.startsWith('.claude-plugins/') && relativePath.endsWith('marketplace.json')) continue;
 
     let foundInAnyTemplate = false;
 
