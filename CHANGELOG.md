@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.1] - 2026-03-07
+
+Addon UX improvements — `addon list` command and init multiselect for all addons.
+
+### Added
+
+- **`devtronic addon list`** — New subcommand listing all available addons with installed status, description, and type (plugin-mode vs file-mode)
+- **Init multiselect** — `devtronic init` now shows a single `p.multiselect` prompt offering all three addons (`orchestration`, `design-best-practices`, `auto-devtronic`) with name and description; replaces the previous separate confirm prompts
+- **`promptForAddons()`** — Generic multiselect helper in `prompts/init.ts`, driven by the `ADDONS` registry as single source of truth
+
+### Fixed
+
+- **`addon list` installed state for `orchestration`** — Previously always showed as "available" because its state lives in `.ai-template/manifest.json` (not `devtronic.json`); `getAddonListInfo` now reads both sources
+
+### Updated
+
+- Documentation: `docs/cli-reference.md`, `docs/plugins.md`, `docs/customization.md`, `packages/cli/README.md`, `README.md` — all updated to reflect the new addon UX
+
+---
+
 ## [1.2.0] - 2026-03-06
 
 Command system refactor — `devtronic:` namespace, autonomous engineering loop, multi-IDE runtime adapters.
