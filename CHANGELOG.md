@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.3] - 2026-03-07
+
+### Fixed
+
+- **Addon multiselect skipped when using `--preset`** — `--preset` only skips the project config analysis prompt; the init session remains interactive (IDE selection, conflict resolution). The addon multiselect now correctly appears when `--preset` is used with Claude Code.
+
+---
+
 ## [1.2.2] - 2026-03-07
 
 ### Fixed
