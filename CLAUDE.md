@@ -91,7 +91,7 @@ Run after every change.
 | Bug fix | `/brief` → fix → test → `/summary` → `/post-review` |
 | Refactor | `/brief` → `/create-plan` → implement → `/summary` → `/post-review` |
 
-> **Tip**: `/brief` for session orientation (with pre-flight checks). `/summary` to document changes. `/checkpoint` to save progress.
+> **Tip**: `/brief` for session orientation (with pre-flight checks). `/summary` to document changes. `/checkpoint` to save progress. `/devtronic-help` to discover all available skills and workflows.
 
 ---
 

@@ -376,6 +376,7 @@ export const CORE_SKILLS: Array<{ name: string; desc: string }> = [
   { name: 'worktree', desc: 'Git worktree management' },
   { name: 'opensrc', desc: 'Fetch npm/GitHub source for full context' },
   { name: 'create-skill', desc: 'Generate new custom skills' },
+  { name: 'devtronic-help', desc: 'Discover skills, agents, addons, and workflows from the IDE' },
 ];
 
 /** Addon skills keyed by addon name */

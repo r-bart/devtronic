@@ -39,8 +39,13 @@ export function writeClaudeSettings(targetDir: string, settings: ClaudeSettings)
   writeFile(settingsPath, JSON.stringify(settings, null, 2));
 }
 
+/** Legacy names from before the project was renamed to devtronic */
+const LEGACY_PLUGIN_NAMES = ['dev-ai', 'ai-agentic'];
+const LEGACY_MARKETPLACE_NAMES = ['dev-ai-local', 'ai-agentic-local'];
+
 /**
  * Registers a local plugin by adding a directory marketplace and enabling the plugin.
+ * Cleans up legacy entries from previous project names.
  * Idempotent — safe to call multiple times.
  */
 export function registerPlugin(
@@ -50,6 +55,20 @@ export function registerPlugin(
   marketplacePath: string
 ): void {
   const settings = readClaudeSettings(targetDir);
+
+  // Clean up legacy marketplaces and plugins
+  if (settings.extraKnownMarketplaces) {
+    for (const legacy of LEGACY_MARKETPLACE_NAMES) {
+      delete settings.extraKnownMarketplaces[legacy];
+    }
+  }
+  if (settings.enabledPlugins) {
+    for (const key of Object.keys(settings.enabledPlugins)) {
+      if (LEGACY_PLUGIN_NAMES.some((lp) => key.startsWith(`${lp}@`))) {
+        delete settings.enabledPlugins[key];
+      }
+    }
+  }
 
   // Add marketplace if not present
   if (!settings.extraKnownMarketplaces) {

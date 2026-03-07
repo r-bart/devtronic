@@ -521,6 +521,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
     'Autonomous Mode'
   );
 
+  p.note(
+    [
+      `${chalk.dim('In Claude Code:')}  ${chalk.cyan('/devtronic-help')} ${chalk.dim('— discover skills, agents, and workflows')}`,
+      `${chalk.dim('From terminal:')}   ${chalk.cyan('npx devtronic list')} ${chalk.dim('— list installed skills and agents')}`,
+    ].join('\n'),
+    'Need Help?'
+  );
+
   p.outro(chalk.green('Setup complete!'));
   } catch (err) {
     spinner.stop('Configuration failed');

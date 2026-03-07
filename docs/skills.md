@@ -759,6 +759,31 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ## Other Skills
 
+### /devtronic-help - In-IDE Discovery
+
+**Purpose**: Discover all available devtronic skills, agents, addons, and workflows without leaving the IDE. A meta-help skill that scans your project's `.claude/skills/`, `.claude/agents/`, and addons dynamically.
+
+**Modes**:
+| Mode | Command | Shows |
+|------|---------|-------|
+| **Default** | `/devtronic-help` | Quick overview with skill categories and "I want to..." table |
+| **Topic** | `/devtronic-help design` | Skills and agents matching a keyword |
+| **Workflows** | `/devtronic-help --workflows` | Full workflow recipes by task type |
+| **Agents** | `/devtronic-help --agents` | All agents with roles and which skills use them |
+| **Addons** | `/devtronic-help --addons` | Installed and available addons |
+| **All** | `/devtronic-help --all` | Full inventory |
+
+**When to use**:
+- First time using devtronic in a project
+- Unsure which skill to use for a task
+- Want to see recommended workflow for a task type
+
+**CLI equivalent**: `npx devtronic list`
+
+**Output**: Display only (no file created)
+
+---
+
 ### /create-skill - Meta Skill Generator
 
 **Purpose**: Conversationally create new custom skills.

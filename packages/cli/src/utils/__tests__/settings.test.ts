@@ -126,6 +126,60 @@ describe('registerPlugin', () => {
     expect(pluginKeys).toHaveLength(1);
   });
 
+  it('cleans up legacy dev-ai entries', () => {
+    mkdirSync(join(tempDir, '.claude'), { recursive: true });
+    writeFileSync(
+      join(tempDir, '.claude', 'settings.json'),
+      JSON.stringify({
+        extraKnownMarketplaces: {
+          'dev-ai-local': {
+            source: { source: 'directory', path: '.claude-plugins' },
+          },
+        },
+        enabledPlugins: { 'dev-ai@dev-ai-local': true },
+      })
+    );
+
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    // Legacy entries removed
+    expect(settings.extraKnownMarketplaces['dev-ai-local']).toBeUndefined();
+    expect(settings.enabledPlugins['dev-ai@dev-ai-local']).toBeUndefined();
+
+    // New entries present
+    expect(settings.extraKnownMarketplaces['devtronic-local']).toBeDefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-local']).toBe(true);
+  });
+
+  it('cleans up legacy ai-agentic entries', () => {
+    mkdirSync(join(tempDir, '.claude'), { recursive: true });
+    writeFileSync(
+      join(tempDir, '.claude', 'settings.json'),
+      JSON.stringify({
+        extraKnownMarketplaces: {
+          'ai-agentic-local': {
+            source: { source: 'directory', path: '.claude-plugins' },
+          },
+        },
+        enabledPlugins: { 'ai-agentic@ai-agentic-local': true },
+      })
+    );
+
+    registerPlugin(tempDir, 'devtronic', 'devtronic-local', '.claude-plugins');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    expect(settings.extraKnownMarketplaces['ai-agentic-local']).toBeUndefined();
+    expect(settings.enabledPlugins['ai-agentic@ai-agentic-local']).toBeUndefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-local']).toBe(true);
+  });
+
   it('does not overwrite user-disabled plugin', () => {
     mkdirSync(join(tempDir, '.claude'), { recursive: true });
     writeFileSync(
