@@ -1,5 +1,5 @@
 ---
-name: devtronic:design-system
+name: design-system
 description: Design system router — delegates to define, audit, or sync based on flag. Manages design tokens, components, and style guide lifecycle.
 allowed-tools: Task, AskUserQuestion
 argument-hint: "[--define|--audit|--sync]"

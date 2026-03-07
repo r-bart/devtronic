@@ -38,21 +38,21 @@ The design phase adds leverage before implementation. A design error (wrong UX) 
 ## The Design-First Workflow
 
 ```
-/devtronic:design --research      →  Understand users and competitive landscape
-/devtronic:design --define        →  Personas, journeys, HMW questions
-/devtronic:design --ia            →  Sitemap, navigation, user flows
-/devtronic:design --wireframe     →  Screen specs (text-based, tool-agnostic)
-/devtronic:design-system --define →  Extract or create design tokens + style guide
+/design --research      →  Understand users and competitive landscape
+/design --define        →  Personas, journeys, HMW questions
+/design --ia            →  Sitemap, navigation, user flows
+/design --wireframe     →  Screen specs (text-based, tool-agnostic)
+/design-system --define →  Extract or create design tokens + style guide
         │
-/devtronic:spec [feature]         →  Define requirements (informed by design)
-/devtronic:create-plan [feature]  →  Implementation phases
-/devtronic:generate-tests         →  Encode acceptance criteria as tests
-/devtronic:execute-plan           →  Implement in parallel phases
+/spec [feature]         →  Define requirements (informed by design)
+/create-plan [feature]  →  Implementation phases
+/generate-tests         →  Encode acceptance criteria as tests
+/execute-plan           →  Implement in parallel phases
         │
-/devtronic:design-review          →  QA implementation vs wireframes + design system
-/devtronic:design-system --audit  →  Check for design drift
-/devtronic:summary [feature]      →  Document what changed
-/devtronic:post-review            →  Final quality verification
+/design-review          →  QA implementation vs wireframes + design system
+/design-system --audit  →  Check for design drift
+/summary [feature]      →  Document what changed
+/post-review            →  Final quality verification
 ```
 
 ---
@@ -60,7 +60,7 @@ The design phase adds leverage before implementation. A design error (wrong UX) 
 ## Phase 0: Orientation
 
 ```
-/devtronic:brief [product or feature name]
+/brief [product or feature name]
 ```
 
 Claude will scan `thoughts/design/`, `thoughts/specs/`, and git for existing design work.
@@ -70,7 +70,7 @@ Claude will scan `thoughts/design/`, `thoughts/specs/`, and git for existing des
 ## Phase 1: Research
 
 ```
-/devtronic:design --research
+/design --research
 ```
 
 Claude will invoke the `ux-researcher` agent to analyze:
@@ -88,7 +88,7 @@ Claude will invoke the `ux-researcher` agent to analyze:
 ## Phase 2: Define
 
 ```
-/devtronic:design --define
+/design --define
 ```
 
 From research, Claude synthesizes:
@@ -103,7 +103,7 @@ From research, Claude synthesizes:
 ## Phase 3: Information Architecture
 
 ```
-/devtronic:design --ia
+/design --ia
 ```
 
 The `ia-architect` agent builds:
@@ -121,7 +121,7 @@ The `ia-architect` agent builds:
 ## Phase 4: Wireframes
 
 ```
-/devtronic:design --wireframe
+/design --wireframe
 ```
 
 Screen-by-screen wireframe specs (text-based, tool-agnostic):
@@ -144,14 +144,14 @@ Header: logo, nav, user avatar + dropdown
 
 **Output**: `thoughts/design/wireframes.md`
 
-These specs drive `/devtronic:design-review` after implementation.
+These specs drive `/design-review` after implementation.
 
 ---
 
 ## Phase 5: Design System
 
 ```
-/devtronic:design-system --define
+/design-system --define
 ```
 
 The `design-token-extractor` agent either:
@@ -187,7 +187,7 @@ radius.lg: 12px
 ### Sync to Config
 
 ```
-/devtronic:design-system --sync
+/design-system --sync
 ```
 
 Propagates tokens to `tailwind.config.ts`, CSS custom properties, or `tokens.json` (auto-detected).
@@ -199,7 +199,7 @@ Propagates tokens to `tailwind.config.ts`, CSS custom properties, or `tokens.jso
 Now that UX is defined, write a technical spec:
 
 ```
-/devtronic:spec [feature]
+/spec [feature]
 ```
 
 The spec will reference design artifacts automatically:
@@ -214,12 +214,12 @@ The spec will reference design artifacts automatically:
 Standard implementation workflow:
 
 ```
-/devtronic:create-plan [feature]
-/devtronic:generate-tests
-/devtronic:execute-plan
+/create-plan [feature]
+/generate-tests
+/execute-plan
 ```
 
-During implementation, `design-system-guardian` monitors for drift (invoked automatically by `/devtronic:post-review`).
+During implementation, `design-system-guardian` monitors for drift (invoked automatically by `/post-review`).
 
 ---
 
@@ -228,7 +228,7 @@ During implementation, `design-system-guardian` monitors for drift (invoked auto
 After implementation:
 
 ```
-/devtronic:design-review
+/design-review
 ```
 
 The `visual-qa` agent compares:
@@ -241,7 +241,7 @@ The `visual-qa` agent compares:
 ### Audit for Drift
 
 ```
-/devtronic:design-system --audit
+/design-system --audit
 ```
 
 The `design-system-guardian` finds hardcoded values, unused tokens, and components bypassing the system.
@@ -259,9 +259,9 @@ thoughts/design/
 ├── ia.md                ← sitemap, flows
 ├── wireframes.md        ← screen specs
 ├── design-system.md     ← tokens (source of truth)
-├── design-system-audit.md  ← drift report (from /devtronic:design-system --audit)
+├── design-system-audit.md  ← drift report (from /design-system --audit)
 ├── audit.md             ← UX heuristics + a11y findings
-└── spec.md              ← developer handoff (from /devtronic:design-spec)
+└── spec.md              ← developer handoff (from /design-spec)
 ```
 
 ---
@@ -273,22 +273,22 @@ You don't have to run everything. Common partial workflows:
 ### Just Wireframes
 
 ```
-/devtronic:design --wireframe
-/devtronic:design-review        (after implementation)
+/design --wireframe
+/design-review        (after implementation)
 ```
 
 ### Just Design System
 
 ```
-/devtronic:design-system --define
-/devtronic:design-system --sync
-/devtronic:design-system --audit  (after implementation)
+/design-system --define
+/design-system --sync
+/design-system --audit  (after implementation)
 ```
 
 ### UX Audit on Existing UI
 
 ```
-/devtronic:design --audit
+/design --audit
 ```
 
 ---
@@ -298,7 +298,7 @@ You don't have to run everything. Common partial workflows:
 1. **Start early** — design artifacts are most valuable before implementation begins
 2. **Tool-agnostic** — skills work without Figma, Paper.design, or any external tool
 3. **Artifacts persist** — `thoughts/design/` survives context clears; reference them in new sessions
-4. **Guardian is always watching** — `/devtronic:post-review` invokes `design-system-guardian` automatically
+4. **Guardian is always watching** — `/post-review` invokes `design-system-guardian` automatically
 5. **Iterate** — re-run any phase when requirements evolve; artifacts update in place
 
 ---

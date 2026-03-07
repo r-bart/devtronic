@@ -7,9 +7,9 @@
   "files": {
     "skills": [
       "design-init",
-      "design-review",
+      "design-critique",
       "design-refine",
-      "design-system",
+      "design-tokens",
       "design-harden"
     ],
     "reference": [

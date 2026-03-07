@@ -1,5 +1,6 @@
 import {
   existsSync,
+  lstatSync,
   readFileSync,
   writeFileSync,
   mkdirSync,
@@ -9,10 +10,10 @@ import {
   rmdirSync,
 } from 'node:fs';
 import { join, dirname } from 'node:path';
-import { createHash } from 'node:crypto';
 import type { AddonName } from '../types.js';
 import { getAddonSourceDir } from '../addons/registry.js';
 import { readAddonConfig } from '../utils/addonConfig.js';
+import { calculateChecksum } from '../utils/files.js';
 
 export interface GenerateResult {
   written: number;
@@ -90,12 +91,13 @@ const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
   },
 };
 
-function checksum(content: string): string {
-  return createHash('sha256').update(content).digest('hex').slice(0, 16);
-}
+// Use shared calculateChecksum from utils/files.ts for consistent hashing
 
 function ensureDir(dir: string): void {
-  if (!existsSync(dir)) mkdirSync(dir, { recursive: true });
+  if (!existsSync(dir)) {
+    try { if (lstatSync(dir).isSymbolicLink()) unlinkSync(dir); } catch { /* no entry */ }
+    mkdirSync(dir, { recursive: true });
+  }
 }
 
 /**
@@ -177,7 +179,7 @@ export function generateAddonFiles(
         ensureDir(dirname(destPath));
         writeFileSync(destPath, content);
         result.written++;
-        result.checksums![relPath] = checksum(content);
+        result.checksums![relPath] = calculateChecksum(content);
       }
       continue;
     }
@@ -204,7 +206,7 @@ export function generateAddonFiles(
       ensureDir(dirname(destPath));
       writeFileSync(destPath, content);
       result.written++;
-      result.checksums![relPath] = checksum(content);
+      result.checksums![relPath] = calculateChecksum(content);
     }
 
     // Install agents to baseDir/agents/[name].md (same across runtimes)
@@ -217,7 +219,7 @@ export function generateAddonFiles(
         ensureDir(dirname(destPath));
         writeFileSync(destPath, content);
         result.written++;
-        result.checksums![`agents/${agentName}.md`] = checksum(content);
+        result.checksums![`agents/${agentName}.md`] = calculateChecksum(content);
       } else {
         result.skipped++;
       }
@@ -234,7 +236,7 @@ export function generateAddonFiles(
           ensureDir(dirname(destPath));
           writeFileSync(destPath, content);
           result.written++;
-          result.checksums![`rules/${rule}`] = checksum(content);
+          result.checksums![`rules/${rule}`] = calculateChecksum(content);
         } else {
           result.skipped++;
         }
@@ -252,7 +254,7 @@ export function generateAddonFiles(
         ensureDir(dirname(destPath));
         writeFileSync(destPath, content);
         result.written++;
-        result.checksums![relPath] = checksum(content);
+        result.checksums![relPath] = calculateChecksum(content);
       } else {
         result.skipped++;
       }
@@ -404,7 +406,7 @@ export function syncAddonFiles(
           continue;
         }
         const existing = readFileSync(destPath, 'utf-8');
-        const existingChecksum = checksum(existing);
+        const existingChecksum = calculateChecksum(existing);
         const originalChecksum = installedChecksums[relPath];
         if (existing === newContent) {
           result.skipped++;
@@ -437,7 +439,7 @@ export function syncAddonFiles(
       }
 
       const existing = readFileSync(destPath, 'utf-8');
-      const existingChecksum = checksum(existing);
+      const existingChecksum = calculateChecksum(existing);
       const originalChecksum = installedChecksums[relPath];
 
       if (existing === newContent) {
@@ -470,7 +472,7 @@ export function syncAddonFiles(
       }
 
       const existing = readFileSync(destPath, 'utf-8');
-      const existingChecksum = checksum(existing);
+      const existingChecksum = calculateChecksum(existing);
       const originalChecksum = installedChecksums[relPath];
 
       if (existing === newContent) {
@@ -504,7 +506,7 @@ export function syncAddonFiles(
         }
 
         const existing = readFileSync(destPath, 'utf-8');
-        const existingChecksum = checksum(existing);
+        const existingChecksum = calculateChecksum(existing);
         const originalChecksum = installedChecksums[relPath];
 
         if (existing === newContent) {
@@ -538,7 +540,7 @@ export function syncAddonFiles(
       }
 
       const existing = readFileSync(destPath, 'utf-8');
-      const existingChecksum = checksum(existing);
+      const existingChecksum = calculateChecksum(existing);
       const originalChecksum = installedChecksums[relPath];
 
       if (existing === newContent) {
@@ -586,7 +588,7 @@ export function detectModifiedAddonFiles(
     for (const [relPath, originalHash] of Object.entries(installedChecksums)) {
       const absPath = join(projectDir, baseDir, relPath);
       if (!existsSync(absPath)) continue;
-      const current = checksum(readFileSync(absPath, 'utf-8'));
+      const current = calculateChecksum(readFileSync(absPath, 'utf-8'));
       if (current !== originalHash) {
         modified.push(relPath);
       }

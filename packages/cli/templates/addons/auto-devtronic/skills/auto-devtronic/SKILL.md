@@ -195,7 +195,7 @@ Comments: <comments>
 Output the brief in the format specified in your instructions.
 ```
 
-The agent outputs a `thoughts/devtronic/brief.md` file with the 3-layer structure:
+The agent outputs a `thoughts/auto-devtronic/brief.md` file with the 3-layer structure:
 
 ```markdown
 # Brief: <issue title>
@@ -255,11 +255,11 @@ the human review gate. Equivalent to running AFK mode for this one step only.
 
 Follow the same process as `/generate-tests`:
 
-Read `thoughts/devtronic/brief.md`, specifically the **Validation** layer, and generate failing tests that encode each acceptance criterion.
+Read `thoughts/auto-devtronic/brief.md`, specifically the **Validation** layer, and generate failing tests that encode each acceptance criterion.
 
 Save to:
 - Test files in the appropriate test directory (detect from project structure)
-- `thoughts/devtronic/tests-manifest.md` — traceability: criterion → test name → file
+- `thoughts/auto-devtronic/tests-manifest.md` — traceability: criterion → test name → file
 
 **Test naming convention**: `[feature].[criterion-slug].test.ts` or follow existing conventions.
 
@@ -293,10 +293,10 @@ Options:
 ## Step 4: Create Plan
 
 Follow the same process as `/create-plan`, using:
-- `thoughts/devtronic/brief.md` as the spec
-- `thoughts/devtronic/tests-manifest.md` as the DoD
+- `thoughts/auto-devtronic/brief.md` as the spec
+- `thoughts/auto-devtronic/tests-manifest.md` as the DoD
 
-Save plan to `thoughts/devtronic/plan.md`.
+Save plan to `thoughts/auto-devtronic/plan.md`.
 
 The plan **must include**:
 - `## Task Dependencies` YAML block (required for parallel execution)
@@ -314,7 +314,7 @@ This is the RALPH core. Runs until tests pass or retries are exhausted.
 attempt     = 1
 max_retries = N (from --max-retries, default 3)
 last_failure = null
-plan_path   = thoughts/devtronic/plan.md
+plan_path   = thoughts/auto-devtronic/plan.md
 ```
 
 ### Loop body
@@ -327,7 +327,7 @@ WHILE attempt <= max_retries:
   Include last_failure context in subagent prompts (if attempt > 1).
 
   ── 5b. Run Quality Checks ──────────────────────────────
-  Invoke the quality-runner agent:
+  Invoke the quality-executor agent:
   "Run all quality checks (typecheck, lint, test)"
 
   ── 5c. Evaluate Result ─────────────────────────────────
@@ -337,7 +337,7 @@ WHILE attempt <= max_retries:
   IF checks fail:
     last_failure = {
       attempt: N,
-      output: <quality-runner output>,
+      output: <quality-executor output>,
       affected_files: <list from git diff>
     }
 
@@ -376,7 +376,7 @@ When retries are exhausted or analyst recommends escalating:
 ## devtronic: Cannot Self-Correct ⚠️
 
 **Attempts**: N / max_retries
-**Last failure**: [quality-runner output summary]
+**Last failure**: [quality-executor output summary]
 
 **Failure analysis**:
 - Root cause: [description]
@@ -536,9 +536,9 @@ git stash list | grep "devtronic" && git stash pop
 | `path/to/file.ts` | Added / Modified |
 
 ### Session artifacts
-- Brief: `thoughts/devtronic/brief.md`
-- Tests manifest: `thoughts/devtronic/tests-manifest.md`
-- Plan: `thoughts/devtronic/plan.md`
+- Brief: `thoughts/auto-devtronic/brief.md`
+- Tests manifest: `thoughts/auto-devtronic/tests-manifest.md`
+- Plan: `thoughts/auto-devtronic/plan.md`
 ```
 
 ---
@@ -608,4 +608,4 @@ If a subagent task fails due to conflicts:
 - **Requires devtronic core skills** — devtronic uses the same logic as `/generate-tests`, `/create-plan`, and `/execute-plan`. Those skills must be installed.
 - **Requires `gh` CLI** — authenticated with repo write access.
 - **AFK is not magic** — it reduces friction, not mistakes. Start with HITL on unfamiliar codebases.
-- **Session artifacts** — all intermediate files are saved to `thoughts/devtronic/`. Do not delete them until the PR is merged.
+- **Session artifacts** — all intermediate files are saved to `thoughts/auto-devtronic/`. Do not delete them until the PR is merged.

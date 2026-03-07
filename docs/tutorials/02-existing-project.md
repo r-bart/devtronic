@@ -160,10 +160,10 @@ thoughts/             # Directory for documents
 ```bash
 # Verify Claude recognizes the skills
 claude
-/help
+/devtronic-help
 ```
 
-You should see the 16 skills listed.
+You should see the installed skills listed.
 
 ---
 
@@ -208,7 +208,7 @@ Then document the conclusions.
 ## Final Verification
 
 ✅ `claude` starts without errors
-✅ `/help` shows the 16 skills
+✅ `/devtronic-help` shows the installed skills
 ✅ AGENTS.md reflects your actual stack
 ✅ `git diff` shows reasonable changes
 ✅ Your existing code was not modified

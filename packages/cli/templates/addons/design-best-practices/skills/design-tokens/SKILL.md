@@ -1,7 +1,9 @@
 ---
-name: design-system
+name: design-tokens
 description: Design system extraction and normalization — find patterns or apply consistent tokens across the codebase
 user-invokable: true
+allowed-tools: Read, Edit, Glob, Grep
+argument-hint: "--mode [extract|normalize]"
 args:
   - name: mode
     description: "Mode: extract (find patterns and tokens) or normalize (apply system consistently)"

@@ -1,5 +1,5 @@
 ---
-name: devtronic:design-research
+name: design-research
 description: Discovery phase — synthesizes competitive analysis, target audience, and business context into a research document.
 allowed-tools: Task, Read, Glob, AskUserQuestion, Write, WebFetch
 argument-hint: "[topic]"

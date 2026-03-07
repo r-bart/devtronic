@@ -177,7 +177,7 @@ describe('backward compatibility', () => {
 });
 
 describe('BASE_SKILL_COUNT', () => {
-  it('is 19', () => {
-    expect(BASE_SKILL_COUNT).toBe(19);
+  it('is 20', () => {
+    expect(BASE_SKILL_COUNT).toBe(20);
   });
 });

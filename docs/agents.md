@@ -10,44 +10,44 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 |-------|-------|------------|---------|
 | error-investigator | haiku | Automatic | Quick error diagnosis |
 | code-reviewer | sonnet | On request | Thorough PR/code review |
-| architecture-checker | sonnet | Delegated by `/devtronic:post-review` | Validate Clean Architecture compliance |
+| architecture-checker | sonnet | Delegated by `/post-review` | Validate Clean Architecture compliance |
 | quality-runner | haiku | Proactive | Run tests, typecheck, and lint |
 | commit-changes | haiku | Delegated by skills | Atomic conventional commits |
 | test-generator | sonnet | On request | Generate unit tests following project patterns |
-| dependency-checker | haiku | Delegated by `/devtronic:audit` | Audit dependencies for vulnerabilities and issues |
+| dependency-checker | haiku | Delegated by `/audit` | Audit dependencies for vulnerabilities and issues |
 | doc-sync | haiku | On request | Verify docs match the actual codebase |
-| afk-task-validator | haiku | Delegated by `/devtronic:validate-task-afk`, `/devtronic --validate` | Score task AFK-readiness, detect quality gaps |
-| ux-researcher | sonnet | Delegated by `/devtronic:design-research`, `/devtronic:design-define` | Synthesize research, personas, user journeys |
-| ia-architect | sonnet | Delegated by `/devtronic:design-ia` | Navigation structure, user flows, sitemaps |
-| design-critic | sonnet | Delegated by `/devtronic:design-audit` | Nielsen's 10 heuristics evaluation |
-| a11y-auditor | haiku | Delegated by `/devtronic:design-audit` | WCAG 2.1 AA compliance checks |
-| design-token-extractor | haiku | Delegated by `/devtronic:design-system` skills | Extract and normalize design tokens |
-| design-system-guardian | haiku | Delegated by `/devtronic:design-system-audit`, `/devtronic:post-review` | Detect design system drift (read-only) |
-| visual-qa | sonnet | Delegated by `/devtronic:design-review` | Compare implementation vs design specs |
+| afk-task-validator | haiku | Delegated by `/validate-task-afk`, `/devtronic --validate` | Score task AFK-readiness, detect quality gaps |
+| ux-researcher | sonnet | Delegated by `/design-research`, `/design-define` | Synthesize research, personas, user journeys |
+| ia-architect | sonnet | Delegated by `/design-ia` | Navigation structure, user flows, sitemaps |
+| design-critic | sonnet | Delegated by `/design-audit` | Nielsen's 10 heuristics evaluation |
+| a11y-auditor | haiku | Delegated by `/design-audit` | WCAG 2.1 AA compliance checks |
+| design-token-extractor | haiku | Delegated by `/design-system` skills | Extract and normalize design tokens |
+| design-system-guardian | haiku | Delegated by `/design-system-audit`, `/post-review` | Detect design system drift (read-only) |
+| visual-qa | sonnet | Delegated by `/design-review` | Compare implementation vs design specs |
 
 ### Invocation Map
 
 Which skills delegate to which agents:
 
 ```
-/devtronic:execute-plan  ──→  commit-changes        (after each phase passes quality checks)
-/devtronic:quick         ──→  commit-changes        (step 5: commit)
-/devtronic:audit         ──→  dependency-checker    (--security mode: dependency health)
-/devtronic:post-review   ──→  architecture-checker  (architecture compliance check)
-/devtronic:validate-task-afk ──→  afk-task-validator    (score + gap analysis)
-/devtronic               ──→  afk-task-validator    (--validate flag: step 0)
-                     ──→  issue-parser          (brief extraction)
-                     ──→  failure-analyst       (failure diagnosis in execute loop)
-                     ──→  quality-runner        (quality checks per loop iteration)
-/devtronic:design-research  ──→  ux-researcher         (competitive analysis, persona generation)
-/devtronic:design-define  ──→  ux-researcher         (personas, journeys, HMW questions)
-/devtronic:design-ia      ──→  ia-architect          (sitemap, navigation model, user flows)
-/devtronic:design-audit   ──→  design-critic         (Nielsen's 10 heuristics)
+/execute-plan  ──→  commit-changes        (after each phase passes quality checks)
+/quick         ──→  commit-changes        (step 5: commit)
+/audit         ──→  dependency-checker    (--security mode: dependency health)
+/post-review   ──→  architecture-checker  (architecture compliance check)
+/validate-task-afk ──→  afk-task-validator    (score + gap analysis)
+/devtronic (addon)        ──→  afk-task-validator    (--validate flag: step 0)
+                     ──→  issue-parser          (addon: brief extraction)
+                     ──→  failure-analyst       (addon: failure diagnosis in execute loop)
+                     ──→  quality-executor      (addon: quality checks per loop iteration)
+/design-research  ──→  ux-researcher         (competitive analysis, persona generation)
+/design-define  ──→  ux-researcher         (personas, journeys, HMW questions)
+/design-ia      ──→  ia-architect          (sitemap, navigation model, user flows)
+/design-audit   ──→  design-critic         (Nielsen's 10 heuristics)
                      ──→  a11y-auditor          (WCAG 2.1 AA checks)
-/devtronic:design-system-*  ──→  design-token-extractor (extract and normalize tokens)
-/devtronic:design-system-audit ──→  design-system-guardian (drift detection)
-/devtronic:design-review  ──→  visual-qa             (implementation vs spec comparison)
-/devtronic:post-review   ──→  design-system-guardian (design system compliance on changed files)
+/design-system-*  ──→  design-token-extractor (extract and normalize tokens)
+/design-system-audit ──→  design-system-guardian (drift detection)
+/design-review  ──→  visual-qa             (implementation vs spec comparison)
+/post-review   ──→  design-system-guardian (design system compliance on changed files)
 ```
 
 Standalone agents (invoked by Claude or user directly):
@@ -314,7 +314,7 @@ Then for each file:
 ### When Invoked
 
 Delegated by skills:
-- **`/devtronic:post-review`** — runs architecture compliance check on changed files
+- **`/post-review`** — runs architecture compliance check on changed files
 
 Also invoked directly when:
 - User asks to "check architecture" or "validate layer boundaries"
@@ -480,8 +480,8 @@ Focuses on actionable information. Does not dump full output unless specifically
 ### When Invoked
 
 Primarily delegated by skills:
-- **`/devtronic:execute-plan`** — after each phase passes quality checks
-- **`/devtronic:quick`** — step 5, after implementation and verification
+- **`/execute-plan`** — after each phase passes quality checks
+- **`/quick`** — step 5, after implementation and verification
 
 Also invoked directly when:
 - The user says "commit these changes"
@@ -756,7 +756,7 @@ Files needing updates:
 ### When Invoked
 
 Delegated by:
-- **`/devtronic:validate-task-afk`** — standalone pre-flight validation
+- **`/validate-task-afk`** — standalone pre-flight validation
 - **`/devtronic --validate`** — inline validation as step 0 of the pipeline
 
 ### Scoring Dimensions
@@ -830,8 +830,8 @@ None — ready to proceed!
 ### When Invoked
 
 Delegated by:
-- **`/devtronic:design-research`** — competitive analysis and research synthesis
-- **`/devtronic:design-define`** — persona generation and user journey mapping
+- **`/design-research`** — competitive analysis and research synthesis
+- **`/design-define`** — persona generation and user journey mapping
 
 ### Capabilities
 
@@ -858,7 +858,7 @@ Delegated by:
 
 ### When Invoked
 
-Delegated by **`/devtronic:design-ia`** with personas, journeys, and functional scope as input.
+Delegated by **`/design-ia`** with personas, journeys, and functional scope as input.
 
 ### Capabilities
 
@@ -884,7 +884,7 @@ Delegated by **`/devtronic:design-ia`** with personas, journeys, and functional 
 
 ### When Invoked
 
-Delegated by **`/devtronic:design-audit`** with wireframe text, screen descriptions, or UI code as input.
+Delegated by **`/design-audit`** with wireframe text, screen descriptions, or UI code as input.
 
 ### The 10 Heuristics Checked
 
@@ -924,7 +924,7 @@ Severity: ❌ blocker = must fix before launch, ⚠️ warning = should fix, �
 
 ### When Invoked
 
-Delegated by **`/devtronic:design-audit`** with HTML/JSX/CSS source files or wireframe text descriptions.
+Delegated by **`/design-audit`** with HTML/JSX/CSS source files or wireframe text descriptions.
 
 ### Checks Performed
 
@@ -954,7 +954,7 @@ Delegated by **`/devtronic:design-audit`** with HTML/JSX/CSS source files or wir
 
 ### When Invoked
 
-Delegated by `/devtronic:design-system-define`, `/devtronic:design-system-sync`, `/devtronic:design-system-audit`.
+Delegated by `/design-system-define`, `/design-system-sync`, `/design-system-audit`.
 
 ### Supported Sources
 
@@ -988,8 +988,8 @@ Examples:
 ### When Invoked
 
 Delegated by:
-- **`/devtronic:design-system-audit`** — full codebase scan
-- **`/devtronic:post-review`** — check files modified in current branch
+- **`/design-system-audit`** — full codebase scan
+- **`/post-review`** — check files modified in current branch
 
 ### Checks Performed
 
@@ -997,7 +997,7 @@ Delegated by:
 2. **Hardcoded Spacing** — numeric px/rem values where spacing tokens exist
 3. **Token Coverage** — components in design system that aren't implemented in code
 
-Requires `thoughts/design/design-system.md` to exist. If missing, reports: "No design system found. Run `/devtronic:design-system --define` first."
+Requires `thoughts/design/design-system.md` to exist. If missing, reports: "No design system found. Run `/design-system --define` first."
 
 ### Output Format
 
@@ -1031,7 +1031,7 @@ Compliance rate: X%
 
 ### When Invoked
 
-Delegated by **`/devtronic:design-review`** with wireframe spec sections and implementation files (and optionally screenshot paths).
+Delegated by **`/design-review`** with wireframe spec sections and implementation files (and optionally screenshot paths).
 
 ### Comparison Method
 

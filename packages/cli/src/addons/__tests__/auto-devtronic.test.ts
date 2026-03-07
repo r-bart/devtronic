@@ -32,9 +32,9 @@ describe('auto-devtronic addon structure', () => {
     expect(manifest.files.skills).toEqual(['auto-devtronic']);
   });
 
-  it('manifest declares all 3 agents', () => {
+  it('manifest declares all 4 agents', () => {
     const manifest = JSON.parse(readFileSync(join(ADDON_ROOT, 'manifest.json'), 'utf-8'));
-    expect(manifest.files.agents).toEqual(['issue-parser', 'failure-analyst', 'quality-runner']);
+    expect(manifest.files.agents).toEqual(['issue-parser', 'failure-analyst', 'quality-executor', 'afk-task-validator']);
   });
 });
 
@@ -85,7 +85,7 @@ describe('auto-devtronic skill file', () => {
 // ─── Suite 3: Agent Files ────────────────────────────────────────────────────
 
 describe('auto-devtronic agent files', () => {
-  const agents = ['issue-parser', 'failure-analyst', 'quality-runner'];
+  const agents = ['issue-parser', 'failure-analyst', 'quality-executor'];
 
   for (const agent of agents) {
     it(`${agent}.md exists`, () => {
@@ -104,8 +104,8 @@ describe('auto-devtronic agent files', () => {
     expect(content).toContain('model: haiku');
   });
 
-  it('quality-runner uses haiku model', () => {
-    const content = readFileSync(join(ADDON_ROOT, 'agents', 'quality-runner.md'), 'utf-8');
+  it('quality-executor uses haiku model', () => {
+    const content = readFileSync(join(ADDON_ROOT, 'agents', 'quality-executor.md'), 'utf-8');
     expect(content).toContain('model: haiku');
   });
 
@@ -114,8 +114,8 @@ describe('auto-devtronic agent files', () => {
     expect(content).toMatch(/never suggest.*any|never.*@ts-ignore|Never suggest `any` or `@ts-ignore`/i);
   });
 
-  it('quality-runner output format includes Overall status', () => {
-    const content = readFileSync(join(ADDON_ROOT, 'agents', 'quality-runner.md'), 'utf-8');
+  it('quality-executor output format includes Overall status', () => {
+    const content = readFileSync(join(ADDON_ROOT, 'agents', 'quality-executor.md'), 'utf-8');
     expect(content).toMatch(/Overall/);
   });
 });

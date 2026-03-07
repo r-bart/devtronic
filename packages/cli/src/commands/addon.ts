@@ -115,13 +115,13 @@ async function addAddon(
     [
       `  ${chalk.dim('Name:')}        ${addon.label}`,
       `  ${chalk.dim('Description:')} ${addon.description}`,
-      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.cyan(`/devtronic:${s}`)).join(', ')}`,
+      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.cyan(`/${s}`)).join(', ')}`,
       `  ${chalk.dim('Subagents:')}   ${addon.agents.length ? addon.agents.join(', ') : chalk.dim('—')}`,
     ].join('\n'),
     'Adding addon'
   );
 
-  const confirmed = await p.confirm({ message: 'Add this addon?' });
+  const confirmed = await p.confirm({ message: `Add ${addonName}?` });
   if (p.isCancel(confirmed) || !confirmed) {
     p.cancel('Addon installation cancelled.');
     process.exit(0);
@@ -168,7 +168,7 @@ async function addAddon(
   spinner.stop(`${symbols.pass} ${addon.label} added`);
 
   p.note(
-    addon.skills.map((s) => `  ${chalk.cyan(`/devtronic:${s}`)}`).join('\n'),
+    addon.skills.map((s) => `  ${chalk.cyan(`/${s}`)}`).join('\n'),
     'New skills available'
   );
 
@@ -194,13 +194,13 @@ async function removeAddon(
     [
       `  ${chalk.dim('Name:')}        ${addon.label}`,
       `  ${chalk.dim('Description:')} ${addon.description}`,
-      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.dim(`/devtronic:${s}`)).join(', ')}`,
+      `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.dim(`/${s}`)).join(', ')}`,
       `  ${chalk.dim('Subagents:')}   ${addon.agents.length ? addon.agents.join(', ') : chalk.dim('—')}`,
     ].join('\n'),
     'Removing addon'
   );
 
-  const confirmed = await p.confirm({ message: 'Remove this addon?' });
+  const confirmed = await p.confirm({ message: `Remove ${addonName}?` });
   if (p.isCancel(confirmed) || !confirmed) {
     p.cancel('Addon removal cancelled.');
     process.exit(0);
@@ -270,7 +270,7 @@ async function removeAddon(
   spinner.stop(`${symbols.pass} ${addon.label} removed`);
 
   p.note(
-    addon.skills.map((s) => `  ${chalk.dim(`/devtronic:${s}`)}`).join('\n'),
+    addon.skills.map((s) => `  ${chalk.dim(`/${s}`)}`).join('\n'),
     'Skills removed'
   );
 
@@ -306,7 +306,7 @@ async function addFileBasedAddon(
     'Adding addon'
   );
 
-  const confirmed = await p.confirm({ message: 'Add this addon?' });
+  const confirmed = await p.confirm({ message: `Add ${addonName}?` });
   if (p.isCancel(confirmed) || !confirmed) {
     p.cancel('Addon installation cancelled.');
     process.exit(0);

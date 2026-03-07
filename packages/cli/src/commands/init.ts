@@ -490,7 +490,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     p.note(
       [
         `  Name:   ${chalk.cyan(PLUGIN_NAME)} at ${PLUGIN_DIR}/${PLUGIN_NAME}/`,
-        `  Skills: /devtronic:brief, /devtronic:spec, /devtronic:research, ...`,
+        `  Skills: /brief, /spec, /research, ... (auto-namespaced in plugin mode)`,
         `  Hooks:  SessionStart, PostToolUse, Stop, SubagentStop, PreCompact`,
       ].join('\n'),
       'Plugin Installed'
@@ -519,6 +519,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
       `${chalk.dim('Change anytime:')} ${chalk.cyan('npx devtronic mode afk')}`,
     ].join('\n'),
     'Autonomous Mode'
+  );
+
+  p.note(
+    [
+      `${chalk.dim('In Claude Code:')}  ${chalk.cyan('/devtronic-help')} ${chalk.dim('— discover skills, agents, and workflows')}`,
+      `${chalk.dim('From terminal:')}   ${chalk.cyan('npx devtronic list')} ${chalk.dim('— list installed skills and agents')}`,
+    ].join('\n'),
+    'Need Help?'
   );
 
   p.outro(chalk.green('Setup complete!'));

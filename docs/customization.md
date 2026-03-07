@@ -453,7 +453,7 @@ devtronic ships three optional addon packs. You can select them during `init` or
 | Addon | Type | Skills | Description |
 |-------|------|--------|-------------|
 | `orchestration` | Plugin-mode | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation |
-| `design-best-practices` | File-mode | `design-init`, `design-review`, `design-refine`, `design-system`, `design-harden` | Frontend design quality: typography, color, layout, accessibility |
+| `design-best-practices` | File-mode | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | Frontend design quality: typography, color, layout, accessibility |
 | `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | Autonomous engineering loop — spec → tests → plan → implement → PR |
 
 ### Enabling Addons
@@ -464,7 +464,7 @@ The init wizard shows a multiselect after IDE selection:
 ```
 ◆ Enable optional addon packs? (space to toggle, enter to confirm)
   ○ Orchestration — briefing, recap, handoff
-  ○ Design Best Practices — design-init, design-review, design-refine, design-system, design-harden
+  ○ Design Best Practices — design-init, design-critique, design-refine, design-tokens, design-harden
   ○ Auto-devtronic — auto-devtronic, validate-task-afk
 ```
 
@@ -484,8 +484,8 @@ npx devtronic addon disable design-best-practices # Uninstall
 
 **File-mode addons** (`design-best-practices`, `auto-devtronic`) install into your agent directories and are tracked in `devtronic.json`:
 
-When you run `devtronic addon enable design-best-practices`, the CLI:
-1. Copies skill files to `.claude/skills/design-init/`, `.claude/skills/design-review/`, etc.
+When you run `devtronic addon add design-best-practices`, the CLI:
+1. Copies skill files to `.claude/skills/design-init/`, `.claude/skills/design-critique/`, etc.
 2. Copies rule files to `.claude/rules/design-quality.md`
 3. Copies reference docs to `.claude/skills/design-harden/reference/`
 4. Records installed files and checksums in `devtronic.json`

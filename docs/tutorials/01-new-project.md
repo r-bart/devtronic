@@ -38,7 +38,7 @@ claude
 
 ---
 
-## Step 3: Run /devtronic:scaffold
+## Step 3: Run /scaffold
 
 ```
 /scaffold
@@ -82,7 +82,7 @@ You: 1
 
 ## Step 4: Review the Generated Structure
 
-After `/devtronic:scaffold`, you'll have:
+After `/scaffold`, you'll have:
 
 ```
 my-project/
@@ -215,4 +215,4 @@ This is normal - the scaffold creates empty structure. Errors will resolve when 
 
 1. **Don't modify the initial structure** until you understand why it's like that
 2. **Read docs/ARCHITECTURE.md** if it was generated - explains the decisions
-3. **Use `/devtronic:brief`** at the start of each session to get oriented
+3. **Use `/brief`** at the start of each session to get oriented

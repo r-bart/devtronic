@@ -89,7 +89,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (shouldMigrate) {
     p.note(
       'Claude Code skills/agents detected as standalone.\n' +
-        'The new version uses plugin mode (namespace devtronic:).',
+        'The new version uses plugin mode. Skills are auto-namespaced in plugin mode.',
       'Migration Available'
     );
 
@@ -837,7 +837,7 @@ async function migrateToPlugin(
   }
   p.note(
     `  Plugin: ${chalk.cyan('devtronic')} at .claude-plugins/devtronic/\n` +
-      `  Skills: /devtronic:brief, /devtronic:spec, ...\n` +
+      `  Skills: /brief, /spec, ... (auto-namespaced in plugin mode)\n` +
       `  Hooks: 5 workflow hooks enabled`,
     'Plugin Generated'
   );

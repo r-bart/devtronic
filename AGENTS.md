@@ -1,167 +1,59 @@
-# AI Agents Guide
+# Project
 
-**For AI agents working on this codebase.** Keep this concise - only include what Claude can't deduce from code.
+Project project with Flat architecture.
 
----
+## Commands
 
-## Quick Start
+- **Dev**: `# Add your dev command`
+- **Build**: `# Add your build command`
+- **Quality**: `# No quality scripts detected - add your commands here`
 
-> **Tip**: For parallel work, use git worktrees. See `docs/worktrees.md`.
+Run quality checks after every change.
 
-1. Read `CLAUDE.md` for project-specific rules
-2. Check existing patterns before creating new ones
-3. Follow: brief → spec → create-plan → generate-tests → execute-plan → summary → post-review
-
----
-
-## Architecture: Clean + DDD
-
-**See `docs/ARCHITECTURE.md`** for project-specific structure.
-
-### Layer Rule
-
-```
-Presentation → Application → Domain ← Infrastructure
-```
-
-**Dependencies point INWARD only.** Inner layers know nothing about outer layers.
-
-### Quick Reference
-
-| Layer | Contains | Can Import From |
-|-------|----------|-----------------|
-| Domain | Entities, Value Objects, Repository Interfaces | Nothing external |
-| Application | Use Cases, DTOs | Domain |
-| Infrastructure | Repository Impls, External Services | Domain, Application |
-| Presentation | UI, Controllers | Application, Domain |
-
-### Common Violations
-
-```typescript
-// ❌ Domain importing infrastructure
-import { prisma } from '../infrastructure/db'
-
-// ❌ UI accessing DB directly
-const user = await db.user.findUnique(...)
-
-// ✅ UI calls use case, use case uses repository interface
-const user = await getUserUseCase.execute(id)
-```
-
----
-
-## Code Patterns
-
-### State Management
-- **UI state**: Zustand stores
-- **Server state**: React Query
-- **Domain state**: Use cases
-
-### Data Access
-- Repository interfaces in `domain/`
-- Implementations in `infrastructure/`
-- Never access DB from UI
-
----
-
-## Naming
+## Code Style
 
 - **Files**: PascalCase components, camelCase utils
 - **Code**: camelCase vars/functions, PascalCase types
 - **Unused**: Prefix with `_`
 
----
+## Code Patterns
 
-## Quality Checks
+- Never access DB from UI
 
-```bash
-npm run typecheck && npm run lint && npm test
-```
+## Architecture
 
-Run after every change.
-
----
+Document your architecture patterns. See `docs/ARCHITECTURE.md` for detailed structure.
 
 ## Workflow
 
-| Task | Commands |
-|------|----------|
-| New feature | `/devtronic:brief` → `/devtronic:spec` → `/devtronic:create-plan` → `/devtronic:generate-tests` → `/devtronic:execute-plan` → `/devtronic:summary` → `/devtronic:post-review` |
-| Design (new) | `/devtronic:brief` → `/devtronic:design --research` → `/devtronic:design --define` → `/devtronic:design --ia` → `/devtronic:design --wireframe` → `/devtronic:design-system --define` → `/devtronic:spec` → `/devtronic:create-plan` → `/devtronic:generate-tests` → `/devtronic:execute-plan` → `/devtronic:design-review` → `/devtronic:post-review` |
-| Bug fix | `/devtronic:brief` → fix → test → `/devtronic:summary` → `/devtronic:post-review` |
-| Refactor | `/devtronic:brief` → `/devtronic:create-plan` → implement → `/devtronic:summary` → `/devtronic:post-review` |
+- **New feature**: `/briefing` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/recap`
+- **Bug fix**: `/brief` → fix → test → `/summary`
+- **Session start**: `/brief` for orientation
+- **Session end**: `/handoff` for clean context rotation
 
-> **Tip**: `/devtronic:brief` for session orientation (with pre-flight checks). `/devtronic:summary` to document changes. `/devtronic:checkpoint` to save progress.
+## Available Skills
 
----
-
-## Model Profiles
-
-Configure in `thoughts/CONFIG.md`:
-```
-profile: balanced
-```
-Options: `quality` (all opus), `balanced` (default, sonnet subagents), `budget` (all haiku).
-
----
-
-## Self-Improvement
-
-**After every significant correction**, update this file:
-
-```
-"Update CLAUDE.md so you don't make that mistake again."
-```
-
-Claude is good at writing rules for itself. Iterate until mistake rate drops.
-
----
-
-## Project Notes
-
-Maintain notes in `thoughts/notes/` updated after every PR:
-- Key decisions made
-- Patterns discovered
-- Gotchas encountered
-
----
-
-## Open Source
-
-This is an **open source project** (MIT) published to npm:
-- `devtronic` (CLI) — `packages/cli/`
-
-### Conventions
-- Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `ci:`
-- Semantic Versioning via Keep a Changelog
-- Branches: `develop` → `main` via PR
-- CI: GitHub Actions (Node 18/20/22)
-- Security: report via GitHub Security Advisories (`SECURITY.md`)
-- Release: tag `v*.*.*` → GitHub Actions publishes to npm
-- **Never include `Co-Authored-By:` lines in commit messages**
-
-### Contributing Philosophy
-- Encourage **extending via skills/plugins** over core PRs
-- PRs for: bug fixes, structural improvements, docs, CI
-- Feature ideas → standalone skills or plugins
-
----
-
-## Prompting Tips
-
-When stuck or getting mediocre results:
-- **Re-plan**: "Enter plan mode and re-plan this approach"
-- **Elegant fix**: "Knowing everything you know now, scrap this and implement the elegant solution" - Use after multiple iterations leave working but hacky code. Leverages full context of failed approaches and discovered constraints.
-- **Challenge**: "Grill me on these changes and don't approve until I pass"
-- **Prove it**: "Prove to me this works by diffing behavior between main and this branch"
-
----
-
-## References
-
-- **CLAUDE.md** - Project rules
-- **docs/ARCHITECTURE.md** - Folder structure
-- **docs/worktrees.md** - Parallel sessions with git worktrees
-- **docs/design-phase.md** - Design phase skills and agents guide
-- **.claude/skills/** - Available workflows
-- **.claude/agents/** - Specialized helpers
+- `/brief` — Session orientation with pre-flight checks
+- `/spec` — Product specification interview (PRD)
+- `/research` — Codebase investigation (--deep, --external)
+- `/create-plan` — Phased implementation plan with task dependencies
+- `/execute-plan` — Parallel phase execution of plans
+- `/quick` — Fast ad-hoc tasks: implement, verify, commit
+- `/generate-tests` — Failing tests from spec (Tests-as-DoD)
+- `/post-review` — Pre-PR review (architecture, quality, requirements)
+- `/audit` — Codebase audit (security, complexity, architecture)
+- `/summary` — Post-change documentation
+- `/checkpoint` — Save session progress for resumption
+- `/backlog` — Issue management with BACK-### IDs
+- `/investigate` — Deep error and bug analysis
+- `/learn` — Post-task teaching breakdown
+- `/scaffold` — Create new projects from scratch
+- `/setup` — Interactive project configuration
+- `/worktree` — Git worktree management
+- `/opensrc` — Fetch npm/GitHub source for full context
+- `/create-skill` — Generate new custom skills
+- `/devtronic-help` — Discover skills, agents, addons, and workflows from the IDE
+- `/briefing` — Pre-planning alignment Q&A
+- `/recap` — Quick session summary from git activity
+- `/handoff` — Context rotation for fresh sessions
+- `/devtronic` — Autonomous engineering loop — spec→test→plan→execute→PR

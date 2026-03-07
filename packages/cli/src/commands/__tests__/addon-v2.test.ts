@@ -117,7 +117,7 @@ describe('addon add command', () => {
     const installed = config.installed['design-best-practices'];
     expect(installed.checksums).toBeDefined();
     expect(Object.keys(installed.checksums).length).toBeGreaterThan(0);
-    expect(installed.checksums['skills/design-init/SKILL.md']).toMatch(/^[0-9a-f]{16}$/);
+    expect(installed.checksums['skills/design-init/SKILL.md']).toMatch(/^[0-9a-f]{32}$/);
   });
 
   it('should use manifest version (not hardcoded 1.0.0) in config after install', async () => {
@@ -254,12 +254,13 @@ describe('addon list command', () => {
 // ─── auto-devtronic addon ───────────────────────────────────────────────────
 
 describe('auto-devtronic addon', () => {
-  it('should install skill and all 3 agents', async () => {
+  it('should install skill and all 4 agents', async () => {
     await addonCommand('add', 'auto-devtronic', { path: tempDir });
     expect(existsSync(join(tempDir, '.claude', 'skills', 'auto-devtronic', 'SKILL.md'))).toBe(true);
     expect(existsSync(join(tempDir, '.claude', 'agents', 'issue-parser.md'))).toBe(true);
     expect(existsSync(join(tempDir, '.claude', 'agents', 'failure-analyst.md'))).toBe(true);
-    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-runner.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-executor.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'afk-task-validator.md'))).toBe(true);
   });
 
   it('should persist agents in fileList of devtronic.json after install', async () => {
@@ -268,7 +269,7 @@ describe('auto-devtronic addon', () => {
     const installed = config.installed['auto-devtronic'];
     expect(installed.files).toContain('agents/issue-parser.md');
     expect(installed.files).toContain('agents/failure-analyst.md');
-    expect(installed.files).toContain('agents/quality-runner.md');
+    expect(installed.files).toContain('agents/quality-executor.md');
   });
 
   it('should remove skill and agents on remove', async () => {
@@ -276,7 +277,7 @@ describe('auto-devtronic addon', () => {
     await addonCommand('remove', 'auto-devtronic', { path: tempDir });
     expect(existsSync(join(tempDir, '.claude', 'skills', 'auto-devtronic'))).toBe(false);
     expect(existsSync(join(tempDir, '.claude', 'agents', 'issue-parser.md'))).toBe(false);
-    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-runner.md'))).toBe(false);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-executor.md'))).toBe(false);
   });
 });
 

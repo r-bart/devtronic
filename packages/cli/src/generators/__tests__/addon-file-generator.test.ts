@@ -32,7 +32,7 @@ beforeEach(() => {
   const rulesDir = join(addonSourceDir, 'rules');
 
   // Skills
-  for (const skill of ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden']) {
+  for (const skill of ['design-init', 'design-critique', 'design-refine', 'design-tokens', 'design-harden']) {
     mkdirSync(join(skillsDir, skill), { recursive: true });
     writeFileSync(join(skillsDir, skill, 'SKILL.md'), `# ${skill}\nTest content for ${skill}`);
   }
@@ -65,7 +65,7 @@ beforeEach(() => {
       license: 'MIT',
       attribution: 'Reference docs derived from Anthropic frontend-design skill (Apache 2.0).',
       files: {
-        skills: ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'],
+        skills: ['design-init', 'design-critique', 'design-refine', 'design-tokens', 'design-harden'],
         reference: [
           'typography.md',
           'color-and-contrast.md',
@@ -94,9 +94,9 @@ describe('Agent file generation — single agent', () => {
     mkdirSync(projectDir);
     generateAddonFiles(projectDir, addonSourceDir, ['claude']);
     expect(existsSync(join(projectDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true);
-    expect(existsSync(join(projectDir, '.claude', 'skills', 'design-review', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(projectDir, '.claude', 'skills', 'design-critique', 'SKILL.md'))).toBe(true);
     expect(existsSync(join(projectDir, '.claude', 'skills', 'design-refine', 'SKILL.md'))).toBe(true);
-    expect(existsSync(join(projectDir, '.claude', 'skills', 'design-system', 'SKILL.md'))).toBe(true);
+    expect(existsSync(join(projectDir, '.claude', 'skills', 'design-tokens', 'SKILL.md'))).toBe(true);
     expect(existsSync(join(projectDir, '.claude', 'skills', 'design-harden', 'SKILL.md'))).toBe(true);
   });
 
@@ -147,7 +147,7 @@ describe('Agent file generation — single agent', () => {
     expect(result.checksums).toBeDefined();
     expect(Object.keys(result.checksums!).length).toBeGreaterThan(0);
     for (const hash of Object.values(result.checksums!)) {
-      expect(hash).toMatch(/^[0-9a-f]{16}$/);
+      expect(hash).toMatch(/^[0-9a-f]{32}$/);
     }
     expect(result.checksums!['skills/design-init/SKILL.md']).toBeDefined();
   });
@@ -369,7 +369,7 @@ describe('Addon file generation — with agents', () => {
 
   it('should include agent files in checksums', () => {
     const result = generateAddonFiles(agentProjectDir, agentAddonSourceDir, ['claude']);
-    expect(result.checksums!['agents/test-agent.md']).toMatch(/^[0-9a-f]{16}$/);
+    expect(result.checksums!['agents/test-agent.md']).toMatch(/^[0-9a-f]{32}$/);
   });
 });
 
