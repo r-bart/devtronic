@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.6] - 2026-03-07
+
+### Added
+
+- **`/devtronic-help` skill** — in-IDE discovery of all skills, agents, addons, and workflows. 5 modes: default overview, topic search, `--workflows`, `--agents`, `--addons`, `--all`. Scans installed assets dynamically.
+- **Post-install "Need Help?" message** — CLI `init` now shows `/devtronic-help` (in IDE) and `npx devtronic list` (from terminal) after installation.
+- **`afk-task-validator` addon agent** — validates GitHub issues for AFK-readiness with viability scoring.
+
+### Fixed
+
+- **Legacy settings preventing plugin discovery** — projects installed under previous names (`dev-ai`, `ai-agentic`) had stale entries in `.claude/settings.json` that prevented Claude Code from finding the plugin. `registerPlugin()` now cleans up legacy marketplace and plugin entries automatically.
+- **Skill naming collisions** — addon `design-review` → `design-critique`, `design-system` → `design-tokens`, `quality-runner` → `quality-executor` to avoid collision with core skills/agents.
+- **Stale `devtronic:` namespace prefix** — removed invalid `devtronic:` prefix from all 34 SKILL.md `name` fields and CORE_SKILLS registry.
+- **Stale skill counts in docs** — updated 19 → 20 core skills across README, npm README, docs/skills.md, docs/plugins.md, docs/cli-reference.md, and tutorials.
+
+---
+
 ## [1.2.5] - 2026-03-07
 
 ### Fixed
