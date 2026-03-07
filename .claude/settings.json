@@ -70,5 +70,16 @@
         ]
       }
     ]
+  },
+  "extraKnownMarketplaces": {
+    "devtronic-local": {
+      "source": {
+        "source": "directory",
+        "path": ".claude-plugins"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "devtronic@devtronic-local": true
   }
 }

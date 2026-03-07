@@ -182,10 +182,11 @@ describe('getAddonManifest', () => {
     const manifest = getAddonManifest('auto-devtronic');
     expect(manifest.name).toBe('auto-devtronic');
     expect(manifest.files.agents).toBeDefined();
-    expect(manifest.files.agents!.length).toBe(3);
+    expect(manifest.files.agents!.length).toBe(4);
     expect(manifest.files.agents).toContain('issue-parser');
     expect(manifest.files.agents).toContain('failure-analyst');
     expect(manifest.files.agents).toContain('quality-executor');
+    expect(manifest.files.agents).toContain('afk-task-validator');
   });
 
   it('should return attribution for design-best-practices', () => {

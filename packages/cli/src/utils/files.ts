@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync, mkdirSync, cpSync, readdirSync } from 'node:fs';
+import { existsSync, lstatSync, readFileSync, writeFileSync, mkdirSync, unlinkSync, cpSync, readdirSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
 import type { Manifest, ManifestFile } from '../types.js';
 
@@ -16,9 +16,7 @@ export function readFile(path: string): string {
 
 export function writeFile(path: string, content: string): void {
   const dir = dirname(path);
-  if (!existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
+  ensureDir(dir);
   writeFileSync(path, content, 'utf-8');
 }
 
@@ -28,6 +26,9 @@ export function copyDir(src: string, dest: string): void {
 
 export function ensureDir(path: string): void {
   if (!existsSync(path)) {
+    // Remove broken symlinks that block mkdir (existsSync follows symlinks,
+    // so a broken symlink returns false but the entry still occupies the path)
+    try { if (lstatSync(path).isSymbolicLink()) unlinkSync(path); } catch { /* no entry */ }
     mkdirSync(path, { recursive: true });
   }
 }

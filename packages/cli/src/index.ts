@@ -189,7 +189,7 @@ program
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (mode, options) => {
     if (!['afk', 'hitl', 'show'].includes(mode)) {
-      console.error(`Invalid mode: "${mode}". Valid values: afk, hitl, show`);
+      p.cancel(`Invalid mode: "${mode}". Valid values: afk, hitl, show`);
       process.exit(1);
     }
     await modeCommand(mode as 'afk' | 'hitl' | 'show', { path: options.path });

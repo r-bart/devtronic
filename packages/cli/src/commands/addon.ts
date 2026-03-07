@@ -121,7 +121,7 @@ async function addAddon(
     'Adding addon'
   );
 
-  const confirmed = await p.confirm({ message: 'Add this addon?' });
+  const confirmed = await p.confirm({ message: `Add ${addonName}?` });
   if (p.isCancel(confirmed) || !confirmed) {
     p.cancel('Addon installation cancelled.');
     process.exit(0);
@@ -200,7 +200,7 @@ async function removeAddon(
     'Removing addon'
   );
 
-  const confirmed = await p.confirm({ message: 'Remove this addon?' });
+  const confirmed = await p.confirm({ message: `Remove ${addonName}?` });
   if (p.isCancel(confirmed) || !confirmed) {
     p.cancel('Addon removal cancelled.');
     process.exit(0);
@@ -306,7 +306,7 @@ async function addFileBasedAddon(
     'Adding addon'
   );
 
-  const confirmed = await p.confirm({ message: 'Add this addon?' });
+  const confirmed = await p.confirm({ message: `Add ${addonName}?` });
   if (p.isCancel(confirmed) || !confirmed) {
     p.cancel('Addon installation cancelled.');
     process.exit(0);

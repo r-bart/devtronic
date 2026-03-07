@@ -147,7 +147,7 @@ describe('Agent file generation — single agent', () => {
     expect(result.checksums).toBeDefined();
     expect(Object.keys(result.checksums!).length).toBeGreaterThan(0);
     for (const hash of Object.values(result.checksums!)) {
-      expect(hash).toMatch(/^[0-9a-f]{16}$/);
+      expect(hash).toMatch(/^[0-9a-f]{32}$/);
     }
     expect(result.checksums!['skills/design-init/SKILL.md']).toBeDefined();
   });
@@ -369,7 +369,7 @@ describe('Addon file generation — with agents', () => {
 
   it('should include agent files in checksums', () => {
     const result = generateAddonFiles(agentProjectDir, agentAddonSourceDir, ['claude']);
-    expect(result.checksums!['agents/test-agent.md']).toMatch(/^[0-9a-f]{16}$/);
+    expect(result.checksums!['agents/test-agent.md']).toMatch(/^[0-9a-f]{32}$/);
   });
 });
 

@@ -32,9 +32,9 @@ describe('auto-devtronic addon structure', () => {
     expect(manifest.files.skills).toEqual(['auto-devtronic']);
   });
 
-  it('manifest declares all 3 agents', () => {
+  it('manifest declares all 4 agents', () => {
     const manifest = JSON.parse(readFileSync(join(ADDON_ROOT, 'manifest.json'), 'utf-8'));
-    expect(manifest.files.agents).toEqual(['issue-parser', 'failure-analyst', 'quality-executor']);
+    expect(manifest.files.agents).toEqual(['issue-parser', 'failure-analyst', 'quality-executor', 'afk-task-validator']);
   });
 });
 

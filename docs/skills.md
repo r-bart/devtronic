@@ -413,9 +413,11 @@ When the orchestration addon is enabled (`thoughts/CONTEXT.md` exists):
 
 These skills are available when the **design-best-practices** addon is enabled. They provide structured design quality workflows: initialization, critique, refinement, system extraction, and production hardening.
 
+> **Note**: These skills are NOT installed by default. You must enable the addon first.
+
 **Enable during init**: Select "Design Best Practices" when prompted for addons.
 
-**Enable after init**: `npx devtronic addon enable design-best-practices`
+**Enable after init**: `npx devtronic addon add design-best-practices`
 
 ### /design-init - Project Design Context Setup
 

@@ -99,7 +99,7 @@ npx devtronic init
 | Claude Code | `.claude-plugins/devtronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
 | Cursor | `.cursor/rules/*.mdc` | Full support |
 | Google Antigravity | `.agents/rules/*.md` | Full support |
-| GitHub Copilot | `.github/copilot-instructions.md` | Full support |
+| GitHub Copilot | `.github/copilot-instructions.md` | Full support (enable in [GitHub settings](https://docs.github.com/copilot/customizing-copilot)) |
 | OpenCode | `.opencode/rules/*.md` | Full support |
 | Zed | Uses `AGENTS.md` directly | Native |
 
@@ -174,7 +174,7 @@ For UI-heavy features, run the design phase before `/spec`. See [Design Phase Gu
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill` |
 | **Design Phase** | `/design`, `/design-research`, `/design-define`, `/design-ia`, `/design-wireframe`, `/design-system`, `/design-system-define`, `/design-system-audit`, `/design-system-sync`, `/design-audit`, `/design-review`, `/design-spec` |
 | **Orchestration** (addon) | `/briefing`, `/recap`, `/handoff` |
-| **Design Best Practices** (addon) | `/design-init`, `/design-review`, `/design-refine`, `/design-system`, `/design-harden` |
+| **Design Best Practices** (addon) | `/design-init`, `/design-critique`, `/design-refine`, `/design-tokens`, `/design-harden` |
 | **Auto-devtronic** (addon) | `/devtronic` — Autonomous engineering loop |
 
 See [Skills Reference](./docs/skills.md) for detailed documentation of each skill.

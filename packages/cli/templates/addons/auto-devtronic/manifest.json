@@ -10,7 +10,8 @@
     "agents": [
       "issue-parser",
       "failure-analyst",
-      "quality-executor"
+      "quality-executor",
+      "afk-task-validator"
     ]
   }
 }
