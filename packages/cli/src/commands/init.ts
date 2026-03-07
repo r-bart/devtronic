@@ -337,7 +337,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
       continue;
     }
 
-    const resolution = conflictResolutions.get(ide) || 'overwrite';
+    const resolution = conflictResolutions.get(ide) || 'replace';
     const files = getAllFilesRecursive(templateDir);
     const dynamicFiles = DYNAMIC_RULE_FILES[ide] || [];
 
@@ -392,7 +392,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
       const rulePath = dynamicFiles[0]; // Each IDE has one architecture rule file
       if (rulePath) {
         const destPath = join(targetDir, rulePath);
-        const resolution = conflictResolutions.get(ide) || 'overwrite';
+        const resolution = conflictResolutions.get(ide) || 'replace';
 
         if (fileExists(destPath) && resolution === 'keep') {
           skippedFiles.push(rulePath);

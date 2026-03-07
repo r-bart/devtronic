@@ -1,5 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { existsSync, unlinkSync, rmSync, readFileSync } from 'node:fs';
+import { existsSync, unlinkSync, rmSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { AddonName, AddonOptions } from '../types.js';
@@ -18,7 +18,7 @@ import { introTitle, symbols } from '../utils/ui.js';
 import { getCliVersion } from '../utils/version.js';
 import { generatePluginJson, generateMarketplaceJson, PLUGIN_DIR } from '../generators/plugin.js';
 import { TEMPLATES_DIR } from './init.js';
-import { getAddonSourceDir, getAvailableAddons } from '../addons/registry.js';
+import { getAddonSourceDir, getAvailableAddons, getAddonManifest } from '../addons/registry.js';
 import { readAddonConfig, writeAddonToConfig, removeAddonFromConfig } from '../utils/addonConfig.js';
 import { generateAddonFiles, removeAddonFiles, syncAddonFiles, detectModifiedAddonFiles } from '../generators/addonFiles.js';
 
@@ -49,11 +49,11 @@ export async function addonCommand(
 
   const typedName = addonName as AddonName;
 
-  // Map deprecated actions to canonical names and warn
+  // Map deprecated actions (enable/disable) to canonical names (add/remove)
   const canonicalAction: 'add' | 'remove' =
     action === 'enable' ? 'add' : action === 'disable' ? 'remove' : action;
-  if (action === 'add' || action === 'remove') {
-    const canonical = action === 'add' ? 'enable' : 'disable';
+  if (action === 'enable' || action === 'disable') {
+    const canonical = action === 'enable' ? 'add' : 'remove';
     p.log.warn(
       `"addon ${action}" is deprecated. Use "addon ${canonical}" instead.`
     );
@@ -319,17 +319,15 @@ async function addFileBasedAddon(
   const result = generateAddonFiles(targetDir, addonSourceDir, config.agents);
 
   // Track in config
-  const addonManifest = JSON.parse(
-    readFileSync(join(addonSourceDir, 'manifest.json'), 'utf-8')
-  );
+  const addonMeta = getAddonManifest(addonName);
   const fileList: string[] = [
-    ...(addonManifest.files.skills ?? []).map((s: string) => `skills/${s}`),
-    ...(addonManifest.files.agents ?? []).map((a: string) => `agents/${a}.md`),
-    ...(addonManifest.files.rules ?? []).map((r: string) => `rules/${r}`),
+    ...(addonMeta.files.skills ?? []).map((s: string) => `skills/${s}`),
+    ...(addonMeta.files.agents ?? []).map((a: string) => `agents/${a}.md`),
+    ...(addonMeta.files.rules ?? []).map((r: string) => `rules/${r}`),
   ];
 
   writeAddonToConfig(targetDir, addonName, {
-    version: addonManifest.version,
+    version: addonMeta.version,
     files: fileList,
     checksums: result.checksums ?? {},
   });
@@ -435,7 +433,28 @@ export async function addonSyncCommand(options: AddonOptions): Promise<void> {
   p.intro(introTitle('Addon Sync'));
 
   const config = readAddonConfig(targetDir);
-  const installedNames = Object.keys(config.installed);
+
+  // Auto-register file-based addons that are in the legacy manifest but not in config
+  const manifest = readManifest(targetDir);
+  const manifestAddons = manifest?.projectConfig?.enabledAddons ?? [];
+  for (const name of manifestAddons) {
+    if (!config.installed[name] && isFileBasedAddon(name)) {
+      const addonMeta = getAddonManifest(name);
+      const fileList: string[] = [
+        ...(addonMeta.files.skills ?? []).map((s: string) => `skills/${s}`),
+        ...(addonMeta.files.agents ?? []).map((a: string) => `agents/${a}.md`),
+        ...(addonMeta.files.rules ?? []).map((r: string) => `rules/${r}`),
+      ];
+      writeAddonToConfig(targetDir, name, {
+        version: addonMeta.version,
+        files: fileList,
+      });
+    }
+  }
+
+  // Re-read config after potential migration writes
+  const freshConfig = readAddonConfig(targetDir);
+  const installedNames = Object.keys(freshConfig.installed);
 
   if (installedNames.length === 0) {
     p.log.info('No addons installed. Nothing to sync.');
@@ -450,8 +469,10 @@ export async function addonSyncCommand(options: AddonOptions): Promise<void> {
   let totalConflicts: string[] = [];
 
   for (const name of installedNames) {
+    // Skip plugin-based addons — they use a different file management system
+    if (!isFileBasedAddon(name as AddonName)) continue;
     const addonSourceDir = getAddonSourceDir(name as AddonName);
-    const result = syncAddonFiles(targetDir, addonSourceDir, config.agents);
+    const result = syncAddonFiles(targetDir, addonSourceDir, freshConfig.agents);
     totalWritten += result.written + (result.updated ?? 0);
     totalConflicts = totalConflicts.concat(result.conflicts);
   }

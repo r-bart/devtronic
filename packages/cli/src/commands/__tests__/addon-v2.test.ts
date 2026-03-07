@@ -337,8 +337,8 @@ describe('addon enable/disable aliases', () => {
     expect(existsSync(join(tempDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true);
   });
 
-  it('should show deprecation warning when using add', async () => {
-    await addonCommand('add', 'design-best-practices', { path: tempDir });
+  it('should show deprecation warning when using enable (deprecated)', async () => {
+    await addonCommand('enable' as any, 'design-best-practices', { path: tempDir });
     const warnCalls = vi.mocked(clack.log.warn).mock.calls.flat().join(' ');
     expect(warnCalls).toContain('deprecated');
   });

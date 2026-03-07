@@ -37,14 +37,18 @@ export function readAddonConfig(targetDir: string): AddonConfig {
     return { agents: ['claude'], installed: {} };
   }
 
-  const raw = JSON.parse(readFileSync(configPath, 'utf-8'));
-  const data = raw.addons ?? raw;
-  return {
-    version: 1,
-    mode: data.mode,
-    agents: data.agents ?? ['claude'],
-    installed: data.installed ?? {},
-  };
+  try {
+    const raw = JSON.parse(readFileSync(configPath, 'utf-8'));
+    const data = raw.addons ?? raw;
+    return {
+      version: 1,
+      mode: data.mode,
+      agents: data.agents ?? ['claude'],
+      installed: data.installed ?? {},
+    };
+  } catch {
+    return { agents: ['claude'], installed: {} };
+  }
 }
 
 /**
