@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.4] - 2026-03-07
+
+### Fixed
+
+- **`devtronic addon enable` fails with ENOENT on npm-installed packages** — Addon assets (skills, agents, reference docs, `manifest.json`) lived in `src/addons/` which tsup does not copy to `dist/`. They are now in `templates/addons/`, which is already included in the published package. `getAddonSourceDir()` updated to use the same dual-path resolution pattern as `TEMPLATES_DIR`.
+
+---
+
 ## [1.2.3] - 2026-03-07
 
 ### Fixed

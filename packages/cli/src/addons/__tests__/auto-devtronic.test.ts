@@ -9,7 +9,7 @@ import { join } from 'node:path';
 
 // ─── Addon source path ──────────────────────────────────────────────────────
 
-const ADDON_ROOT = join(import.meta.dirname, '..', 'auto-devtronic');
+const ADDON_ROOT = join(import.meta.dirname, '../../../templates/addons/auto-devtronic');
 
 // ─── Suite 1: Addon Structure ───────────────────────────────────────────────
 
