@@ -9,6 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.5] - 2026-03-07
+
+### Fixed
+
+- **Deprecation warning was backwards** — `addon add`/`remove` (the canonical commands) incorrectly showed a deprecation warning pointing users to `enable`/`disable` (the deprecated aliases). Now `enable`/`disable` correctly warn and suggest `add`/`remove`.
+- **`addon sync` could corrupt plugin-mode installs** — If `orchestration` (plugin-based addon) ended up in `config.installed` via update migration, `sync` would write files to wrong paths. Sync and update now skip plugin-based addons.
+- **`removeAddonFiles` deleted `NOTICE.md` unconditionally** — Removing any addon (e.g., `auto-devtronic`) would delete the `NOTICE.md` created by `design-best-practices`, violating Apache 2.0 attribution requirements. Now only deletes it when the addon has an `attribution` field.
+- **`detectModifiedAddonFiles` missed opencode and codex runtimes** — Only checked 3 of 5 configured runtimes (`claude`, `cursor`, `gemini`), silently overwriting user modifications in `.opencode/` and `.codex/` directories during sync/update.
+- **`generateAddonFiles` silently swallowed conflicts** — Pre-existing skill files with different content were counted as `skipped` instead of reported as `conflicts`, giving users no indication their files were preserved.
+- **`readAddonConfig` crashed on corrupted JSON** — A malformed `.claude/devtronic.json` threw an unhandled `SyntaxError`. Now returns safe defaults, consistent with `readManifest`.
+- **`addon sync` reported "no addons installed" for legacy installs** — Addons tracked in the plugin manifest but not in `.claude/devtronic.json` were invisible to sync. Now auto-registers file-based addons from the legacy manifest before syncing.
+- **`init.ts` used invalid `'overwrite'` sentinel** — Conflict resolution fallback bypassed the `ConflictResolution` type. Replaced with `'replace'`, the actual type member.
+
+### Changed
+
+- `addon add`/`remove` are now the canonical commands; `enable`/`disable` are deprecated aliases
+- `addFileBasedAddon` and `addonSyncCommand` now use validated `getAddonManifest()` instead of raw `JSON.parse`
+- Updated README addon examples from `enable`/`disable` to `add`/`remove`
+
+---
+
 ## [1.2.4] - 2026-03-07
 
 ### Fixed
