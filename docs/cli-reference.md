@@ -66,8 +66,9 @@ npx devtronic init --preset nextjs-clean
 2. Asks for confirmation or adjustments
 3. Asks which IDEs to configure
 4. For existing configs, asks how to handle conflicts
-5. Generates personalized configuration
-6. Creates manifest for future updates
+5. Offers optional addon packs via multiselect (Claude Code only)
+6. Generates personalized configuration
+7. Creates manifest for future updates
 
 ---
 
@@ -137,17 +138,17 @@ npx devtronic add antigravity
 
 ---
 
-### addon enable / addon disable
+### addon
 
-Manage optional addon skill packs after initial setup.
+Manage optional addon skill packs. Addons can be selected during `init` or added at any time.
+
+#### addon list
 
 ```bash
-npx devtronic addon enable <name> [options]
-npx devtronic addon disable <name> [options]
+npx devtronic addon list [options]
 ```
 
-**Arguments:**
-- `name` - Addon name (e.g., `orchestration`, `design-best-practices`)
+Shows all available addons with their status (installed / available) and description.
 
 **Options:**
 | Option | Description |
@@ -158,20 +159,34 @@ npx devtronic addon disable <name> [options]
 
 | Addon | Skills | Agents | Description |
 |-------|--------|--------|-------------|
-| `orchestration` | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` | — | Pre-planning alignment, session recaps, context rotation |
+| `orchestration` | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` | — | Pre-planning alignment, session recaps, context rotation for long multi-session work |
 | `design-best-practices` | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `/devtronic` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs the full spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
+| `auto-devtronic` | `/devtronic`, `/devtronic:validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
+
+#### addon enable / addon disable
+
+```bash
+npx devtronic addon enable <name> [options]
+npx devtronic addon disable <name> [options]
+```
+
+**Arguments:**
+- `name` - Addon name: `orchestration`, `design-best-practices`, or `auto-devtronic`
+
+**Options:**
+| Option | Description |
+|--------|-------------|
+| `--path <path>` | Target directory (default: current directory) |
 
 **Examples:**
 
 ```bash
-# Add the orchestration addon
+# See what's available and what's installed
+npx devtronic addon list
+
+# Install an addon
 npx devtronic addon enable orchestration
-
-# Add the design best practices addon
 npx devtronic addon enable design-best-practices
-
-# Add the autonomous engineering loop
 npx devtronic addon enable auto-devtronic
 
 # Remove an addon
@@ -182,41 +197,20 @@ npx devtronic addon disable design-best-practices
 - `orchestration` requires Claude Code in plugin mode (selected during `devtronic init`)
 - `design-best-practices` and `auto-devtronic` work in both standalone and plugin mode — files are placed in `.claude/skills/`, `.claude/agents/`, and `.claude/rules/`
 - All commands show a preview and ask for confirmation before proceeding
-- Remove warns about locally modified files before deleting them
+- Disable warns about locally modified files before deleting them
 
----
-
-### addon list
-
-List available and installed addons.
-
-```bash
-npx devtronic addon list [options]
-```
-
-**Options:**
-| Option | Description |
-|--------|-------------|
-| `--path <path>` | Target directory (default: current directory) |
-
-Shows all available first-party addons, marks which are installed, and displays agent targets for installed addons.
-
----
-
-### addon sync
-
-Regenerate addon files for current agent configuration.
+#### addon sync
 
 ```bash
 npx devtronic addon sync [options]
 ```
 
+Regenerates addon files after changing agent targets in `devtronic.json`. Preserves user-customized files.
+
 **Options:**
 | Option | Description |
 |--------|-------------|
 | `--path <path>` | Target directory (default: current directory) |
-
-Use after changing agent targets in `devtronic.json` (e.g., adding `.cursor/` support). Regenerates files for all configured agents, preserving user-customized files.
 
 ---
 

@@ -53,8 +53,10 @@ npx devtronic init /path/to/your/project
 The CLI will:
 1. **Analyze** your project (framework, architecture, stack)
 2. **Ask** to confirm or adjust the detected configuration
-3. **Generate** personalized rules based on your stack
-4. **Track** installation for future updates
+3. **Select** which IDEs to configure
+4. **Offer** optional addon packs via multiselect (Claude Code)
+5. **Generate** personalized rules, skills, agents, and hooks
+6. **Track** installation for future updates
 
 ### Option B: Claude Code Skill
 

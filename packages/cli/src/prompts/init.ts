@@ -1,6 +1,7 @@
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { ConflictResolution, ExistingConfigs, IDE } from '../types.js';
+import type { AddonName, ConflictResolution, ExistingConfigs, IDE } from '../types.js';
+import { ADDONS } from '../types.js';
 import { getExistingConfigsList } from '../analyzers/existingConfigs.js';
 
 const IDE_OPTIONS: Array<{ value: IDE; label: string; hint?: string }> = [
@@ -82,9 +83,16 @@ export async function promptForAgentsMd(): Promise<boolean | symbol> {
   });
 }
 
-export async function promptForOrchestration(): Promise<boolean | symbol> {
-  return p.confirm({
-    message: 'Enable orchestration workflow? (briefing \u2192 execute-plan \u2192 recap \u2192 handoff)',
-    initialValue: false,
+export async function promptForAddons(): Promise<AddonName[] | symbol> {
+  const options = Object.values(ADDONS).map((addon): { value: AddonName; label: string; hint: string } => ({
+    value: addon.name,
+    label: addon.label,
+    hint: addon.description,
+  }));
+
+  return p.multiselect({
+    message: 'Enable optional addon packs? (space to toggle, enter to confirm)',
+    options,
+    required: false,
   });
 }

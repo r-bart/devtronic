@@ -402,11 +402,14 @@ export interface AddonListItem {
 
 export function getAddonListInfo(targetDir: string): AddonListItem[] {
   const config = readAddonConfig(targetDir);
+  const manifest = readManifest(targetDir);
+  const manifestAddons = manifest?.projectConfig?.enabledAddons ?? [];
+
   return getAvailableAddons().map((addon) => ({
     name: addon.name,
     label: addon.label,
     description: addon.description,
-    installed: !!config.installed[addon.name],
+    installed: !!config.installed[addon.name] || manifestAddons.includes(addon.name as AddonName),
     agents: config.installed[addon.name] ? config.agents : undefined,
   }));
 }

@@ -19,7 +19,7 @@ import {
   promptForConflictResolution,
   promptForThoughtsDir,
   promptForAgentsMd,
-  promptForOrchestration,
+  promptForAddons,
 } from '../prompts/init.js';
 import { promptForProjectConfig } from '../prompts/analysis.js';
 import {
@@ -204,27 +204,12 @@ export async function initCommand(options: InitOptions): Promise<void> {
     !options.preset &&
     !options.preview
   ) {
-    const wantOrchestration = await promptForOrchestration();
-    if (p.isCancel(wantOrchestration)) {
+    const selectedAddons = await promptForAddons();
+    if (p.isCancel(selectedAddons)) {
       p.cancel('Operation cancelled');
       process.exit(0);
     }
-    if (wantOrchestration) {
-      enabledAddons.push('orchestration');
-    }
-
-    // Offer design-best-practices addon
-    const wantDesign = await p.confirm({
-      message: 'Enable design best practices? (design-init → design-review → design-refine → design-harden)',
-      initialValue: false,
-    });
-    if (p.isCancel(wantDesign)) {
-      p.cancel('Operation cancelled');
-      process.exit(0);
-    }
-    if (wantDesign) {
-      enabledAddons.push('design-best-practices');
-    }
+    enabledAddons = selectedAddons as AddonName[];
   }
 
   // Store addons in project config
