@@ -1,15 +1,29 @@
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { AddonManifest, AddonInfo, AddonName } from '../types.js';
 import { ADDONS } from '../types.js';
+
+/**
+ * Returns the absolute path to the addons directory inside templates/.
+ * Uses the same dual-path resolution as TEMPLATES_DIR in init.ts to work
+ * both in dev (src/addons/) and in the published npm package (dist/addons/).
+ */
+function getAddonsDir(): string {
+  const __dirname = dirname(fileURLToPath(import.meta.url));
+  // When bundled: dist/addons/ → ../templates = templates/ ✓
+  // When dev src: src/addons/ → ../../templates = templates/ ✓
+  const templatesDir = existsSync(resolve(__dirname, '../templates'))
+    ? resolve(__dirname, '../templates')
+    : resolve(__dirname, '../../templates');
+  return join(templatesDir, 'addons');
+}
 
 /**
  * Returns the absolute path to a bundled addon's source directory.
  */
 export function getAddonSourceDir(name: AddonName): string {
-  // import.meta.dirname works in Node 21+; fallback to __dirname equivalent
-  const addonsDir = new URL('.', import.meta.url).pathname;
-  return join(addonsDir, name);
+  return join(getAddonsDir(), name);
 }
 
 /**

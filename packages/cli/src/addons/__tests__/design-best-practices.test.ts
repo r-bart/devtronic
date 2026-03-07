@@ -15,7 +15,7 @@ import { join } from 'node:path';
 
 // ─── Addon source path ──────────────────────────────────────────────────────
 
-const ADDON_ROOT = join(import.meta.dirname, '..', 'design-best-practices');
+const ADDON_ROOT = join(import.meta.dirname, '../../../templates/addons/design-best-practices');
 
 // ─── FR-1: Addon Registry Structure ────────────────────────────────────────
 
