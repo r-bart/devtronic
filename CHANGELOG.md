@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.2] - 2026-03-07
+
+### Fixed
+
+- **`devtronic update` false "removed files" for plugin installs** — Plugin files (`.claude-plugins/devtronic/`) are generated dynamically and don't exist in the static template directory. The update command was incorrectly marking all of them as "removed in this version". They are now skipped during removal detection since they're always regenerated, not copied from templates.
+
+---
+
 ## [1.2.1] - 2026-03-07
 
 Addon UX improvements — `addon list` command and init multiselect for all addons.
