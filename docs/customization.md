@@ -446,9 +446,43 @@ paths:
 
 ## Customizing Addons
 
-Addons like `design-best-practices` install files into your agent directories (`.claude/skills/`, `.claude/rules/`). These files are tracked in `devtronic.json` so they can be updated or removed cleanly.
+devtronic ships three optional addon packs. You can select them during `init` or manage them at any time with the `addon` command.
+
+### Available Addons
+
+| Addon | Type | Skills | Description |
+|-------|------|--------|-------------|
+| `orchestration` | Plugin-mode | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation |
+| `design-best-practices` | File-mode | `design-init`, `design-review`, `design-refine`, `design-system`, `design-harden` | Frontend design quality: typography, color, layout, accessibility |
+| `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | Autonomous engineering loop — spec → tests → plan → implement → PR |
+
+### Enabling Addons
+
+**During `init`** (Claude Code only):
+
+The init wizard shows a multiselect after IDE selection:
+```
+◆ Enable optional addon packs? (space to toggle, enter to confirm)
+  ○ Orchestration — briefing, recap, handoff
+  ○ Design Best Practices — design-init, design-review, design-refine, design-system, design-harden
+  ○ Auto-devtronic — auto-devtronic, validate-task-afk
+```
+
+**After init**, manage addons with:
+
+```bash
+npx devtronic addon list                          # See all addons + status
+npx devtronic addon enable orchestration          # Install
+npx devtronic addon enable design-best-practices
+npx devtronic addon enable auto-devtronic
+npx devtronic addon disable design-best-practices # Uninstall
+```
 
 ### How Addon Files Are Tracked
+
+**Plugin-mode addons** (`orchestration`) install into `.claude-plugins/devtronic/skills/` and are tracked in `.ai-template/manifest.json`.
+
+**File-mode addons** (`design-best-practices`, `auto-devtronic`) install into your agent directories and are tracked in `devtronic.json`:
 
 When you run `devtronic addon enable design-best-practices`, the CLI:
 1. Copies skill files to `.claude/skills/design-init/`, `.claude/skills/design-review/`, etc.
@@ -471,15 +505,13 @@ The addon system tracks which files you've modified:
 
 ### Changing Agent Targets
 
-By default, addon files are generated for Claude only. To target multiple agents:
+By default, file-mode addon files are generated for Claude only. To target multiple agents:
 
 ```json
-// devtronic.json
+// .claude/devtronic.json
 {
-  "addons": {
-    "agents": ["claude", "cursor", "gemini"],
-    "installed": { ... }
-  }
+  "agents": ["claude", "cursor", "gemini"],
+  "installed": { ... }
 }
 ```
 

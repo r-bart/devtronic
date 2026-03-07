@@ -327,15 +327,29 @@ To disable a specific hook without removing the plugin, remove it from `hooks.js
 
 ## Addon System
 
-devtronic supports two types of addons:
+devtronic ships three optional addon packs. They can be selected during `devtronic init` (via a multiselect prompt) or managed at any time with the `addon` command.
+
+### Available Addons
+
+| Addon | Type | Skills | Agents |
+|-------|------|--------|--------|
+| `orchestration` | Plugin-mode | `briefing`, `recap`, `handoff` | — |
+| `design-best-practices` | File-mode | `design-init`, `design-review`, `design-refine`, `design-system`, `design-harden` | — |
+| `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-runner` |
 
 ### Plugin-Mode Addons (orchestration)
 
 The `orchestration` addon installs skills into the Claude Code plugin directory (`.claude-plugins/devtronic/skills/`). These are namespaced as `/devtronic:briefing`, etc.
 
-### File-Mode Addons (design-best-practices)
+### File-Mode Addons (design-best-practices, auto-devtronic)
 
-The `design-best-practices` addon installs files directly into agent directories:
+File-mode addons install directly into agent directories (`.claude/skills/`, `.claude/agents/`, `.claude/rules/`). They:
+- Are tracked in `devtronic.json` (not `.ai-template/manifest.json`)
+- Can target multiple agents (`.claude/`, `.cursor/`, `.gemini/`)
+- Support customization detection via checksums
+- Can be synced across agents with `devtronic addon sync`
+
+Example layout for `design-best-practices`:
 
 ```
 .claude/
@@ -347,26 +361,22 @@ The `design-best-practices` addon installs files directly into agent directories
 │   └── design-harden/
 │       ├── SKILL.md
 │       └── reference/          # 7 reference docs
-│           ├── typography.md
-│           ├── color-and-contrast.md
-│           └── ...
 └── rules/
-    └── design-quality.md       # Auto-loaded quality rule
+    └── design-quality.md
 ```
-
-File-mode addons:
-- Are tracked in `devtronic.json` (not the `.ai-template/manifest.json`)
-- Can target multiple agents (`.claude/`, `.cursor/`, `.gemini/`)
-- Support customization detection via checksums
-- Can be synced across agents with `devtronic addon sync`
 
 ### Managing Addons
 
 ```bash
-devtronic addon list                        # See available addons
-devtronic addon enable design-best-practices   # Install
-devtronic addon disable design-best-practices # Uninstall
-devtronic addon sync                        # Regenerate for current agents
+# During init — offered as a multiselect (Claude Code only)
+npx devtronic init
+
+# After init — manage individually
+npx devtronic addon list                          # See all addons + status
+npx devtronic addon enable design-best-practices  # Install
+npx devtronic addon enable auto-devtronic         # Install
+npx devtronic addon disable design-best-practices # Uninstall
+npx devtronic addon sync                          # Regenerate for current agents
 ```
 
 See [CLI Reference](./cli-reference.md) and [Customization Guide](./customization.md) for details.
