@@ -196,12 +196,12 @@ export async function initCommand(options: InitOptions): Promise<void> {
     }
   }
 
-  // Interactive addon selection (only when no --addon flag, no --yes, no --preset, no --preview)
+  // Interactive addon selection (only when no --addon flag, no --yes, no --preview)
+  // --preset is NOT excluded: it only skips project config analysis, not addon selection
   if (
     selectedIDEs.includes('claude-code') &&
     !options.addon &&
     !options.yes &&
-    !options.preset &&
     !options.preview
   ) {
     const selectedAddons = await promptForAddons();

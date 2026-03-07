@@ -98,15 +98,15 @@ describe('US-2/AC-1: addon multiselect guard conditions', () => {
     expect(clack.multiselect).not.toHaveBeenCalled();
   });
 
-  it('should NOT call p.multiselect when --preset flag is set', async () => {
-    // Spec: US-2/AC-1
-    // Note: also pass ide to skip IDE selection (which also uses p.multiselect),
-    // so we can assert the addon multiselect specifically was not triggered.
+  it('should call p.multiselect for addons when --preset flag is set (preset only skips config analysis)', async () => {
+    // --preset skips promptForProjectConfig but the session is still interactive
+    // (user selects IDEs, resolves conflicts). Addon multiselect should still appear.
+    vi.mocked(clack.multiselect).mockResolvedValue([]);
     const { initCommand } = await import('../init.js');
 
     await initCommand({ path: tempDir, preset: 'minimal', ide: 'claude-code' });
 
-    expect(clack.multiselect).not.toHaveBeenCalled();
+    expect(clack.multiselect).toHaveBeenCalled();
   });
 });
 
