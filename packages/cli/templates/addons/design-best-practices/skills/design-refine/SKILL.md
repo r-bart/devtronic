@@ -2,6 +2,8 @@
 name: design-refine
 description: Directional design refinement — push the design bolder, quieter, more minimal, or more delightful
 user-invokable: true
+allowed-tools: Read, Edit, Glob, Grep, AskUserQuestion
+argument-hint: "--direction [bolder|quieter|minimal|delightful]"
 args:
   - name: direction
     description: "Refinement direction: bolder, quieter, minimal, delightful"

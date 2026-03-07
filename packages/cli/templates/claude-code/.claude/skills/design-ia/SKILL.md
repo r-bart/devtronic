@@ -1,5 +1,5 @@
 ---
-name: devtronic:design-ia
+name: design-ia
 description: Information architecture phase — defines navigation structure, sitemap, and user flows from personas and journeys.
 allowed-tools: Task, Read, Write, AskUserQuestion
 argument-hint: "[scope]"

@@ -1,13 +1,13 @@
 # Tutorial 05: Learning from What Was Implemented
 
-How to use `/devtronic:learn` to extract knowledge after implementing something.
+How to use `/learn` to extract knowledge after implementing something.
 
 ---
 
 ## Objective
 
 By the end of this tutorial:
-- You'll know how to use `/devtronic:learn` to get didactic explanations
+- You'll know how to use `/learn` to get didactic explanations
 - You'll understand how to internalize patterns and techniques
 - You'll be able to apply knowledge in other contexts
 
@@ -38,7 +38,7 @@ Option 2 makes you a better developer over time.
 After Claude implements something:
 
 ```
-/devtronic:learn
+/learn
 ```
 
 Claude will explain what was just done in a didactic way.
@@ -46,7 +46,7 @@ Claude will explain what was just done in a didactic way.
 ### With Specific Context
 
 ```
-/devtronic:learn "the notification event system we just built"
+/learn "the notification event system we just built"
 ```
 
 To learn about something specific in the implementation.
@@ -59,10 +59,10 @@ To learn about something specific in the implementation.
 
 Claude just implemented an event system for notifications using the Observer pattern.
 
-### Run /devtronic:learn
+### Run /learn
 
 ```
-/devtronic:learn
+/learn
 ```
 
 ### The Explanation
@@ -157,7 +157,7 @@ Examples:
 
 ---
 
-## What to Ask in /devtronic:learn
+## What to Ask in /learn
 
 ### Specific Concepts
 
@@ -168,13 +168,13 @@ Examples:
 ### Architecture Decisions
 
 ```
-/devtronic:learn "the repository pattern we implemented"
+/learn "the repository pattern we implemented"
 ```
 
 ### Specific Techniques
 
 ```
-/devtronic:learn "the optimistic update pattern in the UI"
+/learn "the optimistic update pattern in the UI"
 ```
 
 ### Comparisons
@@ -187,7 +187,7 @@ Examples:
 
 ## Structure of a Good Explanation
 
-When you use `/devtronic:learn`, Claude will include:
+When you use `/learn`, Claude will include:
 
 1. **Summary** - What was done in one line
 2. **Key Concepts** - Patterns and techniques used
@@ -219,7 +219,7 @@ thoughts/notes/2026-02-05_event-system-pattern.md
 
 ```
 [implementation completed]
-/devtronic:learn
+/learn
 ```
 
 Takes 2 minutes and accelerates your growth.
@@ -242,7 +242,7 @@ Application: Any case with multiple side effects.
 
 ## Verification
 
-✅ You know how to invoke `/devtronic:learn` after implementations
+✅ You know how to invoke `/learn` after implementations
 ✅ You understand the structure of explanations
 ✅ You can save learnings in thoughts/notes/
 
@@ -258,14 +258,14 @@ Other benefits of devtronic.
 
 ## Tips
 
-1. **Always ask** - If Claude did something you don't understand, `/devtronic:learn`
+1. **Always ask** - If Claude did something you don't understand, `/learn`
 2. **Be specific** - "Learn about X" is better than just "/learn"
 3. **Save what's important** - Create your knowledge base in thoughts/notes/
 4. **Apply afterward** - Try using the pattern yourself next opportunity
 
 ---
 
-## Alternatives to /devtronic:learn
+## Alternatives to /learn
 
 ### During Implementation
 
@@ -276,7 +276,7 @@ Explain what you're about to do before implementing
 ### About Existing Code
 
 ```
-/devtronic:research --deep "how does the auth system work"
+/research --deep "how does the auth system work"
 ```
 
 ### About Decisions

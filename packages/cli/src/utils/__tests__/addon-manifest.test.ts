@@ -44,7 +44,7 @@ describe('AddonManifest', () => {
     license: 'MIT',
     attribution: 'Reference docs derived from Anthropic frontend-design skill (Apache 2.0).',
     files: {
-      skills: ['design-init', 'design-review', 'design-refine', 'design-system', 'design-harden'],
+      skills: ['design-init', 'design-critique', 'design-refine', 'design-tokens', 'design-harden'],
       reference: [
         'typography.md',
         'color-and-contrast.md',
@@ -185,7 +185,7 @@ describe('getAddonManifest', () => {
     expect(manifest.files.agents!.length).toBe(3);
     expect(manifest.files.agents).toContain('issue-parser');
     expect(manifest.files.agents).toContain('failure-analyst');
-    expect(manifest.files.agents).toContain('quality-runner');
+    expect(manifest.files.agents).toContain('quality-executor');
   });
 
   it('should return attribution for design-best-practices', () => {

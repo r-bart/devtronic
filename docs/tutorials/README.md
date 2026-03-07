@@ -46,17 +46,17 @@ New or existing project?
 |-------|--------------|
 | `/audit` | 06 (code audit) |
 | `/backlog` | 03 (backlog management) |
-| `/devtronic:brief` | 01, 02, 03 (quick orientation) |
+| `/brief` | 01, 02, 03 (quick orientation) |
 | `/checkpoint` | 03 (save progress) |
-| `/devtronic:create-plan` | 03 (plan implementation) |
+| `/create-plan` | 03 (plan implementation) |
 | `/create-skill` | 06 (create custom skills) |
-| `/devtronic:investigate` | 04 (debugging) |
-| `/devtronic:learn` | 05 (learn from changes) |
-| `/devtronic:post-review` | 03 (review code) |
+| `/investigate` | 04 (debugging) |
+| `/learn` | 05 (learn from changes) |
+| `/post-review` | 03 (review code) |
 | `/research` | 03, 04 (investigate code) |
-| `/devtronic:scaffold` | 01 (new project) |
-| `/devtronic:setup` | 02 (existing project) |
-| `/devtronic:spec` | 03 (define feature) |
+| `/scaffold` | 01 (new project) |
+| `/setup` | 02 (existing project) |
+| `/spec` | 03 (define feature) |
 
 ---
 

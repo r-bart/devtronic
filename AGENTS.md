@@ -86,12 +86,12 @@ Run after every change.
 
 | Task | Commands |
 |------|----------|
-| New feature | `/devtronic:brief` → `/devtronic:spec` → `/devtronic:create-plan` → `/devtronic:generate-tests` → `/devtronic:execute-plan` → `/devtronic:summary` → `/devtronic:post-review` |
-| Design (new) | `/devtronic:brief` → `/devtronic:design --research` → `/devtronic:design --define` → `/devtronic:design --ia` → `/devtronic:design --wireframe` → `/devtronic:design-system --define` → `/devtronic:spec` → `/devtronic:create-plan` → `/devtronic:generate-tests` → `/devtronic:execute-plan` → `/devtronic:design-review` → `/devtronic:post-review` |
-| Bug fix | `/devtronic:brief` → fix → test → `/devtronic:summary` → `/devtronic:post-review` |
-| Refactor | `/devtronic:brief` → `/devtronic:create-plan` → implement → `/devtronic:summary` → `/devtronic:post-review` |
+| New feature | `/brief` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/summary` → `/post-review` |
+| Design (new) | `/brief` → `/design --research` → `/design --define` → `/design --ia` → `/design --wireframe` → `/design-system --define` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/design-review` → `/post-review` |
+| Bug fix | `/brief` → fix → test → `/summary` → `/post-review` |
+| Refactor | `/brief` → `/create-plan` → implement → `/summary` → `/post-review` |
 
-> **Tip**: `/devtronic:brief` for session orientation (with pre-flight checks). `/devtronic:summary` to document changes. `/devtronic:checkpoint` to save progress.
+> **Tip**: `/brief` for session orientation (with pre-flight checks). `/summary` to document changes. `/checkpoint` to save progress.
 
 ---
 

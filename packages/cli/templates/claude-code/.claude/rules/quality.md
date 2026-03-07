@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Code Quality Checks
 
 After implementing a new feature or modifying existing code, **always run the following checks** before considering the task complete.

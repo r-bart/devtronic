@@ -1,5 +1,5 @@
 ---
-name: devtronic:design-system-audit
+name: design-system-audit
 description: Audits the codebase for design system drift — finds hardcoded values, unused tokens, and components that bypass the system.
 allowed-tools: Task, Read, Glob, Grep, Write, Bash
 argument-hint: "[--files path/to/dir]"

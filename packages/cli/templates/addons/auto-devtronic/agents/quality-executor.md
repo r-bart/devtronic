@@ -1,5 +1,5 @@
 ---
-name: quality-runner
+name: quality-executor
 description: Runs all quality checks (typecheck, lint, test) for the auto-devtronic loop. Returns structured pass/fail output for failure-analyst to process.
 tools: Bash
 model: haiku

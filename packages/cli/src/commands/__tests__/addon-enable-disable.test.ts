@@ -198,7 +198,7 @@ describe('auto-devtronic addon: enable/disable', () => {
     expect(existsSync(join(tempDir, '.claude', 'skills', 'auto-devtronic', 'SKILL.md'))).toBe(true);
     expect(existsSync(join(tempDir, '.claude', 'agents', 'issue-parser.md'))).toBe(true);
     expect(existsSync(join(tempDir, '.claude', 'agents', 'failure-analyst.md'))).toBe(true);
-    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-runner.md'))).toBe(true);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-executor.md'))).toBe(true);
   });
 
   it('disable should remove skill and all agents', async () => {
@@ -207,6 +207,6 @@ describe('auto-devtronic addon: enable/disable', () => {
     await (addonCommand as any)('disable', 'auto-devtronic', { path: tempDir });
     expect(existsSync(join(tempDir, '.claude', 'skills', 'auto-devtronic'))).toBe(false);
     expect(existsSync(join(tempDir, '.claude', 'agents', 'issue-parser.md'))).toBe(false);
-    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-runner.md'))).toBe(false);
+    expect(existsSync(join(tempDir, '.claude', 'agents', 'quality-executor.md'))).toBe(false);
   });
 });

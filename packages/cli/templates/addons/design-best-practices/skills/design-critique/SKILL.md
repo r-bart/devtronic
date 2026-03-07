@@ -1,7 +1,8 @@
 ---
-name: design-review
+name: design-critique
 description: Design critique with AI slop detection — visual hierarchy, information architecture, emotional resonance, actionable report
 user-invokable: true
+allowed-tools: Read, Glob, Grep
 ---
 
 # Design Review

@@ -1,5 +1,5 @@
 ---
-name: devtronic:design
+name: design
 description: Orchestrates the design phase. Detects context and delegates to the right sub-skill.
 allowed-tools: Task, Read, Glob, AskUserQuestion, Write
 argument-hint: "[--research|--define|--ia|--wireframe|--system|--audit|--review|--spec]"

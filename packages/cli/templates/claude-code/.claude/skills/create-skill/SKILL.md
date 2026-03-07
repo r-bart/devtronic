@@ -1,5 +1,5 @@
 ---
-name: devtronic:create-skill
+name: create-skill
 description: Meta skill to create new skills. Guides through defining purpose, workflow steps, tools, and generates the skill file.
 allowed-tools: AskUserQuestion, Write, Read, Glob
 argument-hint: "[skill-name]"

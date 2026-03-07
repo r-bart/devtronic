@@ -15,10 +15,10 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 | Type | Name | Purpose |
 |------|------|---------|
 | Skill | `/devtronic` | Main entry point — orchestrates the full pipeline |
-| Skill | `/devtronic:validate-task-afk` | Pre-flight viability validator — scores tasks 0-100 across 5 dimensions |
+| Skill | `/validate-task-afk` | Pre-flight viability validator — scores tasks 0-100 across 5 dimensions |
 | Agent | `issue-parser` | Extracts structured brief from GitHub issues or descriptions |
 | Agent | `failure-analyst` | Diagnoses test/lint failures, proposes targeted fixes |
-| Agent | `quality-runner` | Runs typecheck, lint, and tests; returns structured pass/fail |
+| Agent | `quality-executor` | Runs typecheck, lint, and tests; returns structured pass/fail |
 | Agent | `afk-task-validator` | Analyzes task descriptions for AFK-readiness, detects quality gaps |
 
 ## Usage
@@ -31,9 +31,9 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 /devtronic <issue-url> --dry-run
 
 # Pre-flight check before committing to AFK
-/devtronic:validate-task-afk https://github.com/org/repo/issues/42
-/devtronic:validate-task-afk "Add pagination to the users list"
-/devtronic:validate-task-afk "Add feature" --refine   # interactive refinement mode
+/validate-task-afk https://github.com/org/repo/issues/42
+/validate-task-afk "Add pagination to the users list"
+/validate-task-afk "Add feature" --refine   # interactive refinement mode
 ```
 
 ## When to use which approach
@@ -41,20 +41,20 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 | Situation | Command |
 |-----------|---------|
 | You trust the task is well-defined → just run it | `/devtronic <issue> --afk` |
-| You want to check before committing to AFK | `/devtronic:validate-task-afk <issue>` → then run based on score |
+| You want to check before committing to AFK | `/validate-task-afk <issue>` → then run based on score |
 | You want validation + execution in one step | `/devtronic <issue> --afk --validate` |
 | Score is 40-70 (medium risk) | `/devtronic <issue> --hitl` |
-| Score is <40 → task needs work | `/devtronic:validate-task-afk <issue> --refine` → improve → re-validate |
+| Score is <40 → task needs work | `/validate-task-afk <issue> --refine` → improve → re-validate |
 | Unfamiliar codebase or risky change | `/devtronic <issue> --hitl` (skip validation, use human gates) |
 
 **Recommended flow for new users:**
 
 ```
-/devtronic:validate-task-afk <issue>          ← check first
+/validate-task-afk <issue>          ← check first
        ↓
   Score ≥70 → /devtronic <issue> --afk
   Score 40-70 → /devtronic <issue> --hitl
-  Score <40 → /devtronic:validate-task-afk <issue> --refine → improve → re-validate
+  Score <40 → /validate-task-afk <issue> --refine → improve → re-validate
 ```
 
 **Shortcut once you know the codebase:**
@@ -90,7 +90,7 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 INPUT (issue URL or description)
   │
   ▼
-0. VALIDATE (if --validate)  — /devtronic:validate-task-afk
+0. VALIDATE (if --validate)  — /validate-task-afk
              Score 70+? Proceed silently.
              Score <70 in AFK mode? Ask "Switch to HITL mode?"
              Score <40? Ask to refine and re-validate.
@@ -102,16 +102,16 @@ INPUT (issue URL or description)
 2. SPEC        — brief → spec (skippable with --skip-spec)
   │
   ▼ [HITL gate: approve tests]
-3. TESTS       — /devtronic:generate-tests: encode acceptance criteria as failing tests
+3. TESTS       — /generate-tests: encode acceptance criteria as failing tests
   │
   ▼
-4. PLAN        — /devtronic:create-plan: design phased implementation
+4. PLAN        — /create-plan: design phased implementation
   │
   ▼
-5. EXECUTE     — /devtronic:execute-plan: implement in parallel phases
+5. EXECUTE     — /execute-plan: implement in parallel phases
   │
   ▼
-6. VERIFY      — quality-runner: typecheck + lint + test
+6. VERIFY      — quality-executor: typecheck + lint + test
   │
   ├── PASS ──▶ 7. PR
   │
@@ -134,9 +134,9 @@ INPUT (issue URL or description)
 - Git repository with a remote origin
 
 **devtronic core skills** (included in base installation):
-- `/devtronic:generate-tests`
-- `/devtronic:create-plan`
-- `/devtronic:execute-plan`
+- `/generate-tests`
+- `/create-plan`
+- `/execute-plan`
 
 ## Remove
 
@@ -148,7 +148,7 @@ Removes the skills and all 4 agents from all configured agent directories. Warns
 
 ## Related
 
-- [Skills Reference](./skills.md#auto-devtronic-addon-skills) — full `/devtronic` and `/devtronic:validate-task-afk` documentation
+- [Skills Reference](./skills.md#auto-devtronic-addon-skills) — full `/devtronic` and `/validate-task-afk` documentation
 - [Agents Reference](./agents.md#afk-task-validator) — `afk-task-validator` agent documentation
 - [CLI Reference](./cli-reference.md#addon-add--addon-remove) — addon commands
 - [Design Best Practices Addon](./cli-reference.md#addon-add--addon-remove) — another available addon

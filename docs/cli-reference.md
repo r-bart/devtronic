@@ -159,9 +159,9 @@ Shows all available addons with their status (installed / available) and descrip
 
 | Addon | Skills | Agents | Description |
 |-------|--------|--------|-------------|
-| `orchestration` | `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` | — | Pre-planning alignment, session recaps, context rotation for long multi-session work |
-| `design-best-practices` | `/devtronic:design-init`, `/devtronic:design-review`, `/devtronic:design-refine`, `/devtronic:design-system`, `/devtronic:design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `/devtronic`, `/devtronic:validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-runner` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
+| `orchestration` | `/briefing`, `/recap`, `/handoff` (auto-namespaced in plugin mode) | — | Pre-planning alignment, session recaps, context rotation for long multi-session work |
+| `design-best-practices` | `/design-init`, `/design-critique`, `/design-refine`, `/design-tokens`, `/design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
+| `auto-devtronic` | `/devtronic`, `/validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-executor` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
 #### addon enable / addon disable
 

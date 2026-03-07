@@ -1,5 +1,5 @@
 ---
-name: devtronic:post-review
+name: post-review
 description: Post-feature review before PR. Checks requirements, architecture, quality, and captures lessons. Auto-invoke after completing a plan implementation. Use --strict for senior engineer mode.
 allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
 argument-hint: "[--strict|--quick|files...]"
@@ -145,7 +145,7 @@ If no plan with done criteria exists, use the manual requirements checklist:
 
 ```
 Use the Task tool with:
-  subagent_type: "devtronic:architecture-checker"
+  subagent_type: "architecture-checker"
   model: "sonnet"
   prompt: "Check architecture compliance on these changed files: [file list from Step 1]"
 ```

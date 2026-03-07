@@ -8,7 +8,7 @@ When you select **Claude Code** during `init`, the CLI installs skills, agents, 
 
 Claude Code plugins are a packaging layer that provides:
 
-- **Namespacing** — Skills are invoked as `/devtronic:brief`, `/devtronic:spec`, etc., avoiding collisions with other plugins or custom skills
+- **Namespacing** — Skills use plain names (`/brief`, `/spec`, etc.) in the `name:` field. The plugin system auto-namespaces them as `devtronic:skill-name` when installed via `.claude-plugins/`. Both `/skill-name` and `/devtronic:skill-name` work depending on install mode
 - **Workflow hooks** — Automated actions on session start, file edits, stop, subagent completion, and context compaction
 - **Isolation** — Plugin files live in `.claude-plugins/`, separate from your project's `.claude/` configuration
 
@@ -244,7 +244,7 @@ The CLI detects standalone installations and offers migration:
 ```
 ┌ Migration Available ──────────────────────────────────────┐
 │ Claude Code skills/agents detected as standalone.         │
-│ The new version uses plugin mode (namespace devtronic:).     │
+│ The new version uses plugin mode (auto-namespaced).         │
 └───────────────────────────────────────────────────────────┘
 
 ◆ Migrate to plugin mode? (standalone → devtronic plugin)
@@ -305,7 +305,7 @@ The manifest tracks your changes, so `update` won't overwrite them.
 You can add skills in two places:
 
 - **Project-scoped**: Add to `.claude/skills/` (not namespaced, e.g., `/my-skill`)
-- **Plugin-scoped**: Add to `.claude-plugins/devtronic/skills/` (namespaced, e.g., `/devtronic:my-skill`)
+- **Plugin-scoped**: Add to `.claude-plugins/devtronic/skills/` (auto-namespaced by the plugin system, e.g., `/my-skill` becomes `/devtronic:my-skill`)
 
 Use project-scoped for project-specific workflows. Use plugin-scoped only if modifying the devtronic plugin itself.
 
@@ -334,12 +334,12 @@ devtronic ships three optional addon packs. They can be selected during `devtron
 | Addon | Type | Skills | Agents |
 |-------|------|--------|--------|
 | `orchestration` | Plugin-mode | `briefing`, `recap`, `handoff` | — |
-| `design-best-practices` | File-mode | `design-init`, `design-review`, `design-refine`, `design-system`, `design-harden` | — |
-| `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-runner` |
+| `design-best-practices` | File-mode | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | — |
+| `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-executor` |
 
 ### Plugin-Mode Addons (orchestration)
 
-The `orchestration` addon installs skills into the Claude Code plugin directory (`.claude-plugins/devtronic/skills/`). These are namespaced as `/devtronic:briefing`, etc.
+The `orchestration` addon installs skills into the Claude Code plugin directory (`.claude-plugins/devtronic/skills/`). These are auto-namespaced by the plugin system as `devtronic:briefing`, etc.
 
 ### File-Mode Addons (design-best-practices, auto-devtronic)
 
@@ -355,9 +355,9 @@ Example layout for `design-best-practices`:
 .claude/
 ├── skills/
 │   ├── design-init/SKILL.md
-│   ├── design-review/SKILL.md
+│   ├── design-critique/SKILL.md
 │   ├── design-refine/SKILL.md
-│   ├── design-system/SKILL.md
+│   ├── design-tokens/SKILL.md
 │   └── design-harden/
 │       ├── SKILL.md
 │       └── reference/          # 7 reference docs
@@ -387,7 +387,7 @@ See [CLI Reference](./cli-reference.md) and [Customization Guide](./customizatio
 
 ### Skills Not Appearing
 
-If `/devtronic:brief` doesn't work after installation:
+If `/brief` doesn't work after installation:
 
 1. Check `.claude/settings.json` has the marketplace and plugin entries
 2. Verify `.claude-plugins/devtronic/.claude-plugin/plugin.json` exists

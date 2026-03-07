@@ -10,7 +10,7 @@
     "agents": [
       "issue-parser",
       "failure-analyst",
-      "quality-runner"
+      "quality-executor"
     ]
   }
 }

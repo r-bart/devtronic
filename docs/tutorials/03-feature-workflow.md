@@ -23,19 +23,19 @@ By the end of this tutorial:
 ## The Complete Workflow
 
 ```
-/devtronic:brief [topic]         →  Orientation + pre-flight checks
+/brief [topic]         →  Orientation + pre-flight checks
         │
-/devtronic:spec [idea]           →  Define WHAT to build
+/spec [idea]           →  Define WHAT to build
         │
-/devtronic:create-plan [feature] →  Design implementation phases
+/create-plan [feature] →  Design implementation phases
         │
-/devtronic:generate-tests        →  Encode acceptance criteria as failing tests
+/generate-tests        →  Encode acceptance criteria as failing tests
         │
-/devtronic:execute-plan          →  Implement in parallel phases
+/execute-plan          →  Implement in parallel phases
         │
-/devtronic:summary               →  Document what changed and why
+/summary               →  Document what changed and why
         │
-/devtronic:post-review           →  Final quality verification
+/post-review           →  Final quality verification
 ```
 
 ---
@@ -47,7 +47,7 @@ By the end of this tutorial:
 If you're working on something that may have prior work:
 
 ```
-/devtronic:brief notifications
+/brief notifications
 ```
 
 Claude will scan docs, code, and git for existing work:
@@ -79,7 +79,7 @@ This appears to be new work. Proceed to `/spec`.
 ### Run /spec
 
 ```
-/devtronic:spec "push notification system for users"
+/spec "push notification system for users"
 ```
 
 Claude will generate an interactive PRD:
@@ -137,7 +137,7 @@ Typical content:
 ### Investigate the Code
 
 ```
-/devtronic:research --deep "notification patterns in our codebase"
+/research --deep "notification patterns in our codebase"
 ```
 
 Claude will explore:
@@ -148,7 +148,7 @@ Claude will explore:
 
 Result:
 ```
-thoughts/devtronic:research/2026-02-05_notifications-research.md
+thoughts/research/2026-02-05_notifications-research.md
 ```
 
 ### What to Look for in Research
@@ -164,13 +164,13 @@ thoughts/devtronic:research/2026-02-05_notifications-research.md
 ### Create the Plan
 
 ```
-/devtronic:create-plan notifications system
+/create-plan notifications system
 ```
 
 Or if you want detailed plan with pseudocode:
 
 ```
-/devtronic:create-plan notifications system --detailed
+/create-plan notifications system --detailed
 ```
 
 Claude will create implementation phases:
@@ -241,10 +241,10 @@ pnpm test       # ✓ Tests pass
 If the session is long:
 
 ```
-/devtronic:checkpoint
+/checkpoint
 ```
 
-Saves progress in `thoughts/devtronic:checkpoints/`.
+Saves progress in `thoughts/checkpoints/`.
 
 ### Continue with Phases
 
@@ -263,7 +263,7 @@ Repeat: implement → verify → next phase.
 After completing implementation, document what was done:
 
 ```
-/devtronic:summary notifications
+/summary notifications
 ```
 
 Claude will analyze git diff, commits, and generate:
@@ -284,7 +284,7 @@ This captures: what changed, why, decisions made, and what's pending.
 After summarizing:
 
 ```
-/devtronic:post-review
+/post-review
 ```
 
 Claude will verify:
@@ -299,7 +299,7 @@ Claude will verify:
 If you want more rigorous review:
 
 ```
-/devtronic:post-review --strict
+/post-review --strict
 ```
 
 "Senior engineer" mode - more demanding, more questions.
@@ -367,7 +367,7 @@ Learn to approach errors in a structured way.
 3. **Research before plan** - Avoids redesigns
 4. **Baby steps** - Verify after each change
 5. **Always review** - Captures lessons learned
-6. **Use /devtronic:checkpoint** in long sessions
+6. **Use /checkpoint** in long sessions
 
 ---
 
@@ -376,50 +376,50 @@ Learn to approach errors in a structured way.
 ### Small Feature
 
 ```
-/devtronic:brief dark mode
-/devtronic:spec "add dark mode toggle"
-/devtronic:create-plan dark mode --detailed
+/brief dark mode
+/spec "add dark mode toggle"
+/create-plan dark mode --detailed
 [implement]
-/devtronic:summary dark-mode
-/devtronic:post-review --quick
+/summary dark-mode
+/post-review --quick
 ```
 
 ### Bug Fix
 
 ```
-/devtronic:brief "login timeout"
+/brief "login timeout"
 [fix]
-/devtronic:summary login-timeout-fix
-/devtronic:post-review
+/summary login-timeout-fix
+/post-review
 ```
 
 ### Refactor
 
 ```
-/devtronic:brief auth
-/devtronic:research --deep "current auth implementation"
-/devtronic:create-plan refactor auth to use JWT
+/brief auth
+/research --deep "current auth implementation"
+/create-plan refactor auth to use JWT
 [implement]
-/devtronic:summary auth-jwt-refactor
-/devtronic:post-review --strict
+/summary auth-jwt-refactor
+/post-review --strict
 ```
 
 ### Feature with Design
 
 ```
-/devtronic:brief [feature]
-/devtronic:design --research
-/devtronic:design --define
-/devtronic:design --ia
-/devtronic:design --wireframe
-/devtronic:design-system --define   (if design system doesn't exist yet)
-/devtronic:spec [feature]
-/devtronic:create-plan [feature]
-/devtronic:generate-tests
-/devtronic:execute-plan
-/devtronic:design-review
-/devtronic:summary [feature]
-/devtronic:post-review
+/brief [feature]
+/design --research
+/design --define
+/design --ia
+/design --wireframe
+/design-system --define   (if design system doesn't exist yet)
+/spec [feature]
+/create-plan [feature]
+/generate-tests
+/execute-plan
+/design-review
+/summary [feature]
+/post-review
 ```
 
 Use when visual quality and UX matter — define what to build and how it should feel before writing a single line of code. See [Tutorial 07: Design-First Workflow](./07-design-workflow.md).

@@ -1,5 +1,5 @@
 ---
-name: devtronic:design-system-define
+name: design-system-define
 description: Creates or extracts a design system — tokens, components, and style guide — persisted to thoughts/design/design-system.md.
 allowed-tools: Task, Read, Write, Edit, AskUserQuestion, Bash, Glob
 argument-hint: "[--extract]"

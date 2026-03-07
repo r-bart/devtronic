@@ -80,7 +80,7 @@ Command system refactor — `devtronic:` namespace, autonomous engineering loop,
 
 ### Added
 
-- **`devtronic:` namespace** — All 19 core + 12 design skills renamed to `/devtronic:brief`, `/devtronic:spec`, etc. Slash command is derived from `name:` field in SKILL.md frontmatter
+- **`devtronic:` namespace** — Skills use plain names (`/brief`, `/spec`). Plugin system auto-namespaces as `devtronic:` when installed via `.claude-plugins/`
 - **`/devtronic` command** — Main entrypoint for the `auto-devtronic` addon (autonomous engineering loop); distinct from all namespaced skills
 - **Per-IDE runtime adapters** — `RUNTIME_SPECS` generates correct skill invocation syntax for claude, gemini, opencode, cursor, codex
 - **`devtronic mode` command** — `devtronic mode afk|hitl|show` persists execution mode to `.claude/devtronic.json`
@@ -89,11 +89,11 @@ Command system refactor — `devtronic:` namespace, autonomous engineering loop,
 - **`validate-task-afk` skill + `afk-task-validator` agent** — Step 0 of the autonomous loop; scores GitHub issues for AFK-readiness before execution
 - **Addon system v2** — Multi-agent support (`.claude/`, `.cursor/`, `.gemini/`), `devtronic addon list/sync`, `devtronic.json` config, `NOTICE.md` attribution
 - **`design-best-practices` addon** — 5 design skills + 7 reference docs + 1 quality rule
-- **`orchestration` addon** — `/devtronic:briefing`, `/devtronic:recap`, `/devtronic:handoff` for context rotation
+- **`orchestration` addon** — `/briefing`, `/recap`, `/handoff` for context rotation
 
 ### Updated
 
-- All documentation updated to reflect `devtronic:` namespace and new CLI commands
+- All documentation updated to reflect plain skill names and new CLI commands
 - README: new "Autonomous Engineering Loop" section documenting HITL/AFK modes
 - `thoughts/` fully gitignored — AI session documents are internal
 

@@ -1,5 +1,5 @@
 ---
-name: devtronic:brief
+name: brief
 description: Quick contextual briefing with pre-flight validation. Scans docs, code, git, and runs health checks before starting work.
 allowed-tools: Task, Glob, Grep, Read, Bash
 argument-hint: "[topic]"

@@ -40,9 +40,9 @@ describe('design-best-practices addon structure', () => {
     const manifest = JSON.parse(readFileSync(join(ADDON_ROOT, 'manifest.json'), 'utf-8'));
     expect(manifest.files.skills).toEqual([
       'design-init',
-      'design-review',
+      'design-critique',
       'design-refine',
-      'design-system',
+      'design-tokens',
       'design-harden',
     ]);
   });
@@ -79,9 +79,9 @@ describe('design-best-practices addon structure', () => {
 describe('design addon skill files', () => {
   const expectedSkills = [
     'design-init',
-    'design-review',
+    'design-critique',
     'design-refine',
-    'design-system',
+    'design-tokens',
     'design-harden',
   ];
 
@@ -99,9 +99,9 @@ describe('design addon skill files', () => {
     expect(content).toContain('user-invokable: true');
   });
 
-  it('FR-6: design-review skill has user-invokable: true', () => {
+  it('FR-6: design-critique skill has user-invokable: true', () => {
     // Spec: US-7
-    const content = readFileSync(join(ADDON_ROOT, 'skills', 'design-review', 'SKILL.md'), 'utf-8');
+    const content = readFileSync(join(ADDON_ROOT, 'skills', 'design-critique', 'SKILL.md'), 'utf-8');
     expect(content).toContain('user-invokable: true');
   });
 
@@ -112,9 +112,9 @@ describe('design addon skill files', () => {
     expect(content).toMatch(/bolder|quieter|minimal|delightful/);
   });
 
-  it('FR-6: design-system skill supports extract and normalize modes', () => {
+  it('FR-6: design-tokens skill supports extract and normalize modes', () => {
     // Spec: US-9/AC-4
-    const content = readFileSync(join(ADDON_ROOT, 'skills', 'design-system', 'SKILL.md'), 'utf-8');
+    const content = readFileSync(join(ADDON_ROOT, 'skills', 'design-tokens', 'SKILL.md'), 'utf-8');
     expect(content).toMatch(/extract/i);
     expect(content).toMatch(/normalize/i);
   });
