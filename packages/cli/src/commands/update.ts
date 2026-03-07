@@ -471,6 +471,8 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     syncSpinner.start('Updating enabled addon files...');
     let totalUpdated = 0;
     for (const name of enabledAddons) {
+      // Skip plugin-based addons (orchestration) — they use a different file management system
+      if (name === 'orchestration') continue;
       const addonSourceDir = getAddonSourceDir(name as import('../types.js').AddonName);
       const result = syncAddonFiles(targetDir, addonSourceDir, addonConfig.agents);
       totalUpdated += (result.updated ?? 0) + result.written;

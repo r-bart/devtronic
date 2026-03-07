@@ -195,9 +195,9 @@ export function generateAddonFiles(
         const existing = readFileSync(destPath, 'utf-8');
         if (existing === content) {
           result.skipped++;
-          continue;
+        } else {
+          result.conflicts.push(relPath);
         }
-        result.skipped++;
         continue;
       }
 
@@ -358,9 +358,11 @@ export function removeAddonFiles(
     }
   }
 
-  // Remove NOTICE.md
-  const noticePath = join(projectDir, 'NOTICE.md');
-  if (existsSync(noticePath)) unlinkSync(noticePath);
+  // Remove NOTICE.md only if this addon created it (has attribution)
+  if (manifest.attribution) {
+    const noticePath = join(projectDir, 'NOTICE.md');
+    if (existsSync(noticePath)) unlinkSync(noticePath);
+  }
 }
 
 /**
@@ -565,19 +567,24 @@ export function detectModifiedAddonFiles(
   addonName: string
 ): string[] {
   let installedChecksums: Record<string, string> = {};
+  let agents: string[] = ['claude'];
   try {
     const config = readAddonConfig(projectDir);
     const installed = config.installed?.[addonName];
     if (!installed?.checksums) return [];
     installedChecksums = installed.checksums;
+    agents = config.agents ?? ['claude'];
   } catch { return []; }
 
   const modified: string[] = [];
 
-  // Check each tracked file against all agent dirs
-  for (const agentDir of Object.values(AGENT_PATHS)) {
+  // Check each tracked file against all configured agent directories
+  for (const agent of agents) {
+    const spec = RUNTIME_SPECS[agent];
+    const baseDir = spec?.baseDir ?? AGENT_PATHS[agent] ?? `.${agent}`;
+
     for (const [relPath, originalHash] of Object.entries(installedChecksums)) {
-      const absPath = join(projectDir, agentDir, relPath);
+      const absPath = join(projectDir, baseDir, relPath);
       if (!existsSync(absPath)) continue;
       const current = checksum(readFileSync(absPath, 'utf-8'));
       if (current !== originalHash) {

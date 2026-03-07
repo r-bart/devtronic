@@ -20,8 +20,8 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
-| `addon enable <name>` | Add an addon skill pack |
-| `addon disable <name>` | Remove an addon skill pack |
+| `addon add <name>` | Add an addon skill pack |
+| `addon remove <name>` | Remove an addon skill pack |
 | `addon list` | List available and installed addons |
 | `addon sync` | Regenerate addon files for current agents |
 | `add <ide>` | Add another IDE |
@@ -45,11 +45,11 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 Three optional addon packs extend the core toolkit. Select them during `init` or manage them at any time:
 
 ```bash
-npx devtronic addon list                          # See available addons and status
-npx devtronic addon enable orchestration          # Install
-npx devtronic addon enable design-best-practices
-npx devtronic addon enable auto-devtronic
-npx devtronic addon disable <name>                # Uninstall
+npx devtronic addon list                        # See available addons and status
+npx devtronic addon add orchestration           # Install
+npx devtronic addon add design-best-practices
+npx devtronic addon add auto-devtronic
+npx devtronic addon remove <name>               # Uninstall
 ```
 
 | Addon | Skills | Description |

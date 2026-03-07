@@ -376,7 +376,7 @@ describe('Addon file generation — with agents', () => {
 // ─── generateAddonFiles: pre-existing files with different content ───────────
 
 describe('generateAddonFiles — pre-existing file conflict', () => {
-  it('should skip a pre-existing file with different content (never overwrite)', () => {
+  it('should not overwrite a pre-existing file with different content and report as conflict', () => {
     const projectDir = join(tempDir, 'project');
     mkdirSync(projectDir);
     const skillDir = join(projectDir, '.claude', 'skills', 'design-init');
@@ -385,8 +385,8 @@ describe('generateAddonFiles — pre-existing file conflict', () => {
 
     const result = generateAddonFiles(projectDir, addonSourceDir, ['claude']);
 
-    // The pre-existing file should be skipped, not overwritten
-    expect(result.skipped).toBeGreaterThan(0);
+    // The pre-existing file should be preserved and reported as a conflict
+    expect(result.conflicts.length).toBeGreaterThan(0);
     const preserved = readFileSync(join(skillDir, 'SKILL.md'), 'utf-8');
     expect(preserved).toBe('# Pre-existing custom content');
     // Not included in checksums (only written files are tracked)

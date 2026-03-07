@@ -184,7 +184,7 @@ See [Skills Reference](./docs/skills.md) for detailed documentation of each skil
 The `auto-devtronic` addon runs the full pipeline autonomously — spec → tests → plan → implement → PR — and self-corrects via failing tests.
 
 ```bash
-npx devtronic addon enable auto-devtronic
+npx devtronic addon add auto-devtronic
 
 /devtronic https://github.com/org/repo/issues/42   # HITL mode (default, human gates)
 /devtronic <issue> --afk                           # AFK mode (fully autonomous)

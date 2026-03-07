@@ -153,32 +153,39 @@ describe('US-1/AC-3: addon list enabled/disabled state', () => {
   });
 });
 
-// ─── FR-2: Deprecated add/remove aliases ─────────────────────────────────────
+// ─── FR-2: Deprecated enable/disable aliases ─────────────────────────────────
 
-describe('FR-2: deprecated addon add/remove aliases', () => {
-  it('addon add should still copy files (backward compat) AND show deprecation warning', async () => {
-    // Spec: FR-2 — keep add/remove as deprecated aliases
-    await addonCommand('add', 'design-best-practices', { path: tempDir });
+describe('FR-2: deprecated addon enable/disable aliases', () => {
+  it('addon enable should still copy files (backward compat) AND show deprecation warning', async () => {
+    // enable/disable are deprecated — add/remove are canonical
+    await (addonCommand as any)('enable', 'design-best-practices', { path: tempDir });
     expect(existsSync(join(tempDir, '.claude', 'skills', 'design-init', 'SKILL.md'))).toBe(true);
     const warnCalls = vi.mocked(clack.log.warn).mock.calls.flat().join(' ');
     expect(warnCalls).toContain('deprecated');
   });
 
-  it('addon remove should still remove files (backward compat) AND show deprecation warning', async () => {
-    // Spec: FR-2 — keep add/remove as deprecated aliases
-    await addonCommand('add', 'design-best-practices', { path: tempDir });
+  it('addon disable should still remove files (backward compat) AND show deprecation warning', async () => {
+    // enable/disable are deprecated — add/remove are canonical
+    await (addonCommand as any)('enable', 'design-best-practices', { path: tempDir });
     vi.clearAllMocks();
-    await addonCommand('remove', 'design-best-practices', { path: tempDir });
+    await (addonCommand as any)('disable', 'design-best-practices', { path: tempDir });
     expect(existsSync(join(tempDir, '.claude', 'skills', 'design-init'))).toBe(false);
     const warnCalls = vi.mocked(clack.log.warn).mock.calls.flat().join(' ');
     expect(warnCalls).toContain('deprecated');
   });
 
-  it('addon add deprecation warning should suggest using enable instead', async () => {
-    // Spec: FR-2
+  it('addon enable deprecation warning should suggest using add instead', async () => {
+    // enable is deprecated, should suggest add
+    await (addonCommand as any)('enable', 'design-best-practices', { path: tempDir });
+    const warnCalls = vi.mocked(clack.log.warn).mock.calls.flat().join(' ');
+    expect(warnCalls).toContain('add');
+  });
+
+  it('addon add should NOT show deprecation warning (canonical command)', async () => {
+    // add is the canonical command — no warning
     await addonCommand('add', 'design-best-practices', { path: tempDir });
     const warnCalls = vi.mocked(clack.log.warn).mock.calls.flat().join(' ');
-    expect(warnCalls).toContain('enable');
+    expect(warnCalls).not.toContain('deprecated');
   });
 });
 
