@@ -6,6 +6,7 @@ import {
   readClaudeSettings,
   writeClaudeSettings,
   registerPlugin,
+  registerGitHubPlugin,
   unregisterPlugin,
 } from '../settings.js';
 
@@ -245,5 +246,143 @@ describe('unregisterPlugin', () => {
       readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
     );
     expect(settings).toBeDefined();
+  });
+});
+
+describe('registerGitHubPlugin', () => {
+  it('writes GitHub marketplace source with source: github and repo field', () => {
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    expect(settings.extraKnownMarketplaces).toEqual({
+      'devtronic-gh': {
+        source: { source: 'github', repo: 'owner/repo' },
+      },
+    });
+  });
+
+  it('enables plugin with correct key format pluginName@marketplaceName', () => {
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    expect(settings.enabledPlugins).toEqual({
+      'devtronic@devtronic-gh': true,
+    });
+  });
+
+  it('cleans up legacy marketplace names (dev-ai-local, ai-agentic-local, devtronic-local)', () => {
+    mkdirSync(join(tempDir, '.claude'), { recursive: true });
+    writeFileSync(
+      join(tempDir, '.claude', 'settings.json'),
+      JSON.stringify({
+        extraKnownMarketplaces: {
+          'dev-ai-local': {
+            source: { source: 'directory', path: '.claude-plugins' },
+          },
+          'ai-agentic-local': {
+            source: { source: 'directory', path: '.claude-plugins' },
+          },
+          'devtronic-local': {
+            source: { source: 'directory', path: '.claude-plugins' },
+          },
+        },
+        enabledPlugins: {
+          'dev-ai@dev-ai-local': true,
+          'ai-agentic@ai-agentic-local': true,
+        },
+      })
+    );
+
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    // All legacy marketplaces removed
+    expect(settings.extraKnownMarketplaces['dev-ai-local']).toBeUndefined();
+    expect(settings.extraKnownMarketplaces['ai-agentic-local']).toBeUndefined();
+    expect(settings.extraKnownMarketplaces['devtronic-local']).toBeUndefined();
+
+    // Legacy plugin keys removed
+    expect(settings.enabledPlugins['dev-ai@dev-ai-local']).toBeUndefined();
+    expect(settings.enabledPlugins['ai-agentic@ai-agentic-local']).toBeUndefined();
+
+    // New GitHub marketplace present
+    expect(settings.extraKnownMarketplaces['devtronic-gh']).toBeDefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-gh']).toBe(true);
+  });
+
+  it('cleans up old local plugin key (devtronic@devtronic-local)', () => {
+    mkdirSync(join(tempDir, '.claude'), { recursive: true });
+    writeFileSync(
+      join(tempDir, '.claude', 'settings.json'),
+      JSON.stringify({
+        extraKnownMarketplaces: {
+          'devtronic-local': {
+            source: { source: 'directory', path: '.claude-plugins' },
+          },
+        },
+        enabledPlugins: { 'devtronic@devtronic-local': true },
+      })
+    );
+
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    expect(settings.extraKnownMarketplaces['devtronic-local']).toBeUndefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-local']).toBeUndefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-gh']).toBe(true);
+  });
+
+  it('is idempotent — calling twice does not duplicate', () => {
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    const marketplaceKeys = Object.keys(settings.extraKnownMarketplaces);
+    expect(marketplaceKeys).toHaveLength(1);
+
+    const pluginKeys = Object.keys(settings.enabledPlugins);
+    expect(pluginKeys).toHaveLength(1);
+  });
+
+  it('preserves existing unrelated settings', () => {
+    mkdirSync(join(tempDir, '.claude'), { recursive: true });
+    writeFileSync(
+      join(tempDir, '.claude', 'settings.json'),
+      JSON.stringify({
+        existingKey: 'preserved',
+        enabledPlugins: { 'other@marketplace': true },
+        extraKnownMarketplaces: {
+          'other-marketplace': {
+            source: { source: 'directory', path: '/some/path' },
+          },
+        },
+      })
+    );
+
+    registerGitHubPlugin(tempDir, 'devtronic', 'devtronic-gh', 'owner/repo');
+
+    const settings = JSON.parse(
+      readFileSync(join(tempDir, '.claude', 'settings.json'), 'utf-8')
+    );
+
+    expect(settings.existingKey).toBe('preserved');
+    expect(settings.enabledPlugins['other@marketplace']).toBe(true);
+    expect(settings.extraKnownMarketplaces['other-marketplace']).toBeDefined();
+    expect(settings.enabledPlugins['devtronic@devtronic-gh']).toBe(true);
   });
 });

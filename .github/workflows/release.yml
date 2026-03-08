@@ -70,3 +70,62 @@ jobs:
         with:
           body_path: /tmp/release-notes.md
           generate_release_notes: true
+
+  sync-plugin-repo:
+    name: Sync Plugin Marketplace
+    runs-on: ubuntu-latest
+    needs: [publish-cli]
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Build and push plugin directory
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+
+          # Clone plugin repo
+          git clone https://x-access-token:${{ secrets.PLUGIN_REPO_TOKEN }}@github.com/r-bart/devtronic-plugin.git /tmp/plugin-repo
+          cd /tmp/plugin-repo
+
+          PLUGIN_DIR="plugins/devtronic"
+
+          # Update skills and agents from templates
+          rm -rf "$PLUGIN_DIR/skills" "$PLUGIN_DIR/agents"
+          cp -r "$GITHUB_WORKSPACE/packages/cli/templates/claude-code/.claude/skills" "$PLUGIN_DIR/"
+          cp -r "$GITHUB_WORKSPACE/packages/cli/templates/claude-code/.claude/agents" "$PLUGIN_DIR/"
+
+          # Update hooks and scripts from marketplace templates
+          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/hooks.json" "$PLUGIN_DIR/hooks/"
+          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/stop-guard.sh" "$PLUGIN_DIR/scripts/"
+          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/auto-lint.sh" "$PLUGIN_DIR/scripts/"
+          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/checkpoint.sh" "$PLUGIN_DIR/scripts/"
+          chmod +x "$PLUGIN_DIR/scripts/"*.sh
+
+          # Update plugin.json version
+          jq -n \
+            --arg version "$VERSION" \
+            '{
+              name: "devtronic",
+              version: $version,
+              description: "Agentic development toolkit \u2014 skills, agents, workflow hooks",
+              author: {
+                name: "r-bart",
+                url: "https://github.com/r-bart/devtronic"
+              },
+              homepage: "https://github.com/r-bart/devtronic",
+              repository: "https://github.com/r-bart/devtronic-plugin",
+              license: "MIT"
+            }' > "$PLUGIN_DIR/.claude-plugin/plugin.json"
+
+          # Commit and push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No changes to sync"
+          else
+            git commit -m "chore: sync v${VERSION} from devtronic CLI"
+            git tag "v${VERSION}"
+            git push origin main
+            git push origin "v${VERSION}"
+          fi

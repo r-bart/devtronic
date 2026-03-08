@@ -67,7 +67,7 @@ npx devtronic init --preset nextjs-clean
 3. Asks which IDEs to configure
 4. For existing configs, asks how to handle conflicts
 5. Offers optional addon packs via multiselect (Claude Code only)
-6. Generates personalized configuration
+6. Registers GitHub marketplace plugin (Claude Code) or generates local files (other IDEs)
 7. Creates manifest for future updates
 
 ---
@@ -307,7 +307,7 @@ npx devtronic info
   Version:       1.1.0 (latest)
   Installed:     2026-02-27
   IDEs:          claude-code, cursor
-  Mode:          plugin
+  Mode:          marketplace
   Skills:        31
   Agents:        15
   Framework:     nextjs
@@ -541,7 +541,7 @@ Generated based on your detected stack:
 
 ### Static (Copied)
 
-Copied from templates:
+For **standalone mode** (non-Claude Code IDEs or standalone installations):
 
 | Directory | Content |
 |-----------|---------|
@@ -549,6 +549,8 @@ Copied from templates:
 | `.claude/agents/` | 15 specialized agents (8 core + 7 design) |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |
+
+For **marketplace mode** (Claude Code), skills and agents are loaded from the [GitHub marketplace](https://github.com/r-bart/devtronic-plugin). Only rules and `thoughts/` are generated locally.
 
 ---
 

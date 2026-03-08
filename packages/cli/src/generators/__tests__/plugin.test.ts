@@ -82,8 +82,6 @@ describe('generatePluginJson', () => {
     const result = JSON.parse(generatePluginJson('1.0.0'));
     expect(result.description).toBeTruthy();
     expect(result.author).toBeTruthy();
-    expect(result.license).toBe('MIT');
-    expect(result.keywords).toBeInstanceOf(Array);
   });
 });
 

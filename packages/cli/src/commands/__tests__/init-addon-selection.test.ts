@@ -59,6 +59,7 @@ vi.mock('../../utils/version.js', () => ({
 
 vi.mock('../../utils/settings.js', () => ({
   registerPlugin: vi.fn(),
+  registerGitHubPlugin: vi.fn(),
 }));
 
 // Bypass TTY check so initCommand can run in non-interactive test environment

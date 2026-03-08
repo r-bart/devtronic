@@ -1,0 +1,75 @@
+{
+  "description": "r-bart devtronic — workflow hooks",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "Quick project orientation: First check if thoughts/STATE.md exists — if so, read it and summarize the current project state. Then check git status, recent commits, and any in-progress work. Give a 3-line summary prioritizing STATE.md context if available.\n\nContext: $ARGUMENTS",
+            "model": "haiku",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/auto-lint.sh 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Auto-linting..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/stop-guard.sh",
+            "timeout": 60,
+            "statusMessage": "Running quality checks..."
+          },
+          {
+            "type": "prompt",
+            "prompt": "If thoughts/plans/ contains a recent plan with a \"Done Criteria\" section, quickly check: are there unmet criteria? If yes, list them as a brief reminder. Do NOT run a full review. If no plan or all criteria met, say nothing.",
+            "model": "haiku",
+            "timeout": 15,
+            "statusMessage": "Checking done criteria..."
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "prompt",
+            "prompt": "A subagent has finished. Based on the metadata below, assess if it completed successfully.\nConsider the agent type and whether the session ended normally.\nRespond with {\"ok\": true} if it appears complete, or {\"ok\": false, \"reason\": \"...\"} if something seems off.\n\nIMPORTANT: If stop_hook_active is true, always respond {\"ok\": true} to prevent infinite loops.\n\nContext: $ARGUMENTS",
+            "model": "haiku",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "matcher": "auto",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/checkpoint.sh",
+            "timeout": 30,
+            "statusMessage": "Auto-checkpoint before compaction..."
+          }
+        ]
+      }
+    ]
+  }
+}

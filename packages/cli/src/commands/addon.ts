@@ -78,8 +78,8 @@ export async function addonCommand(
     return;
   }
 
-  if (manifest.installMode !== 'plugin' || !manifest.pluginPath) {
-    p.log.warn('Addons require Claude Code in plugin mode.');
+  if (manifest.installMode !== 'plugin' && manifest.installMode !== 'marketplace') {
+    p.log.warn('The orchestration addon requires Claude Code in plugin or marketplace mode.');
     p.log.info('Run `npx devtronic init` with Claude Code selected.');
     p.outro('');
     return;
@@ -103,6 +103,33 @@ async function addAddon(
 ): Promise<void> {
   if (currentAddons.includes(addonName)) {
     p.log.warn(`Addon "${addonName}" is already enabled.`);
+    p.outro('');
+    return;
+  }
+
+  // Marketplace mode: orchestration skills are already in the marketplace repo
+  if (manifest.installMode === 'marketplace') {
+    const addon = ADDONS[addonName];
+    p.note(
+      [
+        `  ${chalk.dim('Name:')}        ${addon.label}`,
+        `  ${chalk.dim('Description:')} ${addon.description}`,
+        `  ${chalk.dim('Skills:')}      ${addon.skills.map((s) => chalk.cyan(`/${s}`)).join(', ')}`,
+      ].join('\n'),
+      'Enabling addon'
+    );
+
+    if (!manifest.projectConfig) {
+      manifest.projectConfig = { architecture: 'flat', layers: [], stateManagement: [], dataFetching: [], orm: [], testing: [], ui: [], validation: [], framework: 'unknown', qualityCommand: '' };
+    }
+    manifest.projectConfig.enabledAddons = [...currentAddons, addonName];
+    writeManifest(targetDir, manifest);
+
+    p.log.success(`${addon.label} enabled`);
+    p.note(
+      'Orchestration skills are included in the marketplace plugin.\nAlready available as /devtronic:briefing, /devtronic:recap, /devtronic:handoff.',
+      'Info'
+    );
     p.outro('');
     return;
   }
@@ -183,6 +210,16 @@ async function removeAddon(
 ): Promise<void> {
   if (!currentAddons.includes(addonName)) {
     p.log.warn(`Addon "${addonName}" is not currently enabled.`);
+    p.outro('');
+    return;
+  }
+
+  // Marketplace mode: just remove from enabledAddons, no local files to delete
+  if (manifest.installMode === 'marketplace') {
+    const addon = ADDONS[addonName];
+    manifest.projectConfig!.enabledAddons = currentAddons.filter((a) => a !== addonName);
+    writeManifest(targetDir, manifest);
+    p.log.success(`${addon.label} disabled`);
     p.outro('');
     return;
   }

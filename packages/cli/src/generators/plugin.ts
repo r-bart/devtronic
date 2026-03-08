@@ -16,6 +16,10 @@ export const PLUGIN_NAME = 'devtronic';
 export const MARKETPLACE_NAME = 'devtronic-local';
 export const PLUGIN_DIR = '.claude-plugins';
 
+/** GitHub marketplace for remote plugin distribution */
+export const GITHUB_MARKETPLACE_REPO = 'r-bart/devtronic-plugin';
+export const GITHUB_MARKETPLACE_NAME = 'devtronic';
+
 export interface PluginGenerationResult {
   /** Files created with their manifest entries, keyed by relative path from project root */
   files: Record<string, ManifestFile>;
@@ -41,19 +45,12 @@ export function generatePluginJson(cliVersion: string, addonSkillCount: number =
   return JSON.stringify(
     {
       name: PLUGIN_NAME,
-      version: cliVersion,
       description:
-        `devtronic — ${skillLabel}, ${BASE_AGENT_COUNT} agents, full workflow hooks`,
+        `Agentic development toolkit — ${skillLabel}, ${BASE_AGENT_COUNT} agents, workflow hooks`,
+      version: cliVersion,
       author: {
         name: 'r-bart',
-        url: 'https://github.com/r-bart/devtronic',
       },
-      repository: 'https://github.com/r-bart/devtronic',
-      license: 'MIT',
-      keywords: ['agentic', 'architecture', 'clean-architecture', 'ddd', 'workflow', 'skills'],
-      skills: './skills/',
-      agents: './agents/',
-      hooks: './hooks/hooks.json',
     },
     null,
     2

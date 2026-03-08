@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- **BREAKING**: Claude Code plugin now uses GitHub marketplace (`r-bart/devtronic-plugin`) instead of local `.claude-plugins/` directory
+- `npx devtronic init` registers the GitHub marketplace in settings.json instead of generating local plugin files
+- `npx devtronic update` migrates existing local plugin and standalone installations to marketplace mode
+- `npx devtronic uninstall` cleans up marketplace registration
+
+### Added
+- CI job to automatically sync plugin content to marketplace repo on release
+- Generic marketplace hook scripts (stop-guard.sh, auto-lint.sh, checkpoint.sh) with auto-detected package manager
+- Direct marketplace installation: `/plugin marketplace add r-bart/devtronic-plugin`
+
+### Removed
+- Local plugin generation (`.claude-plugins/` directory no longer created in user projects)
+- Local marketplace.json generation
+
 ---
 
 ## [1.2.6] - 2026-03-07

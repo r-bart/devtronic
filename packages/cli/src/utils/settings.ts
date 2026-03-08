@@ -6,6 +6,7 @@ const SETTINGS_FILE = '.claude/settings.json';
 interface MarketplaceSource {
   source: string;
   path?: string;
+  repo?: string;
   package?: string;
 }
 
@@ -41,7 +42,7 @@ export function writeClaudeSettings(targetDir: string, settings: ClaudeSettings)
 
 /** Legacy names from before the project was renamed to devtronic */
 const LEGACY_PLUGIN_NAMES = ['dev-ai', 'ai-agentic'];
-const LEGACY_MARKETPLACE_NAMES = ['dev-ai-local', 'ai-agentic-local'];
+const LEGACY_MARKETPLACE_NAMES = ['dev-ai-local', 'ai-agentic-local', 'devtronic-local'];
 
 /**
  * Registers a local plugin by adding a directory marketplace and enabling the plugin.
@@ -81,6 +82,57 @@ export function registerPlugin(
   }
 
   // Enable plugin if not present
+  if (!settings.enabledPlugins) {
+    settings.enabledPlugins = {};
+  }
+  const pluginKey = `${pluginName}@${marketplaceName}`;
+  if (settings.enabledPlugins[pluginKey] === undefined) {
+    settings.enabledPlugins[pluginKey] = true;
+  }
+
+  writeClaudeSettings(targetDir, settings);
+}
+
+/**
+ * Registers a GitHub-hosted marketplace plugin.
+ * Cleans up all legacy entries (local directory + old names).
+ * Idempotent — safe to call multiple times.
+ */
+export function registerGitHubPlugin(
+  targetDir: string,
+  pluginName: string,
+  marketplaceName: string,
+  githubRepo: string
+): void {
+  const settings = readClaudeSettings(targetDir);
+
+  // Clean up legacy marketplaces and plugins (includes old local marketplace)
+  if (settings.extraKnownMarketplaces) {
+    for (const legacy of LEGACY_MARKETPLACE_NAMES) {
+      delete settings.extraKnownMarketplaces[legacy];
+    }
+  }
+  if (settings.enabledPlugins) {
+    for (const key of Object.keys(settings.enabledPlugins)) {
+      if (LEGACY_PLUGIN_NAMES.some((lp) => key.startsWith(`${lp}@`))) {
+        delete settings.enabledPlugins[key];
+      }
+      // Also clean up the old local plugin key
+      if (key === `${pluginName}@devtronic-local`) {
+        delete settings.enabledPlugins[key];
+      }
+    }
+  }
+
+  // Add GitHub marketplace
+  if (!settings.extraKnownMarketplaces) {
+    settings.extraKnownMarketplaces = {};
+  }
+  settings.extraKnownMarketplaces[marketplaceName] = {
+    source: { source: 'github', repo: githubRepo },
+  };
+
+  // Enable plugin
   if (!settings.enabledPlugins) {
     settings.enabledPlugins = {};
   }

@@ -167,8 +167,8 @@ export interface ProjectConfig {
   enabledAddons?: AddonName[];
 }
 
-/** Whether Claude Code uses standalone files (.claude/) or a plugin (.claude-plugins/) */
-export type InstallMode = 'standalone' | 'plugin';
+/** Whether Claude Code uses standalone files (.claude/) or a plugin (.claude-plugins/) or a remote marketplace */
+export type InstallMode = 'standalone' | 'plugin' | 'marketplace';
 
 export interface Manifest {
   version: string;
