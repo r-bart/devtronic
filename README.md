@@ -67,6 +67,7 @@ The CLI will:
 
 Same functionality through conversation. Use `/scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
 
+
 ### Option C: Plugin Marketplace (Claude Code)
 
 In Claude Code, run:
