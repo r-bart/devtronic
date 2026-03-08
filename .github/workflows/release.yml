@@ -101,13 +101,16 @@ jobs:
           cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/checkpoint.sh" "$PLUGIN_DIR/scripts/"
           chmod +x "$PLUGIN_DIR/scripts/"*.sh
 
-          # Update plugin.json version
+          # Update plugin.json version (count skills and agents dynamically)
+          SKILL_COUNT=$(find "$PLUGIN_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
+          AGENT_COUNT=$(find "$PLUGIN_DIR/agents" -name '*.md' | wc -l | tr -d ' ')
           jq -n \
             --arg version "$VERSION" \
+            --arg desc "Agentic development toolkit — ${SKILL_COUNT} skills, ${AGENT_COUNT} agents, workflow hooks" \
             '{
               name: "devtronic",
               version: $version,
-              description: "Agentic development toolkit \u2014 skills, agents, workflow hooks",
+              description: $desc,
               author: {
                 name: "r-bart",
                 url: "https://github.com/r-bart/devtronic"
