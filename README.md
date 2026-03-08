@@ -25,7 +25,7 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
 | [Skills Reference](./docs/skills.md) | Detailed documentation of all 20 core + 12 design phase + 9 addon skills |
-| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 3 auto-devtronic addon agents |
+| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 4 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
 | [Existing Projects](./docs/existing-projects.md) | Integration with existing configurations |
@@ -129,7 +129,7 @@ npx devtronic init
 │       │             20 core + 12 design phase + 9 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
-│       │             15 agents included                          │
+│       │             15 core + 4 addon agents                    │
 │       │                                                         │
 │       ├── Rules     Quality standards (IDE-specific format)    │
 │       │                                                         │
@@ -219,7 +219,7 @@ npx devtronic mode show   # show current mode
 
 See [auto-devtronic Addon](./docs/auto-devtronic-addon.md) for full documentation.
 
-### Agents (15)
+### Agents (15 core + 4 addon)
 
 | Agent | Model | Purpose |
 |-------|-------|---------|

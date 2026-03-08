@@ -15,7 +15,9 @@ Document your architecture patterns and rules here.
 Run after every change:
 
 ```bash
+
 # No quality scripts detected - add your commands here
+
 ```
 
 ### Rules

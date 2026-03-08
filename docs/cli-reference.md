@@ -546,7 +546,7 @@ For **standalone mode** (non-Claude Code IDEs or standalone installations):
 | Directory | Content |
 |-----------|---------|
 | `.claude/skills/` | 32 workflow skills (20 core + 12 design) |
-| `.claude/agents/` | 15 specialized agents (8 core + 7 design) |
+| `.claude/agents/` | 15 specialized agents |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |
 

@@ -26,25 +26,7 @@
         ]
       }
     ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/scripts/stop-guard.sh",
-            "timeout": 60,
-            "statusMessage": "Running quality checks..."
-          },
-          {
-            "type": "prompt",
-            "prompt": "If thoughts/plans/ contains a recent plan with a \"Done Criteria\" section, quickly check: are there unmet criteria? If yes, list them as a brief reminder. Do NOT run a full review. If no plan or all criteria met, say nothing.",
-            "model": "haiku",
-            "timeout": 15,
-            "statusMessage": "Checking done criteria..."
-          }
-        ]
-      }
-    ],
+    "Stop": [],
     "SubagentStop": [
       {
         "hooks": [
@@ -57,29 +39,17 @@
         ]
       }
     ],
-    "PreCompact": [
-      {
-        "matcher": "auto",
-        "hooks": [
-          {
-            "type": "command",
-            "command": ".claude/scripts/checkpoint.sh",
-            "timeout": 30,
-            "statusMessage": "Auto-checkpoint before compaction..."
-          }
-        ]
-      }
-    ]
-  },
-  "enabledPlugins": {
-    "devtronic@devtronic-local": true
+    "PreCompact": []
   },
   "extraKnownMarketplaces": {
-    "devtronic-local": {
+    "devtronic": {
       "source": {
-        "source": "directory",
-        "path": ".claude-plugins"
+        "source": "github",
+        "repo": "r-bart/devtronic-plugin"
       }
     }
+  },
+  "enabledPlugins": {
+    "devtronic@devtronic": true
   }
 }

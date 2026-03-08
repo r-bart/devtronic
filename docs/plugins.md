@@ -87,7 +87,7 @@ The marketplace repo (`r-bart/devtronic-plugin`) contains:
 │   │   │   ├── SKILL.md
 │   │   │   └── (supporting files)
 │   │   └── ...
-│   ├── agents/                         # 15 agents (8 core + 7 design)
+│   ├── agents/                         # 15 agents
 │   ├── hooks/
 │   │   └── hooks.json                  # 5 workflow hooks
 │   └── scripts/

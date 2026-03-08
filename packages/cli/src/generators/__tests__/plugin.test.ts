@@ -99,7 +99,7 @@ describe('generateMarketplaceJson', () => {
     const result = JSON.parse(generateMarketplaceJson());
     expect(result.plugins).toHaveLength(1);
     expect(result.plugins[0].name).toBe('devtronic');
-    expect(result.plugins[0].source).toBe('./devtronic');
+    expect(result.plugins[0].source).toBe('./plugins/devtronic');
   });
 });
 

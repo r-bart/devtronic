@@ -57,7 +57,7 @@ export const ADDONS: Record<AddonName, AddonInfo> = {
     label: 'auto-devtronic — Autonomous Engineering Loop',
     description: 'Runs the full spec→test→plan→execute→PR pipeline autonomously. Self-corrects via failing tests. HITL and AFK modes.',
     skills: ['auto-devtronic'],
-    agents: ['issue-parser', 'failure-analyst', 'quality-executor'],
+    agents: ['issue-parser', 'failure-analyst', 'quality-executor', 'afk-task-validator'],
   },
 };
 

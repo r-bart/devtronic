@@ -1,7 +1,3 @@
----
-alwaysApply: true
----
-
 # Code Quality Checks
 
 After implementing a new feature or modifying existing code, **always run the following checks** before considering the task complete.
@@ -65,7 +61,9 @@ npm run format
 <!-- CUSTOMIZE: Update for your project -->
 
 ```bash
+
 # All checks in sequence
+
 npm run typecheck && npm run lint && npm run format
 ```
 
@@ -90,7 +88,9 @@ Examples to add:
 Consider adding a pre-commit hook to automate these checks:
 
 ```bash
+
 # Using husky + lint-staged
+
 npx husky install
 npm pkg set scripts.prepare="husky install"
 npx husky add .husky/pre-commit "npx lint-staged"

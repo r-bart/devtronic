@@ -3,7 +3,7 @@
  * @immutable Do NOT modify these tests — implementation must make them pass as-is.
  *
  * Structural validation for design phase skills and agents.
- * Tests fail while files don't exist; pass after /execute-plan completes.
+ * Tests validate files in templates/claude-code/.claude/ (the source of truth).
  */
 
 import { describe, it, expect } from 'vitest';
@@ -13,8 +13,9 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 const REPO_ROOT = resolve(__dirname, '../../../../../');
-const SKILLS_DIR = resolve(REPO_ROOT, '.claude/skills');
-const AGENTS_DIR = resolve(REPO_ROOT, '.claude/agents');
+const TEMPLATES_CLAUDE_DIR = resolve(REPO_ROOT, 'packages/cli/templates/claude-code/.claude');
+const SKILLS_DIR = resolve(TEMPLATES_CLAUDE_DIR, 'skills');
+const AGENTS_DIR = resolve(TEMPLATES_CLAUDE_DIR, 'agents');
 
 // --- helpers ---
 
@@ -45,17 +46,17 @@ function lineCount(content: string): number {
 
 const DESIGN_SKILLS: { folder: string; name: string; dispatcher?: boolean }[] = [
   { folder: 'design', name: 'design', dispatcher: true },
-  { folder: 'design-research', name: 'design:research' },
-  { folder: 'design-define', name: 'design:define' },
-  { folder: 'design-ia', name: 'design:ia' },
-  { folder: 'design-wireframe', name: 'design:wireframe' },
-  { folder: 'design-system', name: 'design:system', dispatcher: true },
-  { folder: 'design-system-define', name: 'design:system-define' },
-  { folder: 'design-system-audit', name: 'design:system-audit' },
-  { folder: 'design-system-sync', name: 'design:system-sync' },
-  { folder: 'design-audit', name: 'design:audit' },
-  { folder: 'design-review', name: 'design:review' },
-  { folder: 'design-spec', name: 'design:spec' },
+  { folder: 'design-research', name: 'design-research' },
+  { folder: 'design-define', name: 'design-define' },
+  { folder: 'design-ia', name: 'design-ia' },
+  { folder: 'design-wireframe', name: 'design-wireframe' },
+  { folder: 'design-system', name: 'design-system', dispatcher: true },
+  { folder: 'design-system-define', name: 'design-system-define' },
+  { folder: 'design-system-audit', name: 'design-system-audit' },
+  { folder: 'design-system-sync', name: 'design-system-sync' },
+  { folder: 'design-audit', name: 'design-audit' },
+  { folder: 'design-review', name: 'design-review' },
+  { folder: 'design-spec', name: 'design-spec' },
 ];
 
 const DESIGN_AGENTS: { name: string; model: string; readOnly?: boolean }[] = [

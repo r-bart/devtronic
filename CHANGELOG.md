@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+---
+
+## [1.3.0] - 2026-03-08
+
 ### Changed
 - **BREAKING**: Claude Code plugin now uses GitHub marketplace (`r-bart/devtronic-plugin`) instead of local `.claude-plugins/` directory
 - `npx devtronic init` registers the GitHub marketplace in settings.json instead of generating local plugin files
@@ -17,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI job to automatically sync plugin content to marketplace repo on release
 - Generic marketplace hook scripts (stop-guard.sh, auto-lint.sh, checkpoint.sh) with auto-detected package manager
 - Direct marketplace installation: `/plugin marketplace add r-bart/devtronic-plugin`
+
+### Fixed
+- **Documentation audit**: corrected auto-devtronic addon agent count (3 → 4), fixed stale "8 core + 7 design" agent split references, fixed pre-rename skill names in npm README addon table
+- **`design-skills.test.ts`**: updated to read from templates directory (source of truth) instead of repo root `.claude/` which no longer contains plugin files
 
 ### Removed
 - Local plugin generation (`.claude-plugins/` directory no longer created in user projects)

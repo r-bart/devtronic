@@ -75,7 +75,7 @@ export function generateMarketplaceJson(addonSkillCount: number = 0): string {
       plugins: [
         {
           name: PLUGIN_NAME,
-          source: `./${PLUGIN_NAME}`,
+          source: `./plugins/${PLUGIN_NAME}`,
           description: `devtronic — ${skillLabel}, ${BASE_AGENT_COUNT} agents, full workflow hooks`,
         },
       ],
@@ -96,8 +96,8 @@ export function generateMarketplaceJson(addonSkillCount: number = 0): string {
  * \-- devtronic/                            <- the plugin
  *     |-- .claude-plugin/
  *     |   \-- plugin.json
- *     |-- skills/   (31 skills: 19 core + 12 design)
- *     |-- agents/   (15 agents: 8 core + 7 design)
+ *     |-- skills/   (32 skills: 20 core + 12 design)
+ *     |-- agents/   (15 agents)
  *     |-- hooks/
  *     |   \-- hooks.json
  *     \-- scripts/
