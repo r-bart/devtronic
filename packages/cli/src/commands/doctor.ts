@@ -5,9 +5,9 @@ import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { DoctorOptions, DoctorCheck } from '../types.js';
 import { readManifest, fileExists, readFile } from '../utils/files.js';
-import { readClaudeSettings, registerPlugin } from '../utils/settings.js';
+import { readClaudeSettings, registerPlugin, registerGitHubPlugin } from '../utils/settings.js';
 import { introTitle, symbols } from '../utils/ui.js';
-import { PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR } from '../generators/plugin.js';
+import { PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO } from '../generators/plugin.js';
 
 export async function doctorCommand(options: DoctorOptions): Promise<void> {
   const targetDir = resolve(options.path || '.');
@@ -33,8 +33,8 @@ export async function doctorCommand(options: DoctorOptions): Promise<void> {
   checks.push(checkScriptPermissions(targetDir, manifest));
 
   // 4. Plugin registered in .claude/settings.json (if plugin mode)
-  if (manifest.installMode === 'plugin') {
-    checks.push(checkPluginRegistered(targetDir));
+  if (manifest.installMode === 'plugin' || manifest.installMode === 'marketplace') {
+    checks.push(checkPluginRegistered(targetDir, manifest.installMode!));
   }
 
   // 5. Hook scripts point to existing files
@@ -240,12 +240,29 @@ export function checkScriptPermissions(
   };
 }
 
-function checkPluginRegistered(targetDir: string): DoctorCheck {
+function checkPluginRegistered(targetDir: string, installMode: string): DoctorCheck {
   const settings = readClaudeSettings(targetDir);
 
+  if (installMode === 'marketplace') {
+    const pluginKey = `${PLUGIN_NAME}@${GITHUB_MARKETPLACE_NAME}`;
+    const isRegistered = settings.enabledPlugins?.[pluginKey] === true;
+    if (isRegistered) {
+      return { name: 'plugin', status: 'pass', message: 'Marketplace plugin registered in .claude/settings.json' };
+    }
+    return {
+      name: 'plugin',
+      status: 'warn',
+      message: 'Marketplace plugin not registered in .claude/settings.json',
+      fixable: true,
+      fix: () => {
+        registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
+      },
+    };
+  }
+
+  // Legacy local plugin mode
   const pluginKey = `${PLUGIN_NAME}@${MARKETPLACE_NAME}`;
-  const isRegistered =
-    settings.enabledPlugins?.[pluginKey] === true;
+  const isRegistered = settings.enabledPlugins?.[pluginKey] === true;
 
   if (isRegistered) {
     return {

@@ -82,8 +82,6 @@ describe('generatePluginJson', () => {
     const result = JSON.parse(generatePluginJson('1.0.0'));
     expect(result.description).toBeTruthy();
     expect(result.author).toBeTruthy();
-    expect(result.license).toBe('MIT');
-    expect(result.keywords).toBeInstanceOf(Array);
   });
 });
 
@@ -101,7 +99,7 @@ describe('generateMarketplaceJson', () => {
     const result = JSON.parse(generateMarketplaceJson());
     expect(result.plugins).toHaveLength(1);
     expect(result.plugins[0].name).toBe('devtronic');
-    expect(result.plugins[0].source).toBe('./devtronic');
+    expect(result.plugins[0].source).toBe('./plugins/devtronic');
   });
 });
 

@@ -1,4 +1,4 @@
-import { existsSync, chmodSync } from 'node:fs';
+import { existsSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
@@ -38,15 +38,14 @@ import { generateAgentsMdFromConfig, generateClaudeMd } from '../generators/rule
 import { generateArchitectureRules } from '../generators/architectureRules.js';
 import { getRuleContentForIDE } from '../utils/rules.js';
 import {
-  generatePlugin,
   PLUGIN_NAME,
-  MARKETPLACE_NAME,
-  PLUGIN_DIR,
+  GITHUB_MARKETPLACE_REPO,
+  GITHUB_MARKETPLACE_NAME,
   BASE_SKILL_COUNT,
   DESIGN_SKILL_COUNT,
   BASE_AGENT_COUNT,
 } from '../generators/plugin.js';
-import { registerPlugin } from '../utils/settings.js';
+import { registerGitHubPlugin } from '../utils/settings.js';
 import { introTitle, showLogo, symbols, formatKV } from '../utils/ui.js';
 import { getCliVersion } from '../utils/version.js';
 
@@ -294,29 +293,16 @@ export async function initCommand(options: InitOptions): Promise<void> {
   const usePluginMode = selectedIDEs.includes('claude-code');
 
   if (usePluginMode) {
-    const pluginResult = generatePlugin(
+    // Register GitHub marketplace (plugin content lives in remote repo)
+    registerGitHubPlugin(
       targetDir,
-      TEMPLATES_DIR,
-      getCliVersion(),
-      projectConfig,
-      analysis.packageManager
+      PLUGIN_NAME,
+      GITHUB_MARKETPLACE_NAME,
+      GITHUB_MARKETPLACE_REPO
     );
 
-    // Make scripts executable
-    for (const script of ['checkpoint.sh', 'stop-guard.sh']) {
-      const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
-      if (existsSync(scriptPath)) {
-        chmodSync(scriptPath, 0o755);
-      }
-    }
-
-    // Register plugin in .claude/settings.json
-    registerPlugin(targetDir, PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR);
-
-    // Add plugin files to manifest
-    Object.assign(manifest.files, pluginResult.files);
-    manifest.installMode = 'plugin';
-    manifest.pluginPath = pluginResult.pluginPath;
+    // Set install mode
+    manifest.installMode = 'marketplace';
 
     const addonSkillCount = (projectConfig.enabledAddons || [])
       .reduce((sum, a) => sum + (ADDONS[a]?.skills.length ?? 0), 0);
@@ -324,7 +310,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
     const skillLabel = addonSkillCount > 0
       ? `${baseTotal} + ${addonSkillCount} addon skills`
       : `${baseTotal} skills`;
-    generatedFiles.push(`Plugin ${PLUGIN_NAME} (${skillLabel}, ${BASE_AGENT_COUNT} agents, 5 hooks)`);
+    generatedFiles.push(`Plugin ${PLUGIN_NAME} (${skillLabel}, ${BASE_AGENT_COUNT} agents) via GitHub marketplace`);
   }
 
   // Copy IDE templates (except dynamic rule files)
@@ -489,11 +475,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
   if (usePluginMode) {
     p.note(
       [
-        `  Name:   ${chalk.cyan(PLUGIN_NAME)} at ${PLUGIN_DIR}/${PLUGIN_NAME}/`,
-        `  Skills: /brief, /spec, /research, ... (auto-namespaced in plugin mode)`,
-        `  Hooks:  SessionStart, PostToolUse, Stop, SubagentStop, PreCompact`,
+        `  Marketplace: ${chalk.cyan(GITHUB_MARKETPLACE_REPO)}`,
+        `  Plugin:      ${chalk.cyan(PLUGIN_NAME)}`,
+        `  Skills:      /devtronic:brief, /devtronic:spec, ... (auto-namespaced)`,
+        `  Hooks:       SessionStart, PostToolUse, Stop, SubagentStop, PreCompact`,
+        ``,
+        `  ${chalk.dim('Restart Claude Code or run /reload-plugins to activate.')}`,
       ].join('\n'),
-      'Plugin Installed'
+      'GitHub Marketplace Registered'
     );
   }
 

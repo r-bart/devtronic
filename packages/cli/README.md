@@ -36,7 +36,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
 - **Skills** (20 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/summary`, `/audit`, `/devtronic-help`, etc.)
-- **Agents** (15 + 3 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
+- **Agents** (15 + 4 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
 - **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
 - **thoughts/** — Structured directory for AI working documents
 
@@ -55,7 +55,7 @@ npx devtronic addon remove <name>               # Uninstall
 | Addon | Skills | Description |
 |-------|--------|-------------|
 | `orchestration` | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation for multi-session work |
-| `design-best-practices` | `design-init`, `design-review`, `design-refine`, `design-system`, `design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
+| `design-best-practices` | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
 | `auto-devtronic` | `auto-devtronic`, `validate-task-afk` | Autonomous engineering loop — takes a GitHub issue, runs spec → tests → plan → implement → PR, self-corrects via failing tests |
 
 During `npx devtronic init` (Claude Code only), a multiselect prompt lets you enable any combination of addons upfront.

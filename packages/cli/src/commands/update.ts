@@ -1,5 +1,5 @@
 import { resolve, join, dirname } from 'node:path';
-import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, chmodSync } from 'node:fs';
+import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, rmSync, chmodSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { UpdateOptions, Manifest, ProjectConfig } from '../types.js';
@@ -24,10 +24,11 @@ import { REMOVED_FILES, type RemovalInfo } from '../data/removals.js';
 import {
   generatePlugin,
   PLUGIN_NAME,
-  MARKETPLACE_NAME,
   PLUGIN_DIR,
+  GITHUB_MARKETPLACE_REPO,
+  GITHUB_MARKETPLACE_NAME,
 } from '../generators/plugin.js';
-import { registerPlugin } from '../utils/settings.js';
+import { registerGitHubPlugin } from '../utils/settings.js';
 import { getCliVersion } from '../utils/version.js';
 import { introTitle, symbols, formatKV } from '../utils/ui.js';
 import { detectOrphanedAddonFiles, registerAddonInConfig, readAddonConfig } from '../utils/addonConfig.js';
@@ -95,20 +96,48 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
     if (!options.check) {
       const migrate = await p.confirm({
-        message: 'Migrate to plugin mode? (standalone → devtronic plugin)',
+        message: 'Migrate to GitHub marketplace? (standalone → devtronic marketplace plugin)',
         initialValue: true,
       });
 
       if (!p.isCancel(migrate) && migrate) {
-        await migrateToPlugin(targetDir, manifest, analysis, options.dryRun);
+        await migrateStandaloneToMarketplace(targetDir, manifest, analysis, options.dryRun);
+        return;
+      }
+    }
+  }
+
+  // Detect local plugin that should migrate to GitHub marketplace
+  const shouldMigrateToMarketplace =
+    manifest.installMode === 'plugin' &&
+    manifest.pluginPath;
+
+  if (shouldMigrateToMarketplace) {
+    p.note(
+      'Claude Code plugin detected as local directory.\n' +
+        'The new version uses a GitHub marketplace for reliable plugin distribution.\n' +
+        'This fixes cache issues and enables proper skill namespacing.',
+      'Marketplace Migration Available'
+    );
+
+    if (!options.check) {
+      const migrate = await p.confirm({
+        message: 'Migrate to GitHub marketplace? (recommended)',
+        initialValue: true,
+      });
+
+      if (!p.isCancel(migrate) && migrate) {
+        await migrateToMarketplace(targetDir, manifest, options.dryRun);
         return;
       }
     }
   }
 
   if (options.check) {
-    if (installedVersion === currentVersion && stackChanges.length === 0 && !shouldMigrate) {
+    if (installedVersion === currentVersion && stackChanges.length === 0 && !shouldMigrate && !shouldMigrateToMarketplace) {
       p.log.success('Already up to date!');
+    } else if (shouldMigrateToMarketplace) {
+      p.log.info('Marketplace migration available: local plugin → GitHub marketplace');
     } else if (shouldMigrate) {
       p.log.info('Plugin migration available: standalone → devtronic plugin');
     } else if (installedVersion !== currentVersion) {
@@ -347,7 +376,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (!existsSync(templateDir)) continue;
 
-    const isPluginMode = ide === 'claude-code' && manifest.installMode === 'plugin';
+    const isPluginMode = ide === 'claude-code' && (manifest.installMode === 'plugin' || manifest.installMode === 'marketplace');
 
     const files = getAllFilesRecursive(templateDir);
     for (const file of files) {
@@ -371,7 +400,12 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
   }
 
-  // Update plugin files if in plugin mode
+  // Re-register GitHub marketplace if in marketplace mode (idempotent)
+  if (manifest.installMode === 'marketplace') {
+    registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
+  }
+
+  // Update plugin files if in local plugin mode (not marketplace — marketplace updates via /plugin update)
   if (manifest.installMode === 'plugin' && manifest.pluginPath) {
     // Save user-modified plugin files before generatePlugin overwrites them
     const userModifiedPluginFiles = new Map<string, string>();
@@ -676,7 +710,13 @@ async function regenerateWithNewStack(
     }
   }
 
-  // Regenerate plugin files if in plugin mode (hooks depend on config/PM)
+  // Re-register GitHub marketplace if in marketplace mode
+  if (manifest.installMode === 'marketplace') {
+    registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
+    regeneratedFiles.push('GitHub marketplace registration');
+  }
+
+  // Regenerate plugin files if in local plugin mode (hooks depend on config/PM)
   if (manifest.installMode === 'plugin' && manifest.pluginPath) {
     // Save user-modified plugin files before generatePlugin overwrites them
     const userModifiedPluginFiles = new Map<string, string>();
@@ -746,13 +786,12 @@ export function hasStandaloneSkills(manifest: Manifest): boolean {
 }
 
 /**
- * Migrates a standalone Claude Code installation to plugin mode.
- * - Generates devtronic plugin in .claude-plugins/
- * - Registers plugin in .claude/settings.json
+ * Migrates a standalone Claude Code installation to GitHub marketplace.
+ * - Registers GitHub marketplace in .claude/settings.json
  * - Removes unmodified standalone skills/agents
  * - Preserves user-modified files
  */
-async function migrateToPlugin(
+async function migrateStandaloneToMarketplace(
   targetDir: string,
   manifest: Manifest,
   analysis: ReturnType<typeof analyzeProject>,
@@ -765,31 +804,12 @@ async function migrateToPlugin(
   }
 
   const spinner = p.spinner();
-  spinner.start('Migrating to plugin mode...');
+  spinner.start('Migrating to GitHub marketplace...');
 
-  const config = manifest.projectConfig || buildDefaultConfig(analysis);
+  // 1. Register GitHub marketplace in .claude/settings.json
+  registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
 
-  // 1. Generate plugin
-  const pluginResult = generatePlugin(
-    targetDir,
-    TEMPLATES_DIR,
-    getCliVersion(),
-    config,
-    analysis.packageManager
-  );
-
-  // Make scripts executable
-  for (const script of ['checkpoint.sh', 'stop-guard.sh']) {
-    const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
-    if (existsSync(scriptPath)) {
-      chmodSync(scriptPath, 0o755);
-    }
-  }
-
-  // 2. Register plugin in .claude/settings.json
-  registerPlugin(targetDir, PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR);
-
-  // 3. Remove standalone skills/agents (only unmodified ones)
+  // 2. Remove standalone skills/agents (only unmodified ones)
   const removed: string[] = [];
   const preserved: string[] = [];
 
@@ -812,17 +832,15 @@ async function migrateToPlugin(
   cleanEmptyDirs(join(targetDir, '.claude', 'skills'));
   cleanEmptyDirs(join(targetDir, '.claude', 'agents'));
 
-  // 5. Update manifest
-  Object.assign(manifest.files, pluginResult.files);
-  manifest.installMode = 'plugin';
-  manifest.pluginPath = pluginResult.pluginPath;
+  // 4. Update manifest
+  manifest.installMode = 'marketplace';
   manifest.version = getCliVersion();
   manifest.implantedAt = new Date().toISOString().split('T')[0];
   writeManifest(targetDir, manifest);
 
   spinner.stop('Migration complete');
 
-  // 6. Output summary
+  // 5. Output summary
   if (removed.length > 0) {
     p.note(
       removed.map((f) => `  ${symbols.fail} ${f}`).join('\n'),
@@ -836,13 +854,85 @@ async function migrateToPlugin(
     );
   }
   p.note(
-    `  Plugin: ${chalk.cyan('devtronic')} at .claude-plugins/devtronic/\n` +
-      `  Skills: /brief, /spec, ... (auto-namespaced in plugin mode)\n` +
-      `  Hooks: 5 workflow hooks enabled`,
-    'Plugin Generated'
+    `  Marketplace: ${chalk.cyan(GITHUB_MARKETPLACE_REPO)}\n` +
+      `  Plugin: ${chalk.cyan(PLUGIN_NAME)}\n` +
+      `  Skills: /devtronic:brief, /devtronic:spec, ... (auto-namespaced)\n\n` +
+      `  ${chalk.dim('Restart Claude Code or run /reload-plugins to activate.')}`,
+    'GitHub Marketplace Registered'
   );
 
-  p.outro(chalk.green('Migrated to plugin mode!'));
+  p.outro(chalk.green('Migrated to GitHub marketplace!'));
+}
+
+/**
+ * Migrates from local plugin (.claude-plugins/) to GitHub marketplace.
+ * - Registers GitHub marketplace in settings.json
+ * - Removes local plugin directory
+ * - Updates manifest to marketplace mode
+ */
+async function migrateToMarketplace(
+  targetDir: string,
+  manifest: Manifest,
+  dryRun?: boolean
+): Promise<void> {
+  if (dryRun) {
+    p.log.info('Would migrate local plugin to GitHub marketplace.');
+    p.outro('Dry run complete — no changes made');
+    return;
+  }
+
+  const spinner = p.spinner();
+  spinner.start('Migrating to GitHub marketplace...');
+
+  // 1. Register GitHub marketplace (also cleans up old local marketplace)
+  registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
+
+  // 2. Remove local plugin directory
+  const pluginDir = join(targetDir, PLUGIN_DIR, PLUGIN_NAME);
+  if (existsSync(pluginDir)) {
+    rmSync(pluginDir, { recursive: true, force: true });
+  }
+
+  // Remove marketplace descriptor
+  const marketplaceDescDir = join(targetDir, PLUGIN_DIR, '.claude-plugin');
+  if (existsSync(marketplaceDescDir)) {
+    rmSync(marketplaceDescDir, { recursive: true, force: true });
+  }
+
+  // Remove .claude-plugins/ if empty
+  const pluginsDir = join(targetDir, PLUGIN_DIR);
+  if (existsSync(pluginsDir)) {
+    const remaining = readdirSync(pluginsDir);
+    if (remaining.length === 0) {
+      rmSync(pluginsDir, { recursive: true, force: true });
+    }
+  }
+
+  // 3. Remove local plugin files from manifest
+  for (const key of Object.keys(manifest.files)) {
+    if (key.startsWith(PLUGIN_DIR + '/')) {
+      delete manifest.files[key];
+    }
+  }
+
+  // 4. Update manifest
+  manifest.installMode = 'marketplace';
+  delete manifest.pluginPath;
+  manifest.version = getCliVersion();
+  manifest.implantedAt = new Date().toISOString().split('T')[0];
+  writeManifest(targetDir, manifest);
+
+  spinner.stop('Migration complete');
+
+  p.note(
+    `  Marketplace: ${chalk.cyan(GITHUB_MARKETPLACE_REPO)}\n` +
+      `  Plugin: ${chalk.cyan(PLUGIN_NAME)}\n` +
+      `  Skills: /devtronic:brief, /devtronic:spec, ... (auto-namespaced)\n\n` +
+      `  ${chalk.dim('Restart Claude Code or run /reload-plugins to activate.')}`,
+    'GitHub Marketplace Registered'
+  );
+
+  p.outro(chalk.green('Migrated to GitHub marketplace!'));
 }
 
 /**

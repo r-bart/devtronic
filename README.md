@@ -25,7 +25,7 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
 | [Skills Reference](./docs/skills.md) | Detailed documentation of all 20 core + 12 design phase + 9 addon skills |
-| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 3 auto-devtronic addon agents |
+| [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 4 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
 | [Existing Projects](./docs/existing-projects.md) | Integration with existing configurations |
@@ -67,6 +67,18 @@ The CLI will:
 
 Same functionality through conversation. Use `/scaffold` to create new projects with guided architecture selection (frontend, spa-ddd, backend, monorepo).
 
+
+### Option C: Plugin Marketplace (Claude Code)
+
+In Claude Code, run:
+
+```
+/plugin marketplace add r-bart/devtronic-plugin
+/plugin install devtronic@devtronic
+```
+
+This installs skills, agents, and hooks directly from the marketplace — no CLI needed. Use the CLI (`npx devtronic init`) for full setup including rules, AGENTS.md, and stack detection.
+
 ### Update Later
 
 ```bash
@@ -96,7 +108,7 @@ npx devtronic init
 
 | IDE | Config Location | Status |
 |-----|-----------------|--------|
-| Claude Code | `.claude-plugins/devtronic/` + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
+| Claude Code | GitHub marketplace + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
 | Cursor | `.cursor/rules/*.mdc` | Full support |
 | Google Antigravity | `.agents/rules/*.md` | Full support |
 | GitHub Copilot | `.github/copilot-instructions.md` | Full support (enable in [GitHub settings](https://docs.github.com/copilot/customizing-copilot)) |
@@ -118,7 +130,7 @@ npx devtronic init
 │       │             20 core + 12 design phase + 9 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
-│       │             15 agents included                          │
+│       │             15 core + 4 addon agents                    │
 │       │                                                         │
 │       ├── Rules     Quality standards (IDE-specific format)    │
 │       │                                                         │
@@ -208,7 +220,7 @@ npx devtronic mode show   # show current mode
 
 See [auto-devtronic Addon](./docs/auto-devtronic-addon.md) for full documentation.
 
-### Agents (15)
+### Agents (15 core + 4 addon)
 
 | Agent | Model | Purpose |
 |-------|-------|---------|
@@ -243,15 +255,7 @@ your-project/
 │
 ├── .claude/                            # Claude Code configuration
 │   ├── rules/                          # Auto-applied architecture rules
-│   └── settings.json                   # Plugin registration
-│
-├── .claude-plugins/                    # Plugin (Claude Code only)
-│   ├── .claude-plugin/marketplace.json
-│   └── devtronic/                         # ← the plugin
-│       ├── skills/                     # 35+ skills (/brief, /devtronic-help, etc.)
-│       ├── agents/                     # 15 agents
-│       ├── hooks/hooks.json            # 5 workflow hooks
-│       └── scripts/checkpoint.sh
+│   └── settings.json                   # Marketplace registration
 │
 ├── .cursor/rules/                      # Cursor rules (if selected)
 ├── .agent/rules/                       # Antigravity rules (if selected)
@@ -268,9 +272,11 @@ your-project/
     ├── notes/                          # Project notes
     ├── debug/                          # Debug analysis
     ├── audit/                          # Audit reports from /audit
-    ├── design/                         # Design artifacts (research, wireframes, tokens...)
+    ├── design/                         # Design artifacts
     └── archive/                        # Archived items
 ```
+
+Skills, agents, and hooks are loaded from the [GitHub marketplace plugin](https://github.com/r-bart/devtronic-plugin) — no plugin files in your project.
 
 See [Plugin Mode](./docs/plugins.md) for the full architecture and how hooks work.
 

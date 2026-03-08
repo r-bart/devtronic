@@ -5,7 +5,7 @@ import chalk from 'chalk';
 import type { UninstallOptions } from '../types.js';
 import { fileExists, readManifest, MANIFEST_DIR } from '../utils/files.js';
 import { unregisterPlugin, readClaudeSettings, writeClaudeSettings } from '../utils/settings.js';
-import { PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR } from '../generators/plugin.js';
+import { PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR, GITHUB_MARKETPLACE_NAME } from '../generators/plugin.js';
 import { ensureInteractive } from '../utils/tty.js';
 import { introTitle, symbols } from '../utils/ui.js';
 
@@ -40,6 +40,8 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
     manifest.installMode === 'plugin' &&
     existsSync(join(targetDir, PLUGIN_DIR, PLUGIN_NAME));
 
+  const hasMarketplace = manifest.installMode === 'marketplace';
+
   const hasThoughts = existsSync(join(targetDir, 'thoughts'));
   const hasClaudeMd = fileExists(join(targetDir, 'CLAUDE.md'));
   const hasAgentsMd = fileExists(join(targetDir, 'AGENTS.md'));
@@ -50,6 +52,10 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
   p.log.info(`Mode: ${manifest.installMode || 'standalone'}`);
 
   const removalLines: string[] = [];
+
+  if (hasMarketplace) {
+    removalLines.push(`  ${symbols.fail} GitHub marketplace registration (${chalk.cyan(GITHUB_MARKETPLACE_NAME)})`);
+  }
 
   if (hasPlugin) {
     removalLines.push(`  ${symbols.fail} Plugin ${chalk.cyan(PLUGIN_NAME)} (${PLUGIN_DIR}/${PLUGIN_NAME}/)`);
@@ -134,6 +140,29 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
   const removed: string[] = [];
   const kept: string[] = [];
   const errors: string[] = [];
+
+  // 0. Unregister GitHub marketplace from .claude/settings.json
+  if (hasMarketplace) {
+    try {
+      const settings = readClaudeSettings(targetDir);
+      if (settings.extraKnownMarketplaces?.[GITHUB_MARKETPLACE_NAME]) {
+        delete settings.extraKnownMarketplaces[GITHUB_MARKETPLACE_NAME];
+        if (Object.keys(settings.extraKnownMarketplaces).length === 0) {
+          delete settings.extraKnownMarketplaces;
+        }
+      }
+      if (settings.enabledPlugins) {
+        delete settings.enabledPlugins[`${PLUGIN_NAME}@${GITHUB_MARKETPLACE_NAME}`];
+        if (Object.keys(settings.enabledPlugins).length === 0) {
+          delete settings.enabledPlugins;
+        }
+      }
+      writeClaudeSettings(targetDir, settings);
+      removed.push('GitHub marketplace unregistered from .claude/settings.json');
+    } catch (err) {
+      errors.push(`Failed to unregister marketplace: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
 
   // 1. Unregister plugin from .claude/settings.json
   if (hasPlugin) {

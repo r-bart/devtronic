@@ -20,7 +20,7 @@ export interface RemovalInfo {
  *
  * In v1.8.0 (pre-reset), .claude/skills/* and .claude/agents/* were migrated to the
  * devtronic plugin (.claude-plugins/devtronic/). This migration is handled directly
- * by migrateToPlugin() in update.ts, not through this removals registry.
+ * by migrateStandaloneToMarketplace() in update.ts, not through this removals registry.
  */
 export const REMOVED_FILES: Record<string, RemovalInfo> = {
   '.claude/agents/db-reader.md': {

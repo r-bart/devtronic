@@ -57,7 +57,7 @@ export const ADDONS: Record<AddonName, AddonInfo> = {
     label: 'auto-devtronic — Autonomous Engineering Loop',
     description: 'Runs the full spec→test→plan→execute→PR pipeline autonomously. Self-corrects via failing tests. HITL and AFK modes.',
     skills: ['auto-devtronic'],
-    agents: ['issue-parser', 'failure-analyst', 'quality-executor'],
+    agents: ['issue-parser', 'failure-analyst', 'quality-executor', 'afk-task-validator'],
   },
 };
 
@@ -167,8 +167,8 @@ export interface ProjectConfig {
   enabledAddons?: AddonName[];
 }
 
-/** Whether Claude Code uses standalone files (.claude/) or a plugin (.claude-plugins/) */
-export type InstallMode = 'standalone' | 'plugin';
+/** Whether Claude Code uses standalone files (.claude/) or a plugin (.claude-plugins/) or a remote marketplace */
+export type InstallMode = 'standalone' | 'plugin' | 'marketplace';
 
 export interface Manifest {
   version: string;

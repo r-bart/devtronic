@@ -224,7 +224,11 @@ export async function regenerateCommand(
 
   // Regenerate plugin (skills, agents, hooks)
   if (regeneratePlugin) {
-    if (!manifest.selectedIDEs.includes('claude-code') || manifest.installMode !== 'plugin') {
+    if (manifest.installMode === 'marketplace') {
+      p.log.info('Plugin content is managed by the GitHub marketplace.');
+      p.log.info('Skills, agents, and hooks update automatically when a new CLI version is released.');
+      p.log.info(`Use ${chalk.cyan('--rules')} or ${chalk.cyan('--all')} (without --plugin) to regenerate local files.`);
+    } else if (!manifest.selectedIDEs.includes('claude-code') || manifest.installMode !== 'plugin') {
       p.log.warn('Plugin regeneration only applies to Claude Code in plugin mode. Skipping.');
     } else {
       const { generatePlugin } = await import('../generators/plugin.js');

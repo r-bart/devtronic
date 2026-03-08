@@ -1,10 +1,17 @@
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import type { ListOptions } from '../types.js';
 import { readManifest } from '../utils/files.js';
 import { introTitle, symbols } from '../utils/ui.js';
+
+const __list_filename = fileURLToPath(import.meta.url);
+const __list_dirname = dirname(__list_filename);
+const LIST_TEMPLATES_DIR = existsSync(resolve(__list_dirname, '../templates'))
+  ? resolve(__list_dirname, '../templates')
+  : resolve(__list_dirname, '../../templates');
 
 interface DiscoveredItem {
   name: string;
@@ -53,6 +60,22 @@ export async function listCommand(
     }
   }
 
+  // For marketplace mode, discover from CLI templates (same content as marketplace repo)
+  if (manifest?.installMode === 'marketplace') {
+    if (showSkills && skills.length === 0) {
+      const templateSkills = join(LIST_TEMPLATES_DIR, 'claude-code', '.claude', 'skills');
+      if (existsSync(templateSkills)) {
+        skills.push(...discoverSkills(templateSkills));
+      }
+    }
+    if (showAgents && agents.length === 0) {
+      const templateAgents = join(LIST_TEMPLATES_DIR, 'claude-code', '.claude', 'agents');
+      if (existsSync(templateAgents)) {
+        agents.push(...discoverAgents(templateAgents));
+      }
+    }
+  }
+
   // Also check .claude/ for standalone installs (if plugin didn't yield results)
   if (showSkills && skills.length === 0) {
     const claudeSkills = join(targetDir, '.claude', 'skills');
@@ -73,6 +96,9 @@ export async function listCommand(
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((s) => `  ${symbols.bullet} ${chalk.bold(s.name.padEnd(18))}${chalk.dim(s.description)}`);
       p.note(skillLines.join('\n'), `Skills (${skills.length})`);
+      if (manifest?.installMode === 'marketplace') {
+        p.log.info(chalk.dim('Plugin skills loaded from GitHub marketplace'));
+      }
     } else {
       p.log.info('No skills found.');
     }
@@ -84,6 +110,9 @@ export async function listCommand(
         .sort((a, b) => a.name.localeCompare(b.name))
         .map((a) => `  ${symbols.bullet} ${chalk.bold(a.name.padEnd(18))}${chalk.dim(a.description)}`);
       p.note(agentLines.join('\n'), `Agents (${agents.length})`);
+      if (manifest?.installMode === 'marketplace') {
+        p.log.info(chalk.dim('Plugin skills loaded from GitHub marketplace'));
+      }
     } else {
       p.log.info('No agents found.');
     }

@@ -1,10 +1,17 @@
-import { resolve, join } from 'node:path';
+import { resolve, join, dirname } from 'node:path';
 import { existsSync, readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import { readManifest } from '../utils/files.js';
 import { introTitle, formatKV } from '../utils/ui.js';
 import { getCliVersion, getLatestVersion, compareSemver } from '../utils/version.js';
+
+const __info_filename = fileURLToPath(import.meta.url);
+const __info_dirname = dirname(__info_filename);
+const INFO_TEMPLATES_DIR = existsSync(resolve(__info_dirname, '../templates'))
+  ? resolve(__info_dirname, '../templates')
+  : resolve(__info_dirname, '../../templates');
 
 export async function infoCommand(): Promise<void> {
   const targetDir = resolve('.');
@@ -46,21 +53,43 @@ export async function infoCommand(): Promise<void> {
       }
     }
 
-    // Also check .claude/ for standalone installs
-    if (skillCount === 0) {
-      const claudeSkills = join(targetDir, '.claude', 'skills');
-      if (existsSync(claudeSkills)) {
-        skillCount = readdirSync(claudeSkills, { withFileTypes: true }).filter(
-          (e) => e.isDirectory() || (e.isFile() && e.name.endsWith('.md'))
+    // For marketplace mode, count from CLI templates (same content as marketplace repo)
+    if (manifest.installMode === 'marketplace' && skillCount === 0) {
+      const templateSkills = join(INFO_TEMPLATES_DIR, 'claude-code', '.claude', 'skills');
+      if (existsSync(templateSkills)) {
+        skillCount = readdirSync(templateSkills, { withFileTypes: true }).filter(
+          (e) => e.isDirectory()
+        ).length;
+      }
+      const templateAgents = join(INFO_TEMPLATES_DIR, 'claude-code', '.claude', 'agents');
+      if (existsSync(templateAgents)) {
+        agentCount = readdirSync(templateAgents, { withFileTypes: true }).filter(
+          (e) => e.isFile() && e.name.endsWith('.md')
         ).length;
       }
     }
-    if (agentCount === 0) {
-      const claudeAgents = join(targetDir, '.claude', 'agents');
-      if (existsSync(claudeAgents)) {
-        agentCount = readdirSync(claudeAgents, { withFileTypes: true }).filter(
-          (e) => e.isFile() && e.name.endsWith('.md')
-        ).length;
+
+    // Add file-mode addon skills/agents from .claude/
+    const claudeSkills = join(targetDir, '.claude', 'skills');
+    if (existsSync(claudeSkills)) {
+      const localSkillCount = readdirSync(claudeSkills, { withFileTypes: true }).filter(
+        (e) => e.isDirectory() || (e.isFile() && e.name.endsWith('.md'))
+      ).length;
+      if (skillCount === 0) {
+        skillCount = localSkillCount;
+      } else if (localSkillCount > 0) {
+        skillCount += localSkillCount;
+      }
+    }
+    const claudeAgents = join(targetDir, '.claude', 'agents');
+    if (existsSync(claudeAgents)) {
+      const localAgentCount = readdirSync(claudeAgents, { withFileTypes: true }).filter(
+        (e) => e.isFile() && e.name.endsWith('.md')
+      ).length;
+      if (agentCount === 0) {
+        agentCount = localAgentCount;
+      } else if (localAgentCount > 0) {
+        agentCount += localAgentCount;
       }
     }
   }

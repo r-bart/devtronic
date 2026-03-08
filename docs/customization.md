@@ -480,7 +480,7 @@ npx devtronic addon disable design-best-practices # Uninstall
 
 ### How Addon Files Are Tracked
 
-**Plugin-mode addons** (`orchestration`) install into `.claude-plugins/devtronic/skills/` and are tracked in `.ai-template/manifest.json`.
+**Plugin-mode addons** (`orchestration`) are included in the devtronic marketplace plugin at `r-bart/devtronic-plugin` on GitHub. They are not stored locally — Claude Code fetches them from the remote plugin repository. Because plugin skills are remote, they are not directly editable. To customize behavior, create your own skills in `.claude/skills/` instead.
 
 **File-mode addons** (`design-best-practices`, `auto-devtronic`) install into your agent directories and are tracked in `devtronic.json`:
 
