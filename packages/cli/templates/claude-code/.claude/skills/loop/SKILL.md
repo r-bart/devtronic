@@ -40,6 +40,7 @@ lower quality floor — that is a manifest problem, not a loop problem.
 ## Procedure
 
 ```
+-1. PREFLIGHT    resolve the devtronic CLI (this loop shells out to it)
 0. VALIDATE      devtronic loop --validate   (abort on failure)
 1. PREVIEW       devtronic loop --dry-run    (show the plan; confirm in HITL)
 2. CLEAN TREE    refuse to take ownership over uncommitted human WIP (FR-7)
@@ -48,6 +49,21 @@ lower quality floor — that is a manifest problem, not a loop problem.
 4. TRACE         append every iteration to thoughts/loop/<feature>.trace.md
 5. RELEASE       clear ownership on exit / completion / error / abort
 ```
+
+### Step -1 — Preflight (resolve the CLI)
+
+Every step below shells out to `devtronic loop …`, so first resolve how to invoke it:
+
+```bash
+if command -v devtronic >/dev/null 2>&1; then DT="devtronic";
+elif command -v npx >/dev/null 2>&1; then DT="npx --no-install devtronic";
+else echo "install the CLI: npm i -g devtronic"; fi
+```
+
+Use `$DT` (i.e. `devtronic` or `npx --no-install devtronic`) for every command in this
+skill. If neither resolves, **stop and tell the human** to install it (`npm i -g devtronic`)
+— the loop cannot run without the CLI. (Installing devtronic as a dev dependency also works;
+`npx --no-install` will find it in `node_modules/.bin`.)
 
 ### Step 0 — Validate
 

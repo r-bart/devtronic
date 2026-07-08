@@ -170,6 +170,42 @@ Human review at earlier stages has higher leverage. See [Philosophy](./docs/phil
 
 For UI-heavy features, run the design phase before `/spec`. See [Design Phase Guide](./docs/design-phase.md) for the full UX workflow.
 
+> **Tired of driving every step?** The [Convergence Loop](#the-convergence-loop) (`/loop`) runs the middle of this pipeline autonomously — you sign only the DoD and the ship.
+
+---
+
+## The Convergence Loop
+
+The skills above work **individually** — run `/spec`, `/create-plan`, `/execute-plan` by hand, one turn at a time. The **convergence loop** is the upgrade: it keeps a human only at the **two ends** — you sign the **DoD** (the tests) up front and the **ship** at the back — and lets the machine converge everything in between under gates that never tire (the *barbell*).
+
+### Inner loop — one feature (`/loop`)
+
+```
+/spec → /generate-tests    →  you sign the DoD (the tests)
+/loop <feature>            →  machine converges: Tier ① gates every iteration,
+                              Tier ② adversarial review at barriers, bounded by budget
+                           →  STOPS at the ship for your QA + signature
+```
+
+Driven by a per-repo `loop.manifest.yaml` (seeded by `init`, fully commented). Preview it with `devtronic loop --dry-run` — it explains the plan without executing anything. **Inert by default**: with no manifest, the ambient hooks behave exactly as before.
+
+### Outer loop — a backlog, unattended (`/loop --backlog`)
+
+The **loop of loops**: point it at your `/backlog` (items with a `- Spec:` + `- DoD:`), walk away, and come back to a queue of converged features ready to sign — each in its own git worktree, bounded by a width cap + token budget, fail-soft (a stuck item is quarantined; the run continues).
+
+```bash
+devtronic loop --backlog --dry-run          # preview the eligible queue + caps
+/loop --backlog                             # converge each item, park for your sign
+devtronic loop --backlog --status           # the parked sign-queue
+devtronic loop --backlog --sign BACK-001    # QA the worktree, then ship
+```
+
+> **Requires the `devtronic` CLI on your PATH** — the `/loop` skill and the `Stop` hook shell out to `devtronic loop …`. Install it globally: `npm i -g devtronic`. Without it the individual skills still work; only the loop does not.
+
+> Not to be confused with the **auto-devtronic addon** (`/devtronic`, below) — a separate GitHub-issue-to-PR pipeline.
+
+See the [CLI reference](./docs/cli-reference.md) and [Skills reference](./docs/skills.md) for the full contract.
+
 ---
 
 ## What's Included

@@ -210,11 +210,21 @@ if [ -f ".claude/.loop-owner" ]; then
 fi
 
 # --- Tier ① command: manifest is the single source of truth when present ---
+# Resolve the devtronic CLI resiliently — global install, then a local/npx copy;
+# if neither is reachable, fall back to the baked command (no hard dependency).
 QUALITY_CMD='${safeCmd}'
 if [ -f "loop.manifest.yaml" ]; then
-  MANIFEST_CMD=$(devtronic loop --gate-cmd 2>/dev/null)
-  if [ -n "$MANIFEST_CMD" ]; then
-    QUALITY_CMD="$MANIFEST_CMD"
+  DEVTRONIC=""
+  if command -v devtronic >/dev/null 2>&1; then
+    DEVTRONIC="devtronic"
+  elif command -v npx >/dev/null 2>&1; then
+    DEVTRONIC="npx --no-install devtronic"
+  fi
+  if [ -n "$DEVTRONIC" ]; then
+    MANIFEST_CMD=$($DEVTRONIC loop --gate-cmd 2>/dev/null)
+    if [ -n "$MANIFEST_CMD" ]; then
+      QUALITY_CMD="$MANIFEST_CMD"
+    fi
   fi
 fi
 
@@ -253,9 +263,13 @@ mkdir -p "$CHECKPOINT_DIR"
 
 echo "Checkpoint saved: $CHECKPOINT_DIR/\${TIMESTAMP}_pre-compact.md"
 
-# Update persistent state (minimal — skill-level checkpoint writes richer state)
+# Update persistent state (minimal — skill-level checkpoint writes richer state).
+# Never clobber a richer STATE.md written by /checkpoint or a human.
 STATE_FILE="thoughts/STATE.md"
 mkdir -p "$(dirname "$STATE_FILE")"
+if [ -f "$STATE_FILE" ] && ! grep -q "(auto-compact)" "$STATE_FILE"; then
+  echo "Preserved existing STATE.md — see the pre-compact checkpoint for context."
+else
 BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
 {
   echo "# Project State"
@@ -271,5 +285,6 @@ BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
   echo ""
   git log --oneline -5 2>/dev/null || echo "No commits"
 } > "$STATE_FILE"
+fi
 `;
 }

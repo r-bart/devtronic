@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.1] - 2026-07-08
+
+### Fixed
+- **Loop CLI resilience.** The `/loop` skill and the `Stop` hook shell out to `devtronic
+  loop …`, but the typical `npx devtronic init` flow leaves no `devtronic` on `PATH` (and
+  plugin-marketplace installs don't include the npm CLI), so the loop could fail with
+  "command not found". The generated + marketplace `stop-guard.sh` now resolve the CLI
+  resiliently (global `devtronic` → `npx --no-install devtronic` → graceful fallback to the
+  auto-detected quality command), and the `loop` skill gained a preflight step that resolves
+  the CLI (or tells the human to `npm i -g devtronic`). Individual skills were never affected.
+- **`init` seeds `.gitignore`** with the loop's transient files (`.loop-worktrees/`,
+  `.claude/.loop-owner`) so a loop run never accidentally commits worktrees or the sentinel.
+- **`checkpoint.sh` (PreCompact) no longer clobbers a rich `STATE.md`.** It now preserves a
+  `STATE.md` written by `/checkpoint` or a human, only writing the minimal auto-state when
+  `STATE.md` is absent or was itself an auto-checkpoint.
+- **`auto-lint.sh` (PostToolUse) skips non-source edits.** It reads the changed file path and
+  only lints JS/TS sources, so editing a README/config no longer triggers a full
+  (monorepo-wide) lint pass.
+
+### Notes
+- In a monorepo, scope the `Stop` gate by defining `loop.manifest.yaml`'s Tier ① commands
+  (e.g. `turbo run typecheck --filter=<app>`) — the manifest is the single source of truth
+  and overrides the auto-detected whole-repo default.
+
+---
+
 ## [1.4.0] - 2026-07-08
 
 The autonomous convergence loop — inner (per-feature) and outer (backlog-driven), both HITL.

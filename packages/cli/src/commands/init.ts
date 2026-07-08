@@ -452,6 +452,19 @@ export async function initCommand(options: InitOptions): Promise<void> {
     skippedFiles.push('loop.manifest.yaml');
   }
 
+  // Ensure the loop's transient files are gitignored (worktrees + ownership sentinel).
+  const gitignorePath = join(targetDir, '.gitignore');
+  const loopIgnores = ['.loop-worktrees/', '.claude/.loop-owner'];
+  const existingIgnore = fileExists(gitignorePath) ? readFile(gitignorePath) : '';
+  const ignoreLines = new Set(existingIgnore.split('\n').map((l) => l.trim()));
+  const missingIgnores = loopIgnores.filter((entry) => !ignoreLines.has(entry));
+  if (missingIgnores.length > 0) {
+    const prefix = existingIgnore && !existingIgnore.endsWith('\n') ? '\n' : '';
+    const block = `${prefix}\n# devtronic loop — transient per-run files\n${missingIgnores.join('\n')}\n`;
+    writeFile(gitignorePath, existingIgnore + block);
+    generatedFiles.push('.gitignore (+ loop transient files)');
+  }
+
   // Write manifest
   writeManifest(targetDir, manifest);
 
