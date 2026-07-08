@@ -17,6 +17,7 @@ import { uninstallCommand } from './commands/uninstall.js';
 import { addonCommand, addonListCommand, addonSyncCommand } from './commands/addon.js';
 import { modeCommand } from './commands/mode.js';
 import { loopCommand } from './commands/loop.js';
+import { loopBacklogCommand } from './commands/loopBacklog.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -209,8 +210,37 @@ program
   .option('--owner <owner>', 'Ownership to write with --own: machine (default) or human')
   .option('--at-barrier', 'Mark the owned phase as at a barrier (gate enforces)')
   .option('--release', 'Relinquish loop ownership of the tree (used by the skill)')
+  // Backlog mode (loop-of-loops): drive a queue of ready features unattended
+  .option('--backlog', 'Backlog mode: drive the /backlog queue through the loop')
+  .option('--status', 'Backlog: show the run ledger (parked sign-queue + done/quarantined)')
+  .option('--sign <item>', 'Backlog: record the human ship-signature and release the worktree')
+  .option('--next', 'Backlog: print the next eligible item id (used by the skill)')
+  .option('--take <item>', 'Backlog: take an item — create its worktree + sentinel (used by the skill)')
+  .option('--park <item>', 'Backlog: mark a converged item parked for sign (used by the skill)')
+  .option('--quarantine <item>', 'Backlog: quarantine a non-converging item (used by the skill)')
+  .option('--spent <tokens>', 'Backlog: tokens spent, recorded with --take/--park')
+  .option('--width <n>', 'Backlog: max in-flight items (default 3)')
+  .option('--budget <tokens>', 'Backlog: total token budget for the run')
   .option('--path <path>', 'Target directory (default: current directory)')
   .action(async (path, options) => {
+    if (options.backlog) {
+      await loopBacklogCommand({
+        validate: options.validate,
+        dryRun: options.dryRun,
+        next: options.next,
+        status: options.status,
+        take: options.take,
+        park: options.park,
+        quarantine: options.quarantine,
+        sign: options.sign,
+        abort: options.abort,
+        spent: options.spent,
+        width: options.width,
+        budget: options.budget,
+        path: options.path ?? path,
+      });
+      return;
+    }
     await loopCommand(path, {
       validate: options.validate,
       dryRun: options.dryRun,

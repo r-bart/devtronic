@@ -272,6 +272,13 @@ releases ownership. See `devtronic loop` in the [CLI reference](./cli-reference.
 **Limitations**: Claude Code only. Anti-gaming hardening (holdout DoD, AFK cost budget) is
 deferred — the human ship sign-off is the current backstop.
 
+**Backlog mode (`/loop --backlog`)**: drives a queue of *ready* `/backlog` items (each with a
+`- Spec:` + `- DoD:` bullet) through the loop unattended — the **loop of loops**. Each item
+converges in its own worktree, then parks for your ship-signature; you drain the queue out of
+session with `devtronic loop --backlog --status` / `--sign <item>`. Bounded by a width cap
+(default 3 in-flight) and a token budget; a non-converging item is quarantined and the run
+continues. You still sign each item's DoD (up front) and ship (per item) — the barbell holds.
+
 ---
 
 ## Quality & Review Skills
