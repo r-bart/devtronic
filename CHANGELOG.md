@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **`/loop --backlog` — the loop of loops (backlog-driven, HITL).** Drives a queue of *ready*
+  `/backlog` items (each declaring a `- Spec:` + `- DoD:` bullet) through the convergence loop
+  unattended: each item converges in its own git worktree, then **parks** awaiting the human
+  ship-signature while the loop advances the next (park-ahead). Bounded by a width cap
+  (default 3 in-flight) and a token budget; a non-converging item is **quarantined** and the
+  run continues (fail-soft).
+- **`devtronic loop --backlog`** deterministic spine: `--validate`, `--dry-run`, `--status`,
+  `--sign <item>`, `--abort`, and the per-item run-state commands (`--next`/`--take`/`--park`/
+  `--quarantine`). Priority derives from the `/backlog` section (High/Medium/Low), FIFO ties.
+- `/backlog` items gain an optional `- DoD:` bullet (backward-compatible; enables loop eligibility).
+- Per-item worktrees under `.loop-worktrees/` (add to `.gitignore`).
+
 ---
 
 ## [1.4.0] - 2026-07-08

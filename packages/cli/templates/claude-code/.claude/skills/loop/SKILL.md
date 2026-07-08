@@ -146,6 +146,53 @@ release explicitly).
 
 ---
 
+## Backlog mode — the loop of loops (`/loop --backlog`)
+
+Drive a **whole backlog** of ready features unattended: converge each in its own worktree,
+park it for your ship-signature, advance the next. Same barbell, at queue scale — you sign
+each item's DoD (up front, batched) and each item's ship (as it converges); the machine
+automates the orchestration in between.
+
+**Eligibility (front-loaded).** Only *ready* items run: those whose `/backlog` entry points
+at a signed spec **and** a DoD test manifest (`- Spec:` / `- DoD:` bullets). Prep those in a
+batch first (`/spec` + `/generate-tests`) — the loop never runs `/spec` mid-run.
+
+**The deterministic spine is the CLI; this skill only sequences it.** Never hand-manage
+worktrees, ledger state, or budget in prose — call `devtronic loop --backlog …`.
+
+```
+0. PREVIEW     devtronic loop --backlog --dry-run     (eligible order + caps)
+1. LOOP        while items remain AND under budget + width cap:
+     id=$(devtronic loop --backlog --next)            (next eligible; empty → done)
+     [ -n "$id" ] || break
+     devtronic loop --backlog --take "$id" --spent <tokens>   (worktree + sentinel)
+     run the inner loop for this item IN ITS WORKTREE (.loop-worktrees/<id>):
+        cd .loop-worktrees/<id> && <inner /loop for the item's spec/DoD>
+     on convergence:  devtronic loop --backlog --park "$id" --spent <tokens>
+     on non-converge: devtronic loop --backlog --quarantine "$id"   (fail-soft; continue)
+2. DRAIN       report the parked queue; the human signs out of session (below)
+```
+
+**Bounds (FR-7).** Respect the width cap (default 3, max in-flight) and the token budget:
+before each `--take`, stop launching if `Workflow.budget` is near exhausted or the width cap
+is hit — let in-flight items finish, then report. This is what prevents a worktree/cost
+explosion during a long absence.
+
+**Park-ahead, never block.** After `--park`, advance to the next item — do not wait for the
+human. Parked items accumulate (up to the width cap) as a sign-queue.
+
+**Fail-soft (FR-8).** A non-converging item is `--quarantine`d (worktree kept, reported) and
+the loop continues with the rest. One bad item never halts the backlog.
+
+**The human drains out of session (FR-9) — never auto-sign:**
+```
+devtronic loop --backlog --status            # the parked sign-queue + done/quarantined
+devtronic loop --backlog --sign <item>       # QA the item's worktree, then ship + release
+devtronic loop --backlog --abort             # quarantine all in-flight, release worktrees
+```
+
+> Add `.loop-worktrees/` to `.gitignore` — it holds transient per-item worktrees.
+
 ## `--resume`
 
 `/loop --resume` continues an interrupted run:

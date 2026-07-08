@@ -510,6 +510,37 @@ npx devtronic loop --abort
 | `--release` | Relinquish loop ownership (used by the skill) |
 | `--path <path>` | Target directory (default: current directory) |
 
+**Backlog mode (loop-of-loops).** `devtronic loop --backlog` drives a queue of *ready*
+`/backlog` items (each with a `- Spec:` + `- DoD:` bullet) through the loop unattended — each
+item converges in its own worktree, then parks for your ship-signature.
+
+```bash
+# Preview the eligible queue + caps (executes nothing)
+npx devtronic loop --backlog --dry-run
+
+# See the parked sign-queue, then sign an item (QA its worktree first)
+npx devtronic loop --backlog --status
+npx devtronic loop --backlog --sign BACK-042
+
+# Abort a run: quarantine in-flight items, release worktrees
+npx devtronic loop --backlog --abort
+```
+
+| Flag | Description |
+|------|-------------|
+| `--backlog` | Enter backlog mode (drive the `/backlog` queue) |
+| `--validate` | Report ready + skipped items (with reasons) |
+| `--dry-run` | Preview the eligible order + width/budget caps; executes nothing |
+| `--status` | Show the run ledger: parked sign-queue + done/quarantined |
+| `--sign <item>` | Record the human ship-signature; release the item's worktree |
+| `--next` / `--take`/`--park`/`--quarantine <item>` | Run-state commands the skill drives per item |
+| `--width <n>` | Max in-flight items (default 3) · `--budget <tokens>` total run budget |
+| `--abort` | Quarantine all in-flight items; release worktrees |
+
+Per-item worktrees live under `.loop-worktrees/` (add it to `.gitignore`). Eligibility,
+ordering (priority band, FIFO ties), the run ledger, and the budget/width caps are the
+deterministic spine; the `/loop --backlog` skill only sequences them.
+
 **The two contracts (barbell).** The loop keeps a human at both ends and lets the machine
 converge the middle:
 
