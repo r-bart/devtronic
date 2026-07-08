@@ -335,7 +335,8 @@ Run 3-5 Claude sessions simultaneously using git worktrees. See [Worktrees Guide
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
 | `doctor [--fix]` | Run health diagnostics |
-| `loop [--dry-run]` | Validate/preview the autonomous convergence loop |
+| `loop [--dry-run]` | Convergence loop (inner) — validate/preview `loop.manifest.yaml` |
+| `loop --backlog` | Loop of loops (outer) — drive the `/backlog` queue unattended |
 | `uninstall` | Remove devtronic from your project |
 
 See [CLI Reference](./docs/cli-reference.md) for full documentation.

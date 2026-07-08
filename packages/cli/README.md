@@ -20,7 +20,8 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
-| `loop [--dry-run]` | Validate/preview the autonomous convergence loop |
+| `loop [--dry-run]` | Convergence loop (inner) — validate/preview `loop.manifest.yaml` |
+| `loop --backlog` | Loop of loops (outer) — drive the `/backlog` queue unattended |
 | `addon add <name>` | Add an addon skill pack |
 | `addon remove <name>` | Remove an addon skill pack |
 | `addon list` | List available and installed addons |
