@@ -19,21 +19,27 @@ mkdir -p "$CHECKPOINT_DIR"
 
 echo "Checkpoint saved: $CHECKPOINT_DIR/${TIMESTAMP}_pre-compact.md"
 
-# Update persistent state (minimal — skill-level checkpoint writes richer state)
+# Update persistent state (minimal — skill-level checkpoint writes richer state).
+# Never clobber a richer STATE.md written by /checkpoint or a human: only write the
+# minimal auto-state when STATE.md is absent or was itself an auto-checkpoint.
 STATE_FILE="thoughts/STATE.md"
 mkdir -p "$(dirname "$STATE_FILE")"
-BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
-{
-  echo "# Project State"
-  echo ""
-  echo "**Updated**: $(date '+%Y-%m-%d %H:%M') (auto-compact)"
-  echo "**Branch**: $BRANCH"
-  echo ""
-  echo "## Last Auto-Checkpoint"
-  echo ""
-  echo "Context was compacted. See: \`$CHECKPOINT_DIR/${TIMESTAMP}_pre-compact.md\`"
-  echo ""
-  echo "## Recent Commits"
-  echo ""
-  git log --oneline -5 2>/dev/null || echo "No commits"
-} > "$STATE_FILE"
+if [ -f "$STATE_FILE" ] && ! grep -q "(auto-compact)" "$STATE_FILE"; then
+  echo "Preserved existing STATE.md — see the pre-compact checkpoint for context."
+else
+  BRANCH=$(git branch --show-current 2>/dev/null || echo "unknown")
+  {
+    echo "# Project State"
+    echo ""
+    echo "**Updated**: $(date '+%Y-%m-%d %H:%M') (auto-compact)"
+    echo "**Branch**: $BRANCH"
+    echo ""
+    echo "## Last Auto-Checkpoint"
+    echo ""
+    echo "Context was compacted. See: \`$CHECKPOINT_DIR/${TIMESTAMP}_pre-compact.md\`"
+    echo ""
+    echo "## Recent Commits"
+    echo ""
+    git log --oneline -5 2>/dev/null || echo "No commits"
+  } > "$STATE_FILE"
+fi
