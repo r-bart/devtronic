@@ -1,5 +1,5 @@
 import type { ProjectConfig, PackageManager } from '../types.js';
-import { STALE_SECS } from '../loop/ownership.js';
+import { STALE_SECS } from '../loop/constants.js';
 
 interface HookEntry {
   type: 'command' | 'prompt' | 'agent';

@@ -10,6 +10,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { STALE_SECS as STALE_SECS_CONST, SENTINEL_REL } from './constants.js';
 
 export interface Sentinel {
   active: boolean;
@@ -25,30 +26,27 @@ export interface SentinelInput {
   atBarrier: boolean;
 }
 
-/** Default staleness threshold (seconds) — matches the Phase 0 verdict. */
-export const STALE_SECS = 900;
-
-const SENTINEL_REL = join('.claude', '.loop-owner');
+/** Default staleness threshold (seconds) — re-exported from the shared,
+ *  dependency-free constants module (single source of truth). */
+export const STALE_SECS = STALE_SECS_CONST;
 
 /**
- * Resolve the sentinel path for a directory, keyed off the git worktree root so
- * two worktrees of the same repo do not collide (FR-9). Falls back to the given
- * directory when it is not a git worktree.
+ * Resolve the sentinel path for a directory.
+ *
+ * Cwd-relative by design: the ambient bash hooks (`stop-guard.sh`, the
+ * SessionStart sweep) read the *relative* path `.claude/.loop-owner` from their
+ * working directory, so the TS writer must resolve to the same location relative
+ * to the same root. The skill runs `--own`/`--release` from the worktree root
+ * (the session cwd), exactly where the hooks run — so both sides agree.
+ *
+ * This is still worktree-safe (FR-9): each git worktree has its own working
+ * directory, so two concurrent loops resolve to distinct sentinel files and
+ * never collide. (Resolving via `git rev-parse --show-toplevel` instead would
+ * silently diverge from the cwd-relative bash whenever the two run from
+ * different subdirectories — the coexistence bug this avoids.)
  */
 export function sentinelPath(dir: string): string {
-  const root = worktreeRoot(dir);
-  return join(root, SENTINEL_REL);
-}
-
-function worktreeRoot(dir: string): string {
-  const res = spawnSync('git', ['rev-parse', '--show-toplevel'], {
-    cwd: dir,
-    encoding: 'utf8',
-  });
-  if (res.status === 0 && typeof res.stdout === 'string' && res.stdout.trim()) {
-    return res.stdout.trim();
-  }
-  return dir;
+  return join(dir, SENTINEL_REL);
 }
 
 /** Write (or refresh) the sentinel, stamping a fresh heartbeat. */
