@@ -478,6 +478,58 @@ npx devtronic presets
 
 ---
 
+### loop
+
+Validate and preview the **autonomous convergence loop** declared in
+`loop.manifest.yaml`. This is the deterministic *mechanism* half of the loop harness —
+the *orchestration* half is the `/loop` skill (Claude Code), which reads the same manifest
+and drives phases via `Workflow`/`Task`.
+
+```bash
+# Validate the manifest (default action)
+npx devtronic loop --validate
+
+# Preview the phase/gate/budget plan in plain language — executes nothing
+npx devtronic loop --dry-run
+
+# Clear a derailed loop's ownership signal and report the half-done phase
+npx devtronic loop --abort
+```
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--validate` | Validate the manifest; one actionable error per problem (default) |
+| `--dry-run` | Print the ordered phase/gate/budget plan; runs no gates, spawns no agents |
+| `--abort` | Clear the ownership sentinel (`.claude/.loop-owner`) and report state |
+| `--gate-cmd` | Print the Tier ① gate command (consumed by the `Stop` hook) |
+| `--own <phase>` | Take/refresh loop ownership for a phase (used by the skill) |
+| `--owner <owner>` | Ownership to write with `--own`: `machine` (default) or `human` |
+| `--at-barrier` | Mark the owned phase as at a barrier (the gate enforces) |
+| `--release` | Relinquish loop ownership (used by the skill) |
+| `--path <path>` | Target directory (default: current directory) |
+
+**The two contracts (barbell).** The loop keeps a human at both ends and lets the machine
+converge the middle:
+
+| Contract | Set once per | By | Says |
+|----------|--------------|----|------|
+| **DoD** | feature | `/generate-tests` → `dod.as_tests` | *done* |
+| **Standards** | repo | `/calibrate` → gate lists | *…and to our bar* |
+
+**Coexistence with hooks.** The `Stop` hook subordinates to an active loop **only** while
+an `owner:machine` phase is in flight and not at a barrier — read from a worktree-scoped
+sentinel (`.claude/.loop-owner`) that self-clears on crash (heartbeat staleness +
+`SessionStart` sweep). With no manifest and no active loop, every hook behaves exactly as
+before — the loop machinery is **inert by default**.
+
+`devtronic init` seeds a fully-commented `loop.manifest.yaml` (never overwriting an
+existing one). Learn the schema from that file's inline comments; learn the behavior from
+`--dry-run`.
+
+---
+
 ## What Gets Detected
 
 ### Framework Detection
@@ -545,7 +597,7 @@ For **standalone mode** (non-Claude Code IDEs or standalone installations):
 
 | Directory | Content |
 |-----------|---------|
-| `.claude/skills/` | 32 workflow skills (20 core + 12 design) |
+| `.claude/skills/` | 33 workflow skills (21 core + 12 design) |
 | `.claude/agents/` | 15 specialized agents |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |

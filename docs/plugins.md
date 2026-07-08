@@ -80,7 +80,7 @@ The marketplace repo (`r-bart/devtronic-plugin`) contains:
 ├── plugins/devtronic/
 │   ├── .claude-plugin/
 │   │   └── plugin.json                 # Plugin metadata + version
-│   ├── skills/                         # 35+ skills (20 core + 12 design + addon)
+│   ├── skills/                         # 36+ skills (21 core + 12 design + addon)
 │   │   ├── brief/SKILL.md
 │   │   ├── spec/SKILL.md
 │   │   ├── scaffold/
@@ -122,7 +122,9 @@ Event: startup
 Type: prompt (haiku)
 ```
 
-Quick project orientation — checks git status, recent commits, and in-progress work.
+Quick project orientation — checks git status, recent commits, and in-progress work. A
+second, silent `command` step sweeps a stale convergence-loop ownership sentinel (from a
+crashed loop) so a returning human is never stuck behind a `Stop` gate that never guards.
 
 **Cost**: ~$0.002/session
 
@@ -143,6 +145,15 @@ Type: command (stop-guard.sh)
 ```
 
 Quality gate before Claude stops. Runs typecheck + lint and blocks stop if checks fail. Includes infinite loop guard.
+
+**Loop-aware (coexistence).** When an autonomous convergence loop owns the tree, `stop-guard.sh`
+subordinates to it: it reads a worktree-scoped sentinel (`.claude/.loop-owner`) and, while a
+fresh `owner:machine` phase is in flight and **not** at a barrier, allows the stop (the loop
+holds the stop condition). At a phase barrier — or with no active loop — it enforces the
+quality gate exactly as before. A crashed loop's sentinel goes stale (heartbeat older than
+15 min) and is reclaimed on the next stop, with a belt-and-suspenders `SessionStart` sweep.
+When `loop.manifest.yaml` is present, the Tier ① command is sourced from it (single source of
+truth) rather than re-guessed. **No manifest, no active loop → behaves identically to before.**
 
 ### SubagentStop
 

@@ -24,7 +24,7 @@ Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 20 core + 12 design phase + 9 addon skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 21 core + 12 design phase + 9 addon skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 4 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
@@ -127,7 +127,7 @@ npx devtronic init
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/spec, etc.)              │
-│       │             20 core + 12 design phase + 9 addon         │
+│       │             21 core + 12 design phase + 9 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             15 core + 4 addon agents                    │
@@ -174,14 +174,14 @@ For UI-heavy features, run the design phase before `/spec`. See [Design Phase Gu
 
 ## What's Included
 
-### Skills (20 core + 12 design phase + 9 addon)
+### Skills (21 core + 12 design phase + 9 addon)
 
 | Category | Skills |
 |----------|--------|
 | **Orientation & Research** | `/brief`, `/research`, `/opensrc` |
 | **Planning** | `/spec`, `/create-plan` |
 | **Development** | `/scaffold`, `/setup`, `/investigate`, `/worktree` |
-| **Execution** | `/quick`, `/execute-plan` |
+| **Execution** | `/quick`, `/execute-plan`, `/loop` |
 | **Quality & Review** | `/audit`, `/post-review`, `/generate-tests` |
 | **Session & Meta** | `/checkpoint`, `/summary`, `/backlog`, `/learn`, `/create-skill`, `/devtronic-help` |
 | **Design Phase** | `/design`, `/design-research`, `/design-define`, `/design-ia`, `/design-wireframe`, `/design-system`, `/design-system-define`, `/design-system-audit`, `/design-system-sync`, `/design-audit`, `/design-review`, `/design-spec` |

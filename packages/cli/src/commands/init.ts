@@ -437,6 +437,21 @@ export async function initCommand(options: InitOptions): Promise<void> {
     appliedFiles.push('thoughts/ structure');
   }
 
+  // Seed the convergence-loop manifest (guarded — never overwrite human edits).
+  // Inert by default: nothing runs until `/loop` is invoked.
+  const loopManifestPath = join(targetDir, 'loop.manifest.yaml');
+  if (!fileExists(loopManifestPath)) {
+    const seedPath = join(TEMPLATES_DIR, 'loop.manifest.example.yaml');
+    if (existsSync(seedPath)) {
+      const seedContent = readFile(seedPath);
+      writeFile(loopManifestPath, seedContent);
+      generatedFiles.push('loop.manifest.yaml (convergence loop — edit or ignore)');
+      manifest.files['loop.manifest.yaml'] = createManifestEntry(seedContent);
+    }
+  } else {
+    skippedFiles.push('loop.manifest.yaml');
+  }
+
   // Write manifest
   writeManifest(targetDir, manifest);
 

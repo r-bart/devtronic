@@ -12,6 +12,16 @@
             "timeout": 30
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f .claude/.loop-owner ]; then HB=$(grep -o '\"heartbeat\":[0-9]*' .claude/.loop-owner | grep -o '[0-9]*'); if [ -n \"$HB\" ] && [ $(( $(date +%s) - HB )) -ge 900 ]; then rm -f .claude/.loop-owner; fi; fi; exit 0",
+            "timeout": 10
+          }
+        ]
       }
     ],
     "PostToolUse": [

@@ -246,6 +246,34 @@ Continue from where I left off.
 
 ---
 
+### /loop - Autonomous Convergence Loop
+
+**Purpose**: Drive a feature to done by reading `loop.manifest.yaml` and running the
+human/machine **barbell** — humans sign the two ends (the DoD up front, the ship at the
+back); the machine converges the middle under gates that never tire.
+
+**When to use**:
+- A spec is signed and its DoD exists as tests (`/generate-tests` has run)
+- You want the middle loop (implement → converge) to run without a human per turn
+
+**Process**: `devtronic loop --validate` → `--dry-run` → clean-tree guard → per phase
+branch on owner (`human` STOPs via `AskUserQuestion`; `machine` owns the tree, runs Tier ①
+gates fail-fast per iteration, barriers before advancing, Tier ② adversarial fan-out,
+bounded by `budget.max_iterations`) → trace every iteration to `thoughts/loop/<feature>.trace.md`
+→ release ownership on exit/error/abort.
+
+**Coexistence**: While a `machine` phase owns the tree (worktree-scoped sentinel), the
+ambient `Stop` hook subordinates to the loop; at barriers and with no active loop it
+enforces exactly as before. Inert by default — no manifest, no behavior change.
+
+**Guardrails**: Never auto-signs the DoD or the ship; never starts on a dirty tree; always
+releases ownership. See `devtronic loop` in the [CLI reference](./cli-reference.md).
+
+**Limitations**: Claude Code only. Anti-gaming hardening (holdout DoD, AFK cost budget) is
+deferred — the human ship sign-off is the current backstop.
+
+---
+
 ## Quality & Review Skills
 
 ### /post-review - Post-Feature Review
