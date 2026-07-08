@@ -1,0 +1,44 @@
+# loop.manifest.yaml — devtronic's own convergence policy (dogfood).
+# Learn the schema from templates/loop.manifest.example.yaml (fully commented);
+# preview this file's plan with `devtronic loop --dry-run`.
+
+version: 1
+
+phases:
+  - id: implement # machine converges the change against the DoD tests
+    entry: spec-signed
+    exit: gates-green
+    owner: machine
+    gates: [objective, subjective]
+  - id: ship # human QA + PR sign-off (barbell end)
+    entry: converged
+    exit: shipped
+    owner: human
+    gates: []
+
+gates:
+  # Tier ① — objective, every iteration. devtronic's suite lives in packages/cli.
+  # Each cmd runs in its own subshell so chaining with && (via --gate-cmd) doesn't
+  # accumulate `cd` — the guard evals them joined from the repo root.
+  objective:
+    - cmd: (cd packages/cli && npm run typecheck)
+    - cmd: (cd packages/cli && npm run lint)
+    - cmd: (cd packages/cli && npm test)
+  # Tier ② — subjective, adversarial, per phase.
+  subjective:
+    - agent: code-reviewer
+      strict: true
+      adversarial: true
+    - agent: architecture-checker
+      strict: true
+
+dod:
+  as_tests: thoughts/tests/**/*.md
+
+ship:
+  strategy: pull-request # develop → main via PR (see CLAUDE.md)
+  approval: human
+
+budget:
+  max_iterations: 4
+  on_exhausted: replan-then-human

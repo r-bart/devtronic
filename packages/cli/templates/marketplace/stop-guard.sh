@@ -11,6 +11,25 @@ if echo "$INPUT" | grep -q '"stop_hook_active"'; then
   fi
 fi
 
+# --- Ownership signal: subordinate to an active convergence loop (FR-3) ---
+# The sentinel lives in the worktree (relative path) so concurrent loops on
+# different worktrees don't collide (FR-9).
+STALE_SECS=900
+if [ -f ".claude/.loop-owner" ]; then
+  HB=$(grep -o '"heartbeat":[0-9]*' ".claude/.loop-owner" | grep -o '[0-9]*')
+  NOW=$(date +%s)
+  if [ -n "$HB" ] && [ $((NOW - HB)) -lt $STALE_SECS ]; then
+    # Fresh: the loop is alive. Defer only while the machine owns a phase
+    # mid-flight (not at a barrier — barriers require the gate to enforce).
+    if grep -q '"owner":"machine"' ".claude/.loop-owner" && ! grep -q '"atBarrier":true' ".claude/.loop-owner"; then
+      exit 0
+    fi
+  else
+    # Stale: the loop died mid-phase. Reclaim for the human and enforce.
+    rm -f ".claude/.loop-owner"
+  fi
+fi
+
 # Detect package manager
 if [ -f "pnpm-lock.yaml" ]; then
   PM="pnpm"
@@ -37,6 +56,14 @@ if node -e "const p=require('./package.json');process.exit(p.scripts?.lint?0:1)"
     QUALITY_CMD="$QUALITY_CMD && $RUN lint"
   else
     QUALITY_CMD="$RUN lint"
+  fi
+fi
+
+# Manifest is the single source of truth for Tier ① gates when present.
+if [ -f "loop.manifest.yaml" ]; then
+  MANIFEST_CMD=$(devtronic loop --gate-cmd 2>/dev/null)
+  if [ -n "$MANIFEST_CMD" ]; then
+    QUALITY_CMD="$MANIFEST_CMD"
   fi
 fi
 

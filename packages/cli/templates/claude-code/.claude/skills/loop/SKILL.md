@@ -1,0 +1,173 @@
+---
+name: loop
+description: Orchestrates the autonomous convergence loop from loop.manifest.yaml — humans sign the DoD and the ship, the machine converges the middle under gates. Claude Code only.
+allowed-tools: Workflow, Task, Read, Write, Bash, Glob, Grep, AskUserQuestion
+argument-hint: "[feature|--resume]"
+---
+
+# Loop — Autonomous Convergence Harness
+
+Drive `$ARGUMENTS` to done by reading `loop.manifest.yaml` and running the human/machine
+**barbell**: humans sign the two ends (the DoD up front, the ship at the back); the machine
+converges everything in between under gates that never tire.
+
+This skill is the **orchestration** layer. Policy lives in the manifest; deterministic
+mechanism (validate, dry-run, ownership signal, gate command) lives in `devtronic loop`.
+Do not re-implement those here — call the CLI.
+
+## When to Use
+
+- A spec is signed and its DoD exists as tests (`/generate-tests` has run).
+- You want the middle loop (implement → converge) to run without a human per turn.
+
+**Skip for:** quick one-file changes (`/quick`), or when no `loop.manifest.yaml` exists
+(the loop is inert by design — run `devtronic init` or author a manifest first).
+
+---
+
+## The two contracts it consumes
+
+| Contract | Set by | Says |
+|----------|--------|------|
+| **DoD** (per feature) | `/generate-tests` → `dod.as_tests` | *done* |
+| **Standards** (per repo) | `/calibrate` → gate lists | *…and done to our bar* |
+
+The machine is only as good as its gates. If the standards contract is thin, expect a
+lower quality floor — that is a manifest problem, not a loop problem.
+
+---
+
+## Procedure
+
+```
+0. VALIDATE      devtronic loop --validate   (abort on failure)
+1. PREVIEW       devtronic loop --dry-run    (show the plan; confirm in HITL)
+2. CLEAN TREE    refuse to take ownership over uncommitted human WIP (FR-7)
+3. PER PHASE     owner:human  → AskUserQuestion (STOP)
+                 owner:machine → own tree, converge, release
+4. TRACE         append every iteration to thoughts/loop/<feature>.trace.md
+5. RELEASE       clear ownership on exit / completion / error / abort
+```
+
+### Step 0 — Validate
+
+```bash
+devtronic loop --validate
+```
+Non-zero exit → print the reported problems and **stop**. Never run against an invalid
+manifest.
+
+### Step 1 — Preview
+
+```bash
+devtronic loop --dry-run
+```
+Show the phase/gate/budget plan. In HITL mode, confirm with the human before proceeding.
+In AFK mode, log it and continue.
+
+### Step 2 — Clean-tree guard (FR-7)
+
+Before the **first `owner:machine` phase** takes ownership:
+
+```bash
+git status --porcelain
+```
+Non-empty → **refuse to start**. Tell the human to commit or stash their WIP, then re-run.
+The loop must never converge on top of uncommitted human work. (This is a hard guard hit
+live during this harness's own development — respect it.)
+
+### Step 3 — Per phase, branch on owner
+
+Read the phases in order from the manifest (the dry-run shows them).
+
+**`owner: human` → STOP.** Use `AskUserQuestion` to get the signature this phase needs
+(sign the DoD, or QA + approve the ship). Do not auto-approve:
+- **HITL:** ask and wait.
+- **AFK:** by default, **hard-stop and notify** — auto-approving the DoD or ship signature
+  defeats the barbell. Only skip if the manifest explicitly opts in.
+
+**`owner: machine` → converge.** Take ownership, run the middle loop, release:
+
+```bash
+devtronic loop --own <phase> --owner machine        # write sentinel (heartbeat)
+```
+
+Then loop until the phase exits or the budget is exhausted:
+
+```
+repeat (bounded by budget.max_iterations):
+  refresh ownership heartbeat:  devtronic loop --own <phase> --owner machine
+  make progress toward the phase exit condition
+  run Tier ① (every iteration, fail-fast):
+      GATE=$(devtronic loop --gate-cmd) || { escalate: manifest problem, do NOT treat as pass }
+      [ -n "$GATE" ] || { escalate: no gate command resolved, do NOT treat as pass }
+      eval "$GATE"                            # objective gates — must be green
+      any non-zero (gate failure OR empty/failed gate-cmd) → analyze, fix, next iteration
+      # never let an empty gate-cmd fail open: `eval ""` returns 0, which would
+      # silently count as "gates passed". Guard it like stop-guard.sh does.
+  if exit condition met → break
+```
+
+**Barrier before advancing.** At the phase boundary, mark the barrier so the ambient Stop
+gate enforces Tier ① green (the loop no longer holds the stop condition here):
+
+```bash
+devtronic loop --own <phase> --owner machine --at-barrier
+```
+Run Tier ① once more; it must be green to cross.
+
+**Tier ② (subjective) at the barrier — adversarial fan-out.** For each subjective gate,
+spawn multiple independent reviewers via `Task`/`Workflow`, each prompted to **refute** the
+work (not bless it). Majority-refute → the finding stands → drop back into the middle loop
+to fix. Diverse lenses beat repetition: correctness, security, architecture boundaries.
+
+**Budget & escalation.** Bound the middle loop by `budget.max_iterations`. On exhaustion,
+follow `budget.on_exhausted` (default `replan-then-human`): re-plan once; if still not
+converged, **escalate to the human** — do not spin.
+
+### Step 4 — Trace (FR-8)
+
+Append a human-readable entry to `thoughts/loop/<feature>.trace.md` **every iteration**:
+timestamp, phase, iteration N, gates run + verdicts, Tier ② refutations, escalations. This
+is what the human reads at the ship gate — QA should be *confirm*, not *reverse-engineer the
+diff*. Without the trace the barbell's right end is blind.
+
+### Step 5 — Release
+
+On phase exit, completion, error, **or** abort, relinquish ownership so the ambient hooks
+guard the human again:
+
+```bash
+devtronic loop --release
+```
+If anything throws or you bail out, still release (or the returning human is stuck behind a
+Stop gate that never guards — the crash-lifecycle sweep will eventually reclaim it, but
+release explicitly).
+
+---
+
+## `--resume`
+
+`/loop --resume` continues an interrupted run:
+1. Read the ownership signal (`.claude/.loop-owner`) and the last checkpoint (`thoughts/`).
+2. Read the tail of `thoughts/loop/<feature>.trace.md` for where it stopped.
+3. Re-validate the manifest, then re-enter the phase loop at the recorded phase.
+
+---
+
+## Coexistence with the ambient hooks
+
+The `Stop` hook subordinates to this loop **only** while an `owner:machine` phase is in
+flight and not at a barrier — that is the sentinel's whole job. You do not disable hooks;
+you own the tree for a while and then hand it back. With no manifest and no active loop, the
+hooks behave exactly as they always have.
+
+## Guardrails
+
+- **Never** auto-sign the DoD or the ship (human ends of the barbell).
+- **Never** start on a dirty tree (Step 2).
+- **Always** release ownership when done or on error (Step 5).
+- The manifest is the single source of truth for gates — don't re-guess them here.
+- Known open holes until Phase 4 (LFD): the same machine writes and optimizes the DoD
+  tests (Goodhart), and AFK token/$ cost is unbounded. The human ship sign-off is the
+  current backstop — respect it.

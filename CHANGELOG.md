@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-07-08
+
+### Added
+- **`/loop` skill — autonomous convergence harness.** Reads a per-repo `loop.manifest.yaml` and drives the human/machine "barbell": humans sign the DoD and the ship, the machine converges the middle under gates. Orchestrates phases via `Workflow`/`Task` with barriers, an iteration budget, and adversarial Tier ② fan-out; writes a per-iteration trace to `thoughts/loop/<feature>.trace.md`.
+- **`devtronic loop` command** — the deterministic mechanism half: `--validate`, `--dry-run` (pedagogical plan, executes nothing), `--abort`, `--gate-cmd`, and `--own`/`--release` (ownership signal used by the skill).
+- **`loop.manifest.yaml`** schema (phases, tiered gates, DoD, ship, budget) with a pure, never-throwing validator. `devtronic init` seeds a fully-commented reference manifest (guarded — never overwrites).
+- **Ownership-aware hooks (coexistence).** The `Stop` hook subordinates to an active `owner:machine` phase via a worktree-scoped sentinel (`.claude/.loop-owner`) that self-clears on crash (heartbeat staleness + `SessionStart` sweep); when a manifest is present the Tier ① command is sourced from it. Inert by default — with no manifest and no active loop, every hook behaves exactly as before.
+- **Clean-tree guard (FR-7)** — the loop refuses to take ownership over uncommitted human WIP.
+- New `yaml` dependency (manifest parsing).
+
+### Changed
+- Core skill count 20 → 21 (`/loop` registered in `CORE_SKILLS`).
+
+---
+
 ## [1.3.0] - 2026-03-08
 
 ### Changed
