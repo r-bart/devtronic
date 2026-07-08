@@ -60,10 +60,20 @@ if node -e "const p=require('./package.json');process.exit(p.scripts?.lint?0:1)"
 fi
 
 # Manifest is the single source of truth for Tier ① gates when present.
+# Resolve the devtronic CLI resiliently (global, then local/npx); fall back to the
+# auto-detected command if neither is reachable — no hard dependency on the CLI.
 if [ -f "loop.manifest.yaml" ]; then
-  MANIFEST_CMD=$(devtronic loop --gate-cmd 2>/dev/null)
-  if [ -n "$MANIFEST_CMD" ]; then
-    QUALITY_CMD="$MANIFEST_CMD"
+  DEVTRONIC=""
+  if command -v devtronic >/dev/null 2>&1; then
+    DEVTRONIC="devtronic"
+  elif command -v npx >/dev/null 2>&1; then
+    DEVTRONIC="npx --no-install devtronic"
+  fi
+  if [ -n "$DEVTRONIC" ]; then
+    MANIFEST_CMD=$($DEVTRONIC loop --gate-cmd 2>/dev/null)
+    if [ -n "$MANIFEST_CMD" ]; then
+      QUALITY_CMD="$MANIFEST_CMD"
+    fi
   fi
 fi
 
