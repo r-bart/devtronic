@@ -18,12 +18,12 @@ phases:
 
 gates:
   # Tier ① — objective, every iteration. devtronic's suite lives in packages/cli.
-  # Each cmd runs in its own subshell so chaining with && (via --gate-cmd) doesn't
-  # accumulate `cd` — the guard evals them joined from the repo root.
+  # `cd` is safe: --gate-cmd wraps each gate in its own subshell (CLI ≥1.4.3), so
+  # the guard's eval from the repo root won't accumulate `cd`.
   objective:
-    - cmd: (cd packages/cli && npm run typecheck)
-    - cmd: (cd packages/cli && npm run lint)
-    - cmd: (cd packages/cli && npm test)
+    - cmd: cd packages/cli && npm run typecheck
+    - cmd: cd packages/cli && npm run lint
+    - cmd: cd packages/cli && npm test
   # Tier ② — subjective, adversarial, per phase.
   subjective:
     - agent: code-reviewer
