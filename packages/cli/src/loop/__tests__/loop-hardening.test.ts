@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { writeSentinel, sentinelPath, treeStatus } from '../ownership.js';
 import { validateManifest } from '../validateManifest.js';
-import { buildPlan } from '../buildPlan.js';
+import { buildPlan, composeGateCommand } from '../buildPlan.js';
 
 let dir: string;
 beforeEach(() => {
@@ -22,6 +22,45 @@ beforeEach(() => {
 });
 afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
+});
+
+describe('gate command composition (--gate-cmd cd isolation)', () => {
+  it('wraps each gate in a subshell so a cd cannot leak into the next', () => {
+    const composed = composeGateCommand([
+      { cmd: 'echo a' },
+      { cmd: 'cd apps/x && echo b' },
+      { cmd: 'cd apps/x && echo c' },
+    ]);
+    expect(composed).toBe('(echo a) && (cd apps/x && echo b) && (cd apps/x && echo c)');
+  });
+
+  it('drops empty cmds and handles a single gate', () => {
+    expect(composeGateCommand([{ cmd: 'npm test' }])).toBe('(npm test)');
+    expect(composeGateCommand([])).toBe('');
+  });
+});
+
+describe('phase field validation messages (missing vs wrong-type)', () => {
+  const BASE = {
+    version: 1 as const,
+    gates: { objective: [{ cmd: 'npm test' }], subjective: [] },
+    dod: { as_tests: 't/**' },
+    ship: { strategy: 'pr', approval: 'human' as const },
+    budget: { max_iterations: 4 },
+  };
+
+  it('reports a non-string exit (array) as a type error, not "missing"', () => {
+    const r = validateManifest({
+      ...BASE,
+      phases: [{ id: 'design', entry: 'a', exit: ['notes', 'dod'], owner: 'machine', gates: ['objective'] }],
+    });
+    expect(r.ok).toBe(false);
+    if (!r.ok) {
+      const err = r.errors.find((e) => e.path === 'phases[0].exit');
+      expect(err?.message).toMatch(/must be a non-empty string/i);
+      expect(err?.message).toMatch(/array/i);
+    }
+  });
 });
 
 describe('sentinel serialization contract (bash coupling)', () => {

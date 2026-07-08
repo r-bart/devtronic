@@ -90,8 +90,15 @@ export function validateManifest(raw: unknown): ValidateResult {
         return;
       }
       for (const field of ['id', 'entry', 'exit'] as const) {
-        if (typeof phase[field] !== 'string' || (phase[field] as string).length === 0) {
+        const value = phase[field];
+        if (value === undefined || value === null) {
           errors.push({ path: `${at}.${field}`, message: `Phase is missing required "${field}".` });
+        } else if (typeof value !== 'string' || value.length === 0) {
+          const got = Array.isArray(value) ? 'an array' : `a ${typeof value}`;
+          errors.push({
+            path: `${at}.${field}`,
+            message: `Phase "${field}" must be a non-empty string (got ${got}).`,
+          });
         }
       }
       if (!VALID_OWNERS.has(phase.owner as string)) {

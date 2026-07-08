@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.3] - 2026-07-08
+
+### Fixed
+- **`devtronic loop --gate-cmd` isolates each gate in a subshell.** It previously joined the
+  manifest's Tier ① commands with a plain `&&`; since the stop-guard `eval`s the chain from
+  the repo root, a `cd` inside one gate leaked into the next (`cd apps/x && … && cd apps/x`
+  failed once the first `cd` had moved), breaking the whole gate. Now composed as
+  `(gate1) && (gate2) && …` so `cd`-based gates (common in monorepos) work. Composition is a
+  single pure helper (`composeGateCommand`) shared by `--gate-cmd` and `--dry-run`.
+- **Clearer manifest validation error** — a phase field with the wrong type (e.g. `exit` as an
+  array) now reports "must be a non-empty string (got an array)" instead of the misleading
+  "missing required".
+
+---
+
 ## [1.4.2] - 2026-07-08
 
 ### Changed
