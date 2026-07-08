@@ -13,7 +13,7 @@ import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import { introTitle, symbols } from '../utils/ui.js';
 import { validateManifest } from '../loop/validateManifest.js';
-import { buildPlan } from '../loop/buildPlan.js';
+import { buildPlan, composeGateCommand } from '../loop/buildPlan.js';
 import { readSentinel, clearSentinel, writeSentinel, treeStatus } from '../loop/ownership.js';
 import type { ValidateResult } from '../loop/manifestSchema.js';
 
@@ -61,9 +61,9 @@ export async function loopCommand(pathArg: string | undefined, options: LoopOpti
   if (options.gateCmd) {
     const result = loadManifest(manifestPath);
     if (!result.ok) process.exit(1);
-    const cmds = result.manifest.gates.objective.map((g) => g.cmd).filter(Boolean);
-    if (cmds.length === 0) process.exit(1);
-    process.stdout.write(cmds.join(' && ') + '\n');
+    const composed = composeGateCommand(result.manifest.gates.objective);
+    if (!composed) process.exit(1);
+    process.stdout.write(composed + '\n');
     return;
   }
 

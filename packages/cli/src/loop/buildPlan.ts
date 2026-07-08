@@ -6,7 +6,22 @@
  * annotated with what it verifies + its tier/frequency, and the machine phase
  * states the budget/escalation policy in words. No I/O, no exec (purity asserted).
  */
-import type { LoopManifest, GateTier, PhaseOwner } from './manifestSchema.js';
+import type { LoopManifest, GateTier, PhaseOwner, ObjectiveGate } from './manifestSchema.js';
+
+/**
+ * Compose the Tier ① objective gates into a single shell command.
+ *
+ * Each gate runs in its own subshell `(…)` so a `cd` inside one gate cannot leak
+ * into the next — the whole chain is `eval`'d from the repo root by the stop-guard,
+ * and without isolation a second `cd apps/x` would fail once the first already moved.
+ */
+export function composeGateCommand(gates: ObjectiveGate[]): string {
+  return gates
+    .map((g) => g.cmd)
+    .filter(Boolean)
+    .map((cmd) => `(${cmd})`)
+    .join(' && ');
+}
 
 /** A resolved gate annotation for a phase in the dry-run plan. */
 export interface PlanGateLine {
@@ -53,12 +68,11 @@ export function buildPlan(m: LoopManifest): PlanLine[] {
     const gates: PlanGateLine[] = phase.gates.map((tier) => {
       const meta = TIER_META[tier];
       if (tier === 'objective') {
-        const cmds = m.gates.objective.map((g) => g.cmd);
         return {
           tier: meta.tier,
           frequency: meta.frequency,
           describes: `deterministic checks must pass (${meta.label}, ${meta.frequency})`,
-          detail: cmds.join(' && ') || '(no objective commands defined)',
+          detail: composeGateCommand(m.gates.objective) || '(no objective commands defined)',
         };
       }
       const reviewers = m.gates.subjective.map((g) => g.agent ?? g.check ?? 'reviewer');
