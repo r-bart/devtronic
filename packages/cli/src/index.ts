@@ -206,6 +206,7 @@ program
   .option('--dry-run', 'Preview the phase/gate/budget plan in plain language; execute nothing')
   .option('--abort', 'Clear the ownership signal and report the half-done phase')
   .option('--gate-cmd', 'Print the Tier ① gate command (for the stop-guard hook)')
+  .option('--phase <name>', 'With --gate-cmd: also include gates guarded by when: phase:<name>')
   .option('--own <phase>', 'Take/refresh loop ownership of the tree for a phase (used by the skill)')
   .option('--owner <owner>', 'Ownership to write with --own: machine (default) or human')
   .option('--at-barrier', 'Mark the owned phase as at a barrier (gate enforces)')
@@ -250,6 +251,7 @@ program
       owner: options.owner,
       atBarrier: options.atBarrier,
       release: options.release,
+      phase: options.phase,
       path: options.path,
     });
   });
