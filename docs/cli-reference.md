@@ -308,7 +308,7 @@ npx devtronic info
   Installed:     2026-02-27
   IDEs:          claude-code, cursor
   Mode:          marketplace
-  Skills:        31
+  Skills:        33
   Agents:        15
   Framework:     nextjs
   Architecture:  clean
@@ -610,7 +610,7 @@ For **marketplace mode** (Claude Code), skills and agents are loaded from the [G
 
 | Feature | Claude Code | Cursor | Antigravity | GitHub Copilot | OpenCode |
 |---------|-------------|--------|-------------|----------------|----------|
-| Skills (31) | ✓ | - | - | - | - |
+| Skills (33) | ✓ | - | - | - | - |
 | Agents (15) | ✓ | - | - | - | - |
 | Rules | ✓ | ✓ | ✓ | Partial | ✓ |
 | AGENTS.md | ✓ | ✓ | ✓ | - | ✓ |

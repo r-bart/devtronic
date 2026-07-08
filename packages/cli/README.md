@@ -20,6 +20,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
+| `loop [--dry-run]` | Validate/preview the autonomous convergence loop |
 | `addon add <name>` | Add an addon skill pack |
 | `addon remove <name>` | Remove an addon skill pack |
 | `addon list` | List available and installed addons |
@@ -35,7 +36,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
-- **Skills** (20 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/summary`, `/audit`, `/devtronic-help`, etc.)
+- **Skills** (21 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/loop`, `/summary`, `/audit`, `/devtronic-help`, etc.)
 - **Agents** (15 + 4 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
 - **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
 - **thoughts/** — Structured directory for AI working documents
