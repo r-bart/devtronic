@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.2] - 2026-07-08
+
+### Changed
+- **npm README** now documents the Convergence Loop (inner `/loop` + backlog `/loop --backlog`),
+  at parity with the repo README, so the npmjs.com page describes the flagship feature.
+  Docs-only release (no code changes).
+
+---
+
 ## [1.4.1] - 2026-07-08
 
 ### Fixed

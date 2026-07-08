@@ -33,6 +33,25 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `uninstall` | Remove devtronic from your project |
 | `presets` | List available presets |
 
+## The Convergence Loop
+
+The skills work **individually** — but the **convergence loop** is the upgrade: keep a human
+only at the two ends (sign the **DoD** up front, the **ship** at the back) and let the machine
+converge everything in between under gates (the *barbell*).
+
+- **Inner loop (`/loop`)** — one feature: `/spec` → `/generate-tests` (you sign the DoD) →
+  `/loop <feature>` converges under Tier ① gates + adversarial Tier ② review, bounded by a
+  budget, and **stops at the ship** for your sign-off. Driven by a commented `loop.manifest.yaml`
+  (seeded by `init`); preview with `devtronic loop --dry-run`.
+- **Outer loop (`/loop --backlog`)** — the *loop of loops*: point it at your `/backlog` (items
+  with `- Spec:` + `- DoD:`), walk away, and return to a queue of converged features ready to
+  sign — each in its own worktree, bounded by a width cap + token budget, fail-soft.
+
+> Requires the CLI on your PATH (`npm i -g devtronic`) — the skill/hooks shell out to
+> `devtronic loop …`. Inert by default: with no manifest, hooks behave exactly as before.
+
+See the [full docs](https://github.com/r-bart/devtronic/blob/main/docs/cli-reference.md).
+
 ## What Gets Generated
 
 - **AGENTS.md** — Universal AI context personalized to your stack
