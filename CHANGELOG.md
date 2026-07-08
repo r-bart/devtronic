@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.4] - 2026-07-08
+
+### Fixed
+- **Gate `when:` guards are now honored (Bug 3).** A gate's `when:` was declared in the schema
+  but never evaluated — `--gate-cmd` emitted *every* objective gate, so a `when: phase:qa` gate
+  (e.g. a full Playwright e2e suite) ran on every stop and every inner-loop iteration, not just
+  in `qa`. Now `--gate-cmd` selects: baseline gates (no `when`) always; `when: phase:<x>` gates
+  only with `--gate-cmd --phase <x>`; `touches:<glob>` gates stay out until a changed-file list
+  is wired. The ambient stop-guard (no phase) runs only the light baseline; the loop skill
+  passes `--phase <phase>` so heavy phase-gated gates run only in their phase.
+- Dry-run now distinguishes baseline gates from conditional ones (`when:` annotated).
+
+### Added
+- `devtronic loop --gate-cmd --phase <name>` — include gates guarded by `when: phase:<name>`.
+- **Skill preflight version check** — the `loop` skill verifies the CLI is ≥ 1.4.4 (CLI and
+  plugin update via different channels) and tells the human to `npm i -g devtronic@latest` on
+  a mismatch, so an older CLI doesn't silently ignore `--phase`.
+
+---
+
 ## [1.4.3] - 2026-07-08
 
 ### Fixed

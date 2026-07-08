@@ -14,7 +14,7 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { writeSentinel, sentinelPath, treeStatus } from '../ownership.js';
 import { validateManifest } from '../validateManifest.js';
-import { buildPlan, composeGateCommand } from '../buildPlan.js';
+import { buildPlan, composeGateCommand, selectObjectiveGates } from '../buildPlan.js';
 
 let dir: string;
 beforeEach(() => {
@@ -22,6 +22,35 @@ beforeEach(() => {
 });
 afterEach(() => {
   rmSync(dir, { recursive: true, force: true });
+});
+
+describe('gate when-selection (--gate-cmd --phase)', () => {
+  const GATES = [
+    { cmd: 'typecheck' }, // baseline
+    { cmd: 'lint' }, // baseline
+    { cmd: 'e2e', when: 'phase:qa' }, // phase-gated (heavy)
+    { cmd: 'i18n', when: 'touches:src/i18n/**' }, // touches-gated
+  ];
+
+  it('baseline (no phase) excludes phase- and touches-gated gates', () => {
+    // Fixes Bug 3: e2e (when: phase:qa) must NOT run on every iteration / stop-guard.
+    expect(selectObjectiveGates(GATES, {}).map((g) => g.cmd)).toEqual(['typecheck', 'lint']);
+  });
+
+  it('with --phase qa includes the phase:qa gate (but still not touches:*)', () => {
+    expect(selectObjectiveGates(GATES, { phase: 'qa' }).map((g) => g.cmd)).toEqual([
+      'typecheck',
+      'lint',
+      'e2e',
+    ]);
+  });
+
+  it('a non-matching phase does not pull in other phases’ gates', () => {
+    expect(selectObjectiveGates(GATES, { phase: 'implement' }).map((g) => g.cmd)).toEqual([
+      'typecheck',
+      'lint',
+    ]);
+  });
 });
 
 describe('gate command composition (--gate-cmd cd isolation)', () => {

@@ -23,6 +23,31 @@ export function composeGateCommand(gates: ObjectiveGate[]): string {
     .join(' && ');
 }
 
+/** Context for evaluating a gate's `when` guard. */
+export interface GateContext {
+  /** The current phase id, if known (e.g. from `--phase qa`). */
+  phase?: string;
+}
+
+/**
+ * Select the objective gates that apply in a given context.
+ *
+ * A gate is included when:
+ *   - it has no `when` (the always-on baseline), or
+ *   - its `when` is `phase:<name>` and `<name>` matches `ctx.phase`.
+ * Gates with a `when` we cannot positively evaluate here (e.g. `touches:<glob>`,
+ * which needs the changed-file list) are excluded — so the ambient stop-guard and
+ * per-iteration checks never run a heavy phase/touches gate (e.g. e2e) unconditionally.
+ */
+export function selectObjectiveGates(gates: ObjectiveGate[], ctx: GateContext = {}): ObjectiveGate[] {
+  return gates.filter((g) => {
+    if (!g.when) return true;
+    const phaseMatch = g.when.match(/^phase:(.+)$/);
+    if (phaseMatch) return ctx.phase !== undefined && phaseMatch[1].trim() === ctx.phase;
+    return false; // touches:* / unknown guard — not evaluable without more context
+  });
+}
+
 /** A resolved gate annotation for a phase in the dry-run plan. */
 export interface PlanGateLine {
   /** Numeric tier: 1 = objective (deterministic), 2 = subjective (judgment). */
@@ -68,11 +93,16 @@ export function buildPlan(m: LoopManifest): PlanLine[] {
     const gates: PlanGateLine[] = phase.gates.map((tier) => {
       const meta = TIER_META[tier];
       if (tier === 'objective') {
+        const baseline = composeGateCommand(selectObjectiveGates(m.gates.objective, {}));
+        const conditional = m.gates.objective.filter((g) => g.when);
+        const note = conditional.length
+          ? ` — plus ${conditional.length} conditional (run only when matched): ${conditional.map((g) => g.when).join(', ')}`
+          : '';
         return {
           tier: meta.tier,
           frequency: meta.frequency,
           describes: `deterministic checks must pass (${meta.label}, ${meta.frequency})`,
-          detail: composeGateCommand(m.gates.objective) || '(no objective commands defined)',
+          detail: (baseline || '(no unconditional objective commands)') + note,
         };
       }
       const reviewers = m.gates.subjective.map((g) => g.agent ?? g.check ?? 'reviewer');

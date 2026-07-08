@@ -13,7 +13,7 @@ import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import { introTitle, symbols } from '../utils/ui.js';
 import { validateManifest } from '../loop/validateManifest.js';
-import { buildPlan, composeGateCommand } from '../loop/buildPlan.js';
+import { buildPlan, composeGateCommand, selectObjectiveGates } from '../loop/buildPlan.js';
 import { readSentinel, clearSentinel, writeSentinel, treeStatus } from '../loop/ownership.js';
 import type { ValidateResult } from '../loop/manifestSchema.js';
 
@@ -26,6 +26,7 @@ export interface LoopOptions {
   owner?: string;
   atBarrier?: boolean;
   release?: boolean;
+  phase?: string;
   path?: string;
 }
 
@@ -61,7 +62,11 @@ export async function loopCommand(pathArg: string | undefined, options: LoopOpti
   if (options.gateCmd) {
     const result = loadManifest(manifestPath);
     if (!result.ok) process.exit(1);
-    const composed = composeGateCommand(result.manifest.gates.objective);
+    // Honor each gate's `when`: baseline (no `when`) always; `phase:X` only when
+    // --phase X is given. Heavy phase/touches gates (e.g. e2e) stay out of the
+    // ambient stop-guard + per-iteration checks unless their phase is active.
+    const selected = selectObjectiveGates(result.manifest.gates.objective, { phase: options.phase });
+    const composed = composeGateCommand(selected);
     if (!composed) process.exit(1);
     process.stdout.write(composed + '\n');
     return;

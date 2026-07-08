@@ -60,6 +60,17 @@ elif command -v npx >/dev/null 2>&1; then DT="npx --no-install devtronic";
 else echo "install the CLI: npm i -g devtronic"; fi
 ```
 
+**Version check (CLI ↔ plugin can drift — they update via different channels).** This skill
+needs **CLI ≥ 1.4.4** (phase-aware `--gate-cmd --phase`). Verify and warn on mismatch:
+
+```bash
+CLI_VER=$($DT --version 2>/dev/null)   # e.g. 1.4.4
+# If CLI_VER < 1.4.4, tell the human: the plugin is newer than the CLI —
+# run `npm i -g devtronic@latest` (the CLI installs separately from the plugin).
+```
+On an older CLI, `--phase` is ignored, so phase-gated heavy gates (e.g. e2e) would run every
+iteration — warn, and prefer the human update the CLI before an autonomous run.
+
 Use `$DT` (i.e. `devtronic` or `npx --no-install devtronic`) for every command in this
 skill. If neither resolves, **stop and tell the human** to install it (`npm i -g devtronic`)
 — the loop cannot run without the CLI. (Installing devtronic as a dev dependency also works;
@@ -115,10 +126,13 @@ repeat (bounded by budget.max_iterations):
   refresh ownership heartbeat:  devtronic loop --own <phase> --owner machine
   make progress toward the phase exit condition
   run Tier ① (every iteration, fail-fast):
-      GATE=$(devtronic loop --gate-cmd) || { escalate: manifest problem, do NOT treat as pass }
+      GATE=$(devtronic loop --gate-cmd --phase <phase>) || { escalate: manifest problem, do NOT treat as pass }
       [ -n "$GATE" ] || { escalate: no gate command resolved, do NOT treat as pass }
       eval "$GATE"                            # objective gates — must be green
       any non-zero (gate failure OR empty/failed gate-cmd) → analyze, fix, next iteration
+      # Pass --phase <phase> so a gate guarded by when: phase:<x> runs only in its
+      # phase (e.g. e2e in qa, not on every implement iteration). Baseline gates
+      # (no when:) always run; touches:* gates need a changed-file list (not yet wired).
       # never let an empty gate-cmd fail open: `eval ""` returns 0, which would
       # silently count as "gates passed". Guard it like stop-guard.sh does.
   if exit condition met → break
