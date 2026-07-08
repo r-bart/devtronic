@@ -16,7 +16,7 @@ Agents are specialized subagents that Claude invokes via the Task tool for speci
 | test-generator | sonnet | On request | Generate unit tests following project patterns |
 | dependency-checker | haiku | Delegated by `/audit` | Audit dependencies for vulnerabilities and issues |
 | doc-sync | haiku | On request | Verify docs match the actual codebase |
-| afk-task-validator | haiku | Delegated by `/validate-task-afk`, `/devtronic --validate` | Score task AFK-readiness, detect quality gaps |
+| afk-task-validator | haiku | Delegated by `/devtronic --validate` | Score task AFK-readiness, detect quality gaps |
 | ux-researcher | sonnet | Delegated by `/design-research`, `/design-define` | Synthesize research, personas, user journeys |
 | ia-architect | sonnet | Delegated by `/design-ia` | Navigation structure, user flows, sitemaps |
 | design-critic | sonnet | Delegated by `/design-audit` | Nielsen's 10 heuristics evaluation |
@@ -34,8 +34,7 @@ Which skills delegate to which agents:
 /quick         ──→  commit-changes        (step 5: commit)
 /audit         ──→  dependency-checker    (--security mode: dependency health)
 /post-review   ──→  architecture-checker  (architecture compliance check)
-/validate-task-afk ──→  afk-task-validator    (score + gap analysis)
-/devtronic (addon)        ──→  afk-task-validator    (--validate flag: step 0)
+/devtronic (addon)        ──→  afk-task-validator    (--validate flag: step 0, score + gap analysis)
                      ──→  issue-parser          (addon: brief extraction)
                      ──→  failure-analyst       (addon: failure diagnosis in execute loop)
                      ──→  quality-executor      (addon: quality checks per loop iteration)
@@ -756,8 +755,7 @@ Files needing updates:
 ### When Invoked
 
 Delegated by:
-- **`/validate-task-afk`** — standalone pre-flight validation
-- **`/devtronic --validate`** — inline validation as step 0 of the pipeline
+- **`/devtronic --validate`** — pre-flight AFK-readiness validation as step 0 of the pipeline
 
 ### Scoring Dimensions
 

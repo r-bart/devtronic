@@ -1,4 +1,5 @@
 import type { ProjectConfig, PackageManager } from '../types.js';
+import { STALE_SECS } from '../loop/constants.js';
 
 interface HookEntry {
   type: 'command' | 'prompt' | 'agent';
@@ -19,6 +20,14 @@ interface HooksConfig {
   description: string;
   hooks: Record<string, HookMatcher[]>;
 }
+
+/**
+ * One-liner that removes a stale ownership sentinel (heartbeat older than the
+ * 900s threshold) on session start. Always exits 0 — a best-effort sweep that
+ * never blocks the session. Mirrored in templates/marketplace/hooks.json.
+ */
+const SWEEP_STALE_SENTINEL =
+  `if [ -f .claude/.loop-owner ]; then HB=$(grep -o '"heartbeat":[0-9]*' .claude/.loop-owner | grep -o '[0-9]*'); if [ -n "$HB" ] && [ $(( $(date +%s) - HB )) -ge ${STALE_SECS} ]; then rm -f .claude/.loop-owner; fi; fi; exit 0`;
 
 /**
  * Generates a hooks.json configuration personalized by the project's
@@ -47,6 +56,19 @@ export function generateHooks(config: ProjectConfig, packageManager: PackageMana
                 'Quick project orientation: First check if thoughts/STATE.md exists — if so, read it and summarize the current project state. Then check git status, recent commits, and any in-progress work. Give a 3-line summary prioritizing STATE.md context if available.\n\nContext: $ARGUMENTS',
               model: 'haiku',
               timeout: 30,
+            },
+          ],
+        },
+        {
+          // Belt-and-suspenders reclaim: if a loop crashed, sweep its stale
+          // ownership sentinel so the returning human isn't stuck behind a
+          // Stop gate that never guards again (FR-3 crash lifecycle).
+          matcher: 'startup',
+          hooks: [
+            {
+              type: 'command',
+              command: SWEEP_STALE_SENTINEL,
+              timeout: 10,
             },
           ],
         },
@@ -143,8 +165,13 @@ function buildLintFixCommand(packageManager: PackageManager, config: ProjectConf
  *
  * The script:
  * 1. Checks stop_hook_active to prevent infinite loops
- * 2. Runs the project's quality command
- * 3. Exits 2 (blocking) on failure, 0 (allow stop) on success
+ * 2. Subordinates to an active convergence loop (ownership signal — FR-3):
+ *    - fresh `owner:machine` sentinel, not at a barrier → defer (exit 0)
+ *    - stale sentinel (crashed loop) → reclaim (`rm`) and enforce
+ *    - no sentinel → behaves exactly as before (backward compatible)
+ * 3. Sources the Tier ① command from `loop.manifest.yaml` when present (single
+ *    source of truth), else falls back to the baked project quality command
+ * 4. Exits 2 (blocking) on failure, 0 (allow stop) on success
  */
 export function generateStopGuardScript(config: ProjectConfig): string {
   // Escape single quotes in the quality command for safe shell embedding
@@ -163,8 +190,35 @@ if echo "$INPUT" | grep -q '"stop_hook_active"'; then
   fi
 fi
 
-# Run quality checks
+# --- Ownership signal: subordinate to an active convergence loop (FR-3) ---
+# The sentinel lives in the worktree (relative path) so concurrent loops on
+# different worktrees don't collide (FR-9).
+STALE_SECS=${STALE_SECS}
+if [ -f ".claude/.loop-owner" ]; then
+  HB=$(grep -o '"heartbeat":[0-9]*' ".claude/.loop-owner" | grep -o '[0-9]*')
+  NOW=$(date +%s)
+  if [ -n "$HB" ] && [ $((NOW - HB)) -lt $STALE_SECS ]; then
+    # Fresh: the loop is alive. Defer only while the machine owns a phase
+    # mid-flight (not at a barrier — barriers require the gate to enforce).
+    if grep -q '"owner":"machine"' ".claude/.loop-owner" && ! grep -q '"atBarrier":true' ".claude/.loop-owner"; then
+      exit 0
+    fi
+  else
+    # Stale: the loop died mid-phase. Reclaim for the human and enforce.
+    rm -f ".claude/.loop-owner"
+  fi
+fi
+
+# --- Tier ① command: manifest is the single source of truth when present ---
 QUALITY_CMD='${safeCmd}'
+if [ -f "loop.manifest.yaml" ]; then
+  MANIFEST_CMD=$(devtronic loop --gate-cmd 2>/dev/null)
+  if [ -n "$MANIFEST_CMD" ]; then
+    QUALITY_CMD="$MANIFEST_CMD"
+  fi
+fi
+
+# Run quality checks
 if ! eval "$QUALITY_CMD" > /dev/null 2>&1; then
   echo "Quality checks failed. Run '$QUALITY_CMD' to see details." >&2
   exit 2

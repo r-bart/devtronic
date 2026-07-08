@@ -454,7 +454,7 @@ devtronic ships three optional addon packs. You can select them during `init` or
 |-------|------|--------|-------------|
 | `orchestration` | Plugin-mode | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation |
 | `design-best-practices` | File-mode | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | Frontend design quality: typography, color, layout, accessibility |
-| `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | Autonomous engineering loop — spec → tests → plan → implement → PR |
+| `auto-devtronic` | File-mode | `auto-devtronic` | Autonomous engineering loop — spec → tests → plan → implement → PR |
 
 ### Enabling Addons
 
@@ -465,7 +465,7 @@ The init wizard shows a multiselect after IDE selection:
 ◆ Enable optional addon packs? (space to toggle, enter to confirm)
   ○ Orchestration — briefing, recap, handoff
   ○ Design Best Practices — design-init, design-critique, design-refine, design-tokens, design-harden
-  ○ Auto-devtronic — auto-devtronic, validate-task-afk
+  ○ Auto-devtronic — auto-devtronic
 ```
 
 **After init**, manage addons with:

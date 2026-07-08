@@ -161,7 +161,7 @@ Shows all available addons with their status (installed / available) and descrip
 |-------|--------|--------|-------------|
 | `orchestration` | `/briefing`, `/recap`, `/handoff` (auto-namespaced in plugin mode) | — | Pre-planning alignment, session recaps, context rotation for long multi-session work |
 | `design-best-practices` | `/design-init`, `/design-critique`, `/design-refine`, `/design-tokens`, `/design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `/devtronic`, `/validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-executor` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
+| `auto-devtronic` | `/devtronic` (with `--validate` for AFK-readiness scoring) | `issue-parser`, `failure-analyst`, `quality-executor`, `afk-task-validator` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
 #### addon enable / addon disable
 
@@ -308,7 +308,7 @@ npx devtronic info
   Installed:     2026-02-27
   IDEs:          claude-code, cursor
   Mode:          marketplace
-  Skills:        31
+  Skills:        33
   Agents:        15
   Framework:     nextjs
   Architecture:  clean
@@ -478,6 +478,89 @@ npx devtronic presets
 
 ---
 
+### loop
+
+Validate and preview the **autonomous convergence loop** declared in
+`loop.manifest.yaml`. This is the deterministic *mechanism* half of the loop harness —
+the *orchestration* half is the `/loop` skill (Claude Code), which reads the same manifest
+and drives phases via `Workflow`/`Task`.
+
+```bash
+# Validate the manifest (default action)
+npx devtronic loop --validate
+
+# Preview the phase/gate/budget plan in plain language — executes nothing
+npx devtronic loop --dry-run
+
+# Clear a derailed loop's ownership signal and report the half-done phase
+npx devtronic loop --abort
+```
+
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--validate` | Validate the manifest; one actionable error per problem (default) |
+| `--dry-run` | Print the ordered phase/gate/budget plan; runs no gates, spawns no agents |
+| `--abort` | Clear the ownership sentinel (`.claude/.loop-owner`) and report state |
+| `--gate-cmd` | Print the Tier ① gate command (consumed by the `Stop` hook) |
+| `--own <phase>` | Take/refresh loop ownership for a phase (used by the skill) |
+| `--owner <owner>` | Ownership to write with `--own`: `machine` (default) or `human` |
+| `--at-barrier` | Mark the owned phase as at a barrier (the gate enforces) |
+| `--release` | Relinquish loop ownership (used by the skill) |
+| `--path <path>` | Target directory (default: current directory) |
+
+**Backlog mode (loop-of-loops).** `devtronic loop --backlog` drives a queue of *ready*
+`/backlog` items (each with a `- Spec:` + `- DoD:` bullet) through the loop unattended — each
+item converges in its own worktree, then parks for your ship-signature.
+
+```bash
+# Preview the eligible queue + caps (executes nothing)
+npx devtronic loop --backlog --dry-run
+
+# See the parked sign-queue, then sign an item (QA its worktree first)
+npx devtronic loop --backlog --status
+npx devtronic loop --backlog --sign BACK-042
+
+# Abort a run: quarantine in-flight items, release worktrees
+npx devtronic loop --backlog --abort
+```
+
+| Flag | Description |
+|------|-------------|
+| `--backlog` | Enter backlog mode (drive the `/backlog` queue) |
+| `--validate` | Report ready + skipped items (with reasons) |
+| `--dry-run` | Preview the eligible order + width/budget caps; executes nothing |
+| `--status` | Show the run ledger: parked sign-queue + done/quarantined |
+| `--sign <item>` | Record the human ship-signature; release the item's worktree |
+| `--next` / `--take`/`--park`/`--quarantine <item>` | Run-state commands the skill drives per item |
+| `--width <n>` | Max in-flight items (default 3) · `--budget <tokens>` total run budget |
+| `--abort` | Quarantine all in-flight items; release worktrees |
+
+Per-item worktrees live under `.loop-worktrees/` (add it to `.gitignore`). Eligibility,
+ordering (priority band, FIFO ties), the run ledger, and the budget/width caps are the
+deterministic spine; the `/loop --backlog` skill only sequences them.
+
+**The two contracts (barbell).** The loop keeps a human at both ends and lets the machine
+converge the middle:
+
+| Contract | Set once per | By | Says |
+|----------|--------------|----|------|
+| **DoD** | feature | `/generate-tests` → `dod.as_tests` | *done* |
+| **Standards** | repo | `/calibrate` → gate lists | *…and to our bar* |
+
+**Coexistence with hooks.** The `Stop` hook subordinates to an active loop **only** while
+an `owner:machine` phase is in flight and not at a barrier — read from a worktree-scoped
+sentinel (`.claude/.loop-owner`) that self-clears on crash (heartbeat staleness +
+`SessionStart` sweep). With no manifest and no active loop, every hook behaves exactly as
+before — the loop machinery is **inert by default**.
+
+`devtronic init` seeds a fully-commented `loop.manifest.yaml` (never overwriting an
+existing one). Learn the schema from that file's inline comments; learn the behavior from
+`--dry-run`.
+
+---
+
 ## What Gets Detected
 
 ### Framework Detection
@@ -545,7 +628,7 @@ For **standalone mode** (non-Claude Code IDEs or standalone installations):
 
 | Directory | Content |
 |-----------|---------|
-| `.claude/skills/` | 32 workflow skills (20 core + 12 design) |
+| `.claude/skills/` | 33 workflow skills (21 core + 12 design) |
 | `.claude/agents/` | 15 specialized agents |
 | `.claude/rules/quality.md` | Quality check rules |
 | `thoughts/` | Directory structure for AI documents |
@@ -558,7 +641,7 @@ For **marketplace mode** (Claude Code), skills and agents are loaded from the [G
 
 | Feature | Claude Code | Cursor | Antigravity | GitHub Copilot | OpenCode |
 |---------|-------------|--------|-------------|----------------|----------|
-| Skills (31) | ✓ | - | - | - | - |
+| Skills (33) | ✓ | - | - | - | - |
 | Agents (15) | ✓ | - | - | - | - |
 | Rules | ✓ | ✓ | ✓ | Partial | ✓ |
 | AGENTS.md | ✓ | ✓ | ✓ | - | ✓ |

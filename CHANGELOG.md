@@ -9,6 +9,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.4.0] - 2026-07-08
+
+The autonomous convergence loop — inner (per-feature) and outer (backlog-driven), both HITL.
+
+### Added
+
+**Convergence loop (inner, per-feature):**
+- **`/loop` skill — autonomous convergence harness.** Reads a per-repo `loop.manifest.yaml` and drives the human/machine "barbell": humans sign the DoD and the ship, the machine converges the middle under gates. Orchestrates phases via `Workflow`/`Task` with barriers, an iteration budget, and adversarial Tier ② fan-out; writes a per-iteration trace to `thoughts/loop/<feature>.trace.md`.
+- **`devtronic loop` command** — the deterministic mechanism half: `--validate`, `--dry-run` (pedagogical plan, executes nothing), `--abort`, `--gate-cmd`, and `--own`/`--release` (ownership signal used by the skill).
+- **`loop.manifest.yaml`** schema (phases, tiered gates, DoD, ship, budget) with a pure, never-throwing validator. `devtronic init` seeds a fully-commented reference manifest (guarded — never overwrites).
+- **Ownership-aware hooks (coexistence).** The `Stop` hook subordinates to an active `owner:machine` phase via a worktree-scoped sentinel (`.claude/.loop-owner`) that self-clears on crash (heartbeat staleness + `SessionStart` sweep); when a manifest is present the Tier ① command is sourced from it. Inert by default — with no manifest and no active loop, every hook behaves exactly as before.
+- **Clean-tree guard (FR-7)** — the loop refuses to take ownership over uncommitted human WIP.
+- New `yaml` dependency (manifest parsing).
+
+**Loop of loops (outer, backlog-driven, HITL):**
+- **`/loop --backlog` — the loop of loops.** Drives a queue of *ready* `/backlog` items (each declaring a `- Spec:` + `- DoD:` bullet) through the convergence loop unattended: each item converges in its own git worktree, then **parks** awaiting the human ship-signature while the loop advances the next (park-ahead). Bounded by a width cap (default 3 in-flight) and a token budget — enforced by the CLI, not just skill prose; a non-converging item is **quarantined** and the run continues (fail-soft).
+- **`devtronic loop --backlog`** deterministic spine: `--validate`, `--dry-run`, `--status`, `--sign <item>`, `--abort`, and the per-item run-state commands (`--next`/`--take`/`--park`/`--quarantine`), with a lock-serialized, atomically-written run ledger. Priority derives from the `/backlog` section (High/Medium/Low), FIFO ties.
+- `/backlog` items gain an optional `- DoD:` bullet (backward-compatible; enables loop eligibility).
+- Per-item worktrees under `.loop-worktrees/` (add to `.gitignore`).
+
+### Changed
+- Core skill count 20 → 21 (`/loop` registered in `CORE_SKILLS`).
+
+---
+
 ## [1.3.0] - 2026-03-08
 
 ### Changed

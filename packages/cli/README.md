@@ -20,6 +20,8 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 | `doctor [--fix]` | Run health diagnostics |
 | `list [skills\|agents]` | List installed skills and agents |
 | `config` | View or manage project configuration |
+| `loop [--dry-run]` | Convergence loop (inner) — validate/preview `loop.manifest.yaml` |
+| `loop --backlog` | Loop of loops (outer) — drive the `/backlog` queue unattended |
 | `addon add <name>` | Add an addon skill pack |
 | `addon remove <name>` | Remove an addon skill pack |
 | `addon list` | List available and installed addons |
@@ -35,7 +37,7 @@ The CLI analyzes your project (framework, architecture, stack) and generates per
 
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
-- **Skills** (20 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/summary`, `/audit`, `/devtronic-help`, etc.)
+- **Skills** (21 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/loop`, `/summary`, `/audit`, `/devtronic-help`, etc.)
 - **Agents** (15 + 4 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
 - **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
 - **thoughts/** — Structured directory for AI working documents
@@ -56,7 +58,7 @@ npx devtronic addon remove <name>               # Uninstall
 |-------|--------|-------------|
 | `orchestration` | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation for multi-session work |
 | `design-best-practices` | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `auto-devtronic`, `validate-task-afk` | Autonomous engineering loop — takes a GitHub issue, runs spec → tests → plan → implement → PR, self-corrects via failing tests |
+| `auto-devtronic` | `auto-devtronic` (`/devtronic --validate` for AFK-readiness scoring) | Autonomous engineering loop — takes a GitHub issue, runs spec → tests → plan → implement → PR, self-corrects via failing tests |
 
 During `npx devtronic init` (Claude Code only), a multiselect prompt lets you enable any combination of addons upfront.
 

@@ -16,6 +16,8 @@ import { doctorCommand } from './commands/doctor.js';
 import { uninstallCommand } from './commands/uninstall.js';
 import { addonCommand, addonListCommand, addonSyncCommand } from './commands/addon.js';
 import { modeCommand } from './commands/mode.js';
+import { loopCommand } from './commands/loop.js';
+import { loopBacklogCommand } from './commands/loopBacklog.js';
 import { PRESETS } from './types.js';
 import { introTitle, showLogo } from './utils/ui.js';
 import { getCliVersion } from './utils/version.js';
@@ -37,6 +39,7 @@ program
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic doctor')}                    ${chalk.dim('Health diagnostics')}`);
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic status')}                    ${chalk.dim('File status overview')}`);
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic mode')} ${chalk.dim('<afk|hitl|show>')}       ${chalk.dim('Get or set execution mode')}`);
+    console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic loop')} ${chalk.dim('--dry-run')}             ${chalk.dim('Preview the convergence loop plan')}`);
     console.log();
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help')}                      ${chalk.dim('Show all commands')}`);
     console.log(`  ${chalk.dim('$')} ${chalk.white('devtronic help --all')}                ${chalk.dim('Full reference with all options')}`);
@@ -195,6 +198,62 @@ program
     await modeCommand(mode as 'afk' | 'hitl' | 'show', { path: options.path });
   });
 
+program
+  .command('loop')
+  .description('Autonomous convergence loop: validate/preview loop.manifest.yaml')
+  .argument('[path]', 'Path to the manifest (default: ./loop.manifest.yaml)')
+  .option('--validate', 'Validate the manifest and report problems (default action)')
+  .option('--dry-run', 'Preview the phase/gate/budget plan in plain language; execute nothing')
+  .option('--abort', 'Clear the ownership signal and report the half-done phase')
+  .option('--gate-cmd', 'Print the Tier ① gate command (for the stop-guard hook)')
+  .option('--own <phase>', 'Take/refresh loop ownership of the tree for a phase (used by the skill)')
+  .option('--owner <owner>', 'Ownership to write with --own: machine (default) or human')
+  .option('--at-barrier', 'Mark the owned phase as at a barrier (gate enforces)')
+  .option('--release', 'Relinquish loop ownership of the tree (used by the skill)')
+  // Backlog mode (loop-of-loops): drive a queue of ready features unattended
+  .option('--backlog', 'Backlog mode: drive the /backlog queue through the loop')
+  .option('--status', 'Backlog: show the run ledger (parked sign-queue + done/quarantined)')
+  .option('--sign <item>', 'Backlog: record the human ship-signature and release the worktree')
+  .option('--next', 'Backlog: print the next eligible item id (used by the skill)')
+  .option('--take <item>', 'Backlog: take an item — create its worktree + sentinel (used by the skill)')
+  .option('--park <item>', 'Backlog: mark a converged item parked for sign (used by the skill)')
+  .option('--quarantine <item>', 'Backlog: quarantine a non-converging item (used by the skill)')
+  .option('--spent <tokens>', 'Backlog: tokens spent, recorded with --take/--park')
+  .option('--width <n>', 'Backlog: max in-flight items (default 3)')
+  .option('--budget <tokens>', 'Backlog: total token budget for the run')
+  .option('--path <path>', 'Target directory (default: current directory)')
+  .action(async (path, options) => {
+    if (options.backlog) {
+      await loopBacklogCommand({
+        validate: options.validate,
+        dryRun: options.dryRun,
+        next: options.next,
+        status: options.status,
+        take: options.take,
+        park: options.park,
+        quarantine: options.quarantine,
+        sign: options.sign,
+        abort: options.abort,
+        spent: options.spent,
+        width: options.width,
+        budget: options.budget,
+        path: options.path ?? path,
+      });
+      return;
+    }
+    await loopCommand(path, {
+      validate: options.validate,
+      dryRun: options.dryRun,
+      abort: options.abort,
+      gateCmd: options.gateCmd,
+      own: options.own,
+      owner: options.owner,
+      atBarrier: options.atBarrier,
+      release: options.release,
+      path: options.path,
+    });
+  });
+
 // Extended help — devtronic help --all
 program
   .command('help')
@@ -322,6 +381,29 @@ program
         usage: 'mode <afk|hitl|show>',
         desc: 'Set or show the persistent execution mode for /auto-devtronic',
         opts: ['--path <path>        Target directory'],
+      },
+      {
+        title: 'Loop',
+        usage: 'loop [path]',
+        desc: 'Validate or preview the autonomous convergence loop (loop.manifest.yaml)',
+        opts: [
+          '--validate           Validate the manifest (default)',
+          '--dry-run             Preview phase/gate/budget plan (executes nothing)',
+          '--abort              Clear the ownership signal after a derailed loop',
+          '--gate-cmd           Print the Tier ① gate command (used by the stop-guard)',
+          '--own <phase>        Take/refresh loop ownership for a phase (used by the skill)',
+          '--owner <owner>      Ownership for --own: machine (default) or human',
+          '--at-barrier         Mark the owned phase as at a barrier (gate enforces)',
+          '--release            Relinquish loop ownership (used by the skill)',
+          'Backlog mode (loop of loops):',
+          '--backlog            Drive the /backlog queue through the loop',
+          '--status             Show the run ledger (parked sign-queue + done/quarantined)',
+          '--sign <item>        Record the human ship-signature; release the worktree',
+          '--next               Print the next eligible item id (used by the skill)',
+          '--take/--park/--quarantine <item>   Per-item run-state (used by the skill)',
+          '--width <n>          Max in-flight items (default 3) · --budget <tokens> run budget',
+          '--path <path>        Target directory',
+        ],
       },
       {
         title: 'Diagnostics',

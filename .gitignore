@@ -29,3 +29,6 @@ thoughts/
 
 # Internal skills (not distributed)
 .claude/skills/oss-status/
+
+# Loop-of-loops per-item worktrees (transient)
+.loop-worktrees/
