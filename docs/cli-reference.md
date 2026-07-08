@@ -161,7 +161,7 @@ Shows all available addons with their status (installed / available) and descrip
 |-------|--------|--------|-------------|
 | `orchestration` | `/briefing`, `/recap`, `/handoff` (auto-namespaced in plugin mode) | — | Pre-planning alignment, session recaps, context rotation for long multi-session work |
 | `design-best-practices` | `/design-init`, `/design-critique`, `/design-refine`, `/design-tokens`, `/design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `/devtronic`, `/validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-executor` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
+| `auto-devtronic` | `/devtronic` (with `--validate` for AFK-readiness scoring) | `issue-parser`, `failure-analyst`, `quality-executor`, `afk-task-validator` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
 #### addon enable / addon disable
 

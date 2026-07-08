@@ -49,7 +49,7 @@ At pipeline start, before step 0:
 INPUT (issue URL or description)
   │
   ▼
-0. VALIDATE (if --validate)  — /validate-task-afk
+0. VALIDATE (if --validate)  — afk-task-validator agent
              Score: 70+? Proceed silently.
              Score: <70 in AFK mode? Ask for HITL confirmation.
   │
@@ -86,13 +86,11 @@ INPUT (issue URL or description)
 
 Only if the `--validate` flag is provided:
 
-### Invoke /validate-task-afk
+### Invoke the afk-task-validator agent
 
-```
-/validate-task-afk <input>
-```
-
-Where `<input>` is the GitHub issue URL or plain text description provided by the user.
+Delegate to the `afk-task-validator` subagent (via the Task tool) with the task input —
+the GitHub issue URL or plain text description provided by the user — and ask it for a
+viability score (0-100) across the 5 dimensions.
 
 ### Interpret Score
 

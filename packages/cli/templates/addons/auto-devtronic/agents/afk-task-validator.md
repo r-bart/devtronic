@@ -10,9 +10,8 @@ You are an expert task analyzer specializing in evaluating whether software engi
 ## When to Invoke
 
 Claude should invoke you when:
-- User invokes `/validate-task-afk <input>`
+- User runs `/devtronic <input> --validate` (AFK-readiness scoring)
 - Need to analyze a GitHub issue or task description for AFK-readiness
-- Integration with `/auto-devtronic --validate` flag
 - User needs interactive guidance to refine unclear tasks
 
 ---

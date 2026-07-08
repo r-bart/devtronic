@@ -58,7 +58,7 @@ npx devtronic addon remove <name>               # Uninstall
 |-------|--------|-------------|
 | `orchestration` | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation for multi-session work |
 | `design-best-practices` | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
-| `auto-devtronic` | `auto-devtronic`, `validate-task-afk` | Autonomous engineering loop — takes a GitHub issue, runs spec → tests → plan → implement → PR, self-corrects via failing tests |
+| `auto-devtronic` | `auto-devtronic` (`/devtronic --validate` for AFK-readiness scoring) | Autonomous engineering loop — takes a GitHub issue, runs spec → tests → plan → implement → PR, self-corrects via failing tests |
 
 During `npx devtronic init` (Claude Code only), a multiselect prompt lets you enable any combination of addons upfront.
 

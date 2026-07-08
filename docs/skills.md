@@ -590,16 +590,16 @@ INPUT (issue URL or description)
 
 ---
 
-### /validate-task-afk - AFK Viability Validator
+### /devtronic --validate - AFK Viability Validation
 
-**Purpose**: Pre-flight validation that scores a GitHub issue or task description on AFK-readiness (0-100) across 5 dimensions and guides iterative refinement.
+**Purpose**: Pre-flight validation (step 0 of the `/devtronic` addon pipeline) that scores a GitHub issue or task description on AFK-readiness (0-100) across 5 dimensions and guides iterative refinement.
 
 **When to use**:
-- Before running `/devtronic <issue> --afk`
+- Before committing to `/devtronic <issue> --afk`
 - Uncertain if a task is well-defined enough for autonomous execution
 - Want guidance on improving a task description before committing to AFK
 
-**Skip for**: Tasks already validated inline via `--validate` flag.
+**Skip for**: Tasks you're confident are AFK-ready (run `/devtronic` without `--validate`).
 
 **Dimensions scored**:
 

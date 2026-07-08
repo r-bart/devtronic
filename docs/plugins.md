@@ -345,7 +345,7 @@ devtronic ships three optional addon packs:
 |-------|------|--------|--------|
 | `orchestration` | Marketplace | `briefing`, `recap`, `handoff` | — |
 | `design-best-practices` | File-mode | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | — |
-| `auto-devtronic` | File-mode | `auto-devtronic`, `validate-task-afk` | `issue-parser`, `failure-analyst`, `quality-executor` |
+| `auto-devtronic` | File-mode | `auto-devtronic` | `issue-parser`, `failure-analyst`, `quality-executor`, `afk-task-validator` |
 
 ### Marketplace Addons (orchestration)
 

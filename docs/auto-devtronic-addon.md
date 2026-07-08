@@ -14,8 +14,7 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 
 | Type | Name | Purpose |
 |------|------|---------|
-| Skill | `/devtronic` | Main entry point — orchestrates the full pipeline |
-| Skill | `/validate-task-afk` | Pre-flight viability validator — scores tasks 0-100 across 5 dimensions |
+| Skill | `/devtronic` | Main entry point — orchestrates the full pipeline (`--validate` for AFK-readiness scoring) |
 | Agent | `issue-parser` | Extracts structured brief from GitHub issues or descriptions |
 | Agent | `failure-analyst` | Diagnoses test/lint failures, proposes targeted fixes |
 | Agent | `quality-executor` | Runs typecheck, lint, and tests; returns structured pass/fail |
@@ -30,10 +29,9 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 /devtronic <issue-url> --afk --validate
 /devtronic <issue-url> --dry-run
 
-# Pre-flight check before committing to AFK
-/validate-task-afk https://github.com/org/repo/issues/42
-/validate-task-afk "Add pagination to the users list"
-/validate-task-afk "Add feature" --refine   # interactive refinement mode
+# Pre-flight AFK-readiness check before committing to AFK
+/devtronic https://github.com/org/repo/issues/42 --validate
+/devtronic "Add pagination to the users list" --validate
 ```
 
 ## When to use which approach
@@ -41,20 +39,20 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 | Situation | Command |
 |-----------|---------|
 | You trust the task is well-defined → just run it | `/devtronic <issue> --afk` |
-| You want to check before committing to AFK | `/validate-task-afk <issue>` → then run based on score |
+| You want to check before committing to AFK | `/devtronic <issue> --validate` → then run based on score |
 | You want validation + execution in one step | `/devtronic <issue> --afk --validate` |
 | Score is 40-70 (medium risk) | `/devtronic <issue> --hitl` |
-| Score is <40 → task needs work | `/validate-task-afk <issue> --refine` → improve → re-validate |
+| Score is <40 → task needs work | `/devtronic <issue> --validate` refines interactively → improve → re-validate |
 | Unfamiliar codebase or risky change | `/devtronic <issue> --hitl` (skip validation, use human gates) |
 
 **Recommended flow for new users:**
 
 ```
-/validate-task-afk <issue>          ← check first
+/devtronic <issue> --validate       ← check first
        ↓
   Score ≥70 → /devtronic <issue> --afk
   Score 40-70 → /devtronic <issue> --hitl
-  Score <40 → /validate-task-afk <issue> --refine → improve → re-validate
+  Score <40 → refine interactively → improve → re-validate
 ```
 
 **Shortcut once you know the codebase:**
@@ -90,7 +88,7 @@ Installs into `.claude/skills/` and `.claude/agents/`. Works with any devtronic 
 INPUT (issue URL or description)
   │
   ▼
-0. VALIDATE (if --validate)  — /validate-task-afk
+0. VALIDATE (if --validate)  — afk-task-validator agent
              Score 70+? Proceed silently.
              Score <70 in AFK mode? Ask "Switch to HITL mode?"
              Score <40? Ask to refine and re-validate.
@@ -148,7 +146,7 @@ Removes the skills and all 4 agents from all configured agent directories. Warns
 
 ## Related
 
-- [Skills Reference](./skills.md#auto-devtronic-addon-skills) — full `/devtronic` and `/validate-task-afk` documentation
+- [Skills Reference](./skills.md#auto-devtronic-addon-skills) — full `/devtronic` (incl. `--validate`) documentation
 - [Agents Reference](./agents.md#afk-task-validator) — `afk-task-validator` agent documentation
 - [CLI Reference](./cli-reference.md#addon-add--addon-remove) — addon commands
 - [Design Best Practices Addon](./cli-reference.md#addon-add--addon-remove) — another available addon
