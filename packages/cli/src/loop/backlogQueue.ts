@@ -36,8 +36,13 @@ export function parseBacklog(md: string): BacklogItem[] {
   let priority = 0;
   let current: BacklogItem | null = null;
 
+  const seen = new Set<string>();
   const push = () => {
-    if (current) items.push(current);
+    // Drop duplicate ids (keep the first occurrence) so the queue is unambiguous.
+    if (current && !seen.has(current.id)) {
+      seen.add(current.id);
+      items.push(current);
+    }
     current = null;
   };
 
@@ -60,10 +65,11 @@ export function parseBacklog(md: string): BacklogItem[] {
     }
 
     if (current) {
-      const spec = line.match(/^-\s*Spec:\s*(\S+)/i);
-      if (spec) current.spec = spec[1];
-      const dod = line.match(/^-\s*DoD:\s*(\S+)/i);
-      if (dod) current.dod = dod[1];
+      // Capture the rest of the line (paths may contain spaces).
+      const spec = line.match(/^-\s*Spec:\s*(.+)$/i);
+      if (spec) current.spec = spec[1].trim();
+      const dod = line.match(/^-\s*DoD:\s*(.+)$/i);
+      if (dod) current.dod = dod[1].trim();
     }
   }
   push();

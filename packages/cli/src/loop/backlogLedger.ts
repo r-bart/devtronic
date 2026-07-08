@@ -45,12 +45,26 @@ export function serializeLedger(ledger: Ledger): string {
   ].join('\n');
 }
 
-/** Reconstruct the ledger from its serialized form (inverse of serializeLedger). */
+/**
+ * Reconstruct the ledger from its serialized form (inverse of serializeLedger).
+ * Line-anchored on the exact `DATA_OPEN` fence so a stray triple-backtick added
+ * by a human editing above the machine block cannot truncate the JSON slice.
+ */
 export function parseLedger(text: string): Ledger {
-  const start = text.indexOf(DATA_OPEN);
-  if (start === -1) throw new Error('Ledger data block not found.');
-  const from = start + DATA_OPEN.length;
-  const end = text.indexOf(DATA_CLOSE, from);
-  if (end === -1) throw new Error('Ledger data block is unterminated.');
-  return JSON.parse(text.slice(from, end).trim()) as Ledger;
+  const lines = text.split('\n');
+  const open = lines.findIndex((l) => l.trim() === DATA_OPEN);
+  if (open === -1) throw new Error('Ledger data block not found.');
+  const jsonLines: string[] = [];
+  let closed = false;
+  for (let i = open + 1; i < lines.length; i++) {
+    if (lines[i].trim() === DATA_CLOSE) {
+      closed = true;
+      break;
+    }
+    jsonLines.push(lines[i]);
+  }
+  if (!closed) throw new Error('Ledger data block is unterminated.');
+  const json = jsonLines.join('\n').trim();
+  if (!json) throw new Error('Ledger data block is empty.');
+  return JSON.parse(json) as Ledger;
 }

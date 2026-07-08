@@ -5,16 +5,33 @@
  * (converge, park-ahead) is the `/loop` skill's "Backlog mode". This handler is
  * the tested middle: preview the queue, and mutate authoritative run state
  * (take / park / quarantine / sign / abort) that the skill drives per item.
+ *
+ * The ledger is the single source of truth. Because the design runs items
+ * concurrently (up to the width cap), every mutation is serialized under an
+ * exclusive lock and written atomically (temp + rename) — no lost updates, no
+ * torn reads. The budget/width gate is enforced HERE (not just in skill prose),
+ * so a runaway orchestrator can't spawn unbounded worktrees or spend.
  */
-import { resolve, join } from 'node:path';
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { resolve, join, dirname } from 'node:path';
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  renameSync,
+  mkdirSync,
+  openSync,
+  closeSync,
+  rmSync,
+  statSync,
+} from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
 import { introTitle, symbols } from '../utils/ui.js';
 import { parseBacklog, eligibleQueue } from '../loop/backlogQueue.js';
-import { buildBacklogPlan } from '../loop/backlogPlan.js';
+import type { BacklogItem } from '../loop/backlogQueue.js';
+import { buildBacklogPlan, canLaunchNext } from '../loop/backlogPlan.js';
 import { transition } from '../loop/itemState.js';
-import type { ItemState } from '../loop/itemState.js';
+import type { ItemState, ItemEvent } from '../loop/itemState.js';
 import { serializeLedger, parseLedger } from '../loop/backlogLedger.js';
 import type { Ledger, ItemRecord } from '../loop/backlogLedger.js';
 import { addWorktree, removeWorktree } from '../loop/worktrees.js';
@@ -30,7 +47,7 @@ export interface BacklogOptions {
   quarantine?: string;
   sign?: string;
   abort?: boolean;
-  spent?: string; // tokens spent, recorded with --take/--park
+  spent?: string;
   width?: string;
   budget?: string;
   path?: string;
@@ -40,23 +57,74 @@ const BACKLOG_PATH = join('thoughts', 'BACKLOG.md');
 const LEDGER_PATH = join('thoughts', 'loop', 'backlog.ledger.md');
 const DEFAULT_WIDTH = 3;
 const DEFAULT_BUDGET = 1_000_000;
+const LOCK_STALE_MS = 30_000;
+
+/** Exit code the skill reads as "at capacity — stop launching, don't treat as error". */
+const EXIT_AT_CAPACITY = 3;
 
 const IN_FLIGHT: ItemState[] = ['converging', 'parked'];
+const SAFE_ID = /^[A-Za-z0-9._-]+$/;
+
+function ledgerFile(dir: string): string {
+  return join(dir, LEDGER_PATH);
+}
 
 function loadLedger(dir: string): Ledger {
-  const path = join(dir, LEDGER_PATH);
+  const path = ledgerFile(dir);
   if (!existsSync(path)) return { run: 'backlog', budgetSpent: 0, items: [] };
   return parseLedger(readFileSync(path, 'utf8'));
 }
 
+/** Atomic write (temp + rename) so a concurrent read never sees a partial ledger. */
 function saveLedger(dir: string, ledger: Ledger): void {
-  const path = join(dir, LEDGER_PATH);
-  mkdirSync(join(dir, 'thoughts', 'loop'), { recursive: true });
-  writeFileSync(path, serializeLedger(ledger), 'utf8');
+  const path = ledgerFile(dir);
+  mkdirSync(dirname(path), { recursive: true });
+  const tmp = `${path}.${process.pid}.tmp`;
+  writeFileSync(tmp, serializeLedger(ledger), 'utf8');
+  renameSync(tmp, path);
+}
+
+/** Serialize a load→mutate→save cycle under an exclusive, stale-aware lock. */
+async function withLedger(dir: string, fn: (ledger: Ledger) => void): Promise<void> {
+  const lockPath = `${ledgerFile(dir)}.lock`;
+  mkdirSync(dirname(lockPath), { recursive: true });
+  for (let attempt = 0; attempt < 100; attempt++) {
+    let fd: number | undefined;
+    try {
+      fd = openSync(lockPath, 'wx');
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === 'EEXIST') {
+        // Steal a stale lock left by a crashed process.
+        try {
+          if (Date.now() - statSync(lockPath).mtimeMs > LOCK_STALE_MS) rmSync(lockPath, { force: true });
+        } catch {
+          /* lock vanished between stat and rm — just retry */
+        }
+        await new Promise((r) => setTimeout(r, 50));
+        continue;
+      }
+      throw err;
+    }
+    try {
+      const ledger = loadLedger(dir);
+      fn(ledger);
+      saveLedger(dir, ledger);
+      return;
+    } finally {
+      closeSync(fd);
+      rmSync(lockPath, { force: true });
+    }
+  }
+  throw new Error('Could not acquire the ledger lock (timeout).');
 }
 
 function record(ledger: Ledger, id: string): ItemRecord | undefined {
   return ledger.items.find((i) => i.id === id);
+}
+
+function fail(message: string, code = 1): never {
+  process.stderr.write(message + '\n');
+  process.exit(code);
 }
 
 export async function loopBacklogCommand(opts: BacklogOptions): Promise<void> {
@@ -77,46 +145,81 @@ export async function loopBacklogCommand(opts: BacklogOptions): Promise<void> {
     const q = readBacklog();
     if (!q) process.exit(1);
     const ledger = loadLedger(dir);
-    const inflightOrDone = new Set(ledger.items.filter((i) => i.state !== 'quarantined').map((i) => i.id));
-    const next = q.ready.find((i) => !inflightOrDone.has(i.id));
+    // Exclude every item already in this run (any state — a quarantined item has
+    // been processed and must not be re-offered, or --take would reject it forever).
+    const seen = new Set(ledger.items.map((i) => i.id));
+    const next = q.ready.find((i) => !seen.has(i.id));
     if (!next) process.exit(1);
     process.stdout.write(next.id + '\n');
     return;
   }
 
   if (opts.take) {
-    const ledger = loadLedger(dir);
-    if (record(ledger, opts.take)) {
-      process.stderr.write(`Item ${opts.take} is already in the run.\n`);
-      process.exit(1);
+    const id = opts.take;
+    if (!SAFE_ID.test(id)) fail(`Unsafe item id: "${id}".`);
+    const q = readBacklog();
+    if (!q) fail(`No backlog found at ${BACKLOG_PATH}.`);
+    if (!q.ready.some((i) => i.id === id)) {
+      fail(`Item ${id} is not a ready backlog item (needs an existing spec + DoD).`);
     }
-    const wt = addWorktree(dir, opts.take);
-    writeSentinel(wt, { phase: 'implement', owner: 'machine', atBarrier: false });
-    ledger.items.push({
-      id: opts.take,
-      state: transition('queued', 'launch'),
-      worktree: wt,
-      budgetSpent: spent,
-      trace: join('thoughts', 'loop', `${opts.take}.trace.md`),
-    });
-    ledger.budgetSpent += spent;
-    saveLedger(dir, ledger);
+    // Gate BEFORE touching git: enforce the width cap + budget authoritatively.
+    const pre = loadLedger(dir);
+    if (record(pre, id)) fail(`Item ${id} is already in the run.`);
+    const inFlight = pre.items.filter((i) => IN_FLIGHT.includes(i.state)).length;
+    if (!canLaunchNext({ budgetSpent: pre.budgetSpent, budgetTotal: budget, inFlight, widthCap: width })) {
+      fail(`At capacity (in-flight ${inFlight}/${width}, budget ${pre.budgetSpent}/${budget}).`, EXIT_AT_CAPACITY);
+    }
+    // Create the worktree first; roll it back if recording state fails.
+    const wt = addWorktree(dir, id);
+    try {
+      writeSentinel(wt, { phase: 'implement', owner: 'machine', atBarrier: false });
+      await withLedger(dir, (ledger) => {
+        if (record(ledger, id)) throw new Error(`Item ${id} is already in the run.`);
+        const inFlightNow = ledger.items.filter((i) => IN_FLIGHT.includes(i.state)).length;
+        if (!canLaunchNext({ budgetSpent: ledger.budgetSpent, budgetTotal: budget, inFlight: inFlightNow, widthCap: width })) {
+          throw new Error('AT_CAPACITY');
+        }
+        ledger.items.push({
+          id,
+          state: transition('queued', 'launch'),
+          worktree: wt,
+          budgetSpent: spent,
+          trace: join('thoughts', 'loop', `${id}.trace.md`),
+        });
+        ledger.budgetSpent += spent;
+      });
+    } catch (err) {
+      clearSentinel(wt);
+      try {
+        removeWorktree(dir, wt);
+      } catch {
+        /* best-effort rollback */
+      }
+      if (err instanceof Error && err.message === 'AT_CAPACITY') {
+        fail(`At capacity for ${id}.`, EXIT_AT_CAPACITY);
+      }
+      fail(`Failed to take ${id}: ${err instanceof Error ? err.message : String(err)}`);
+    }
     return;
   }
 
   if (opts.park || opts.quarantine) {
     const id = (opts.park || opts.quarantine)!;
-    const event = opts.park ? 'converged' : 'fail';
-    const ledger = loadLedger(dir);
-    const rec = record(ledger, id);
-    if (!rec) {
-      process.stderr.write(`Item ${id} is not in the run.\n`);
-      process.exit(1);
-    }
-    rec.state = transition(rec.state, event);
-    rec.budgetSpent += spent;
-    ledger.budgetSpent += spent;
-    saveLedger(dir, ledger);
+    const event: ItemEvent = opts.park ? 'converged' : 'fail';
+    const verb = opts.park ? 'park' : 'quarantine';
+    await withLedger(dir, (ledger) => {
+      const rec = record(ledger, id);
+      if (!rec) throw new Error(`Item ${id} is not in the run.`);
+      let next: ItemState;
+      try {
+        next = transition(rec.state, event);
+      } catch {
+        throw new Error(`Cannot ${verb} ${id} from state "${rec.state}".`);
+      }
+      rec.state = next;
+      rec.budgetSpent += spent;
+      ledger.budgetSpent += spent;
+    }).catch((err) => fail(err instanceof Error ? err.message : String(err)));
     return;
   }
 
@@ -124,40 +227,51 @@ export async function loopBacklogCommand(opts: BacklogOptions): Promise<void> {
 
   if (opts.sign) {
     p.intro(introTitle('Loop backlog — sign'));
-    const ledger = loadLedger(dir);
-    const rec = record(ledger, opts.sign);
-    if (!rec) {
-      p.cancel(`Item ${opts.sign} is not in the run.`);
+    const id = opts.sign;
+    let signedWorktree: string | null = null;
+    try {
+      await withLedger(dir, (ledger) => {
+        const rec = record(ledger, id);
+        if (!rec) throw new Error(`Item ${id} is not in the run.`);
+        rec.state = transition(rec.state, 'sign'); // throws if not parked
+        signedWorktree = rec.worktree;
+      });
+    } catch (err) {
+      p.cancel(err instanceof Error ? err.message : String(err));
       process.exit(1);
     }
-    rec.state = transition(rec.state, 'sign'); // throws if not parked
-    clearSentinel(rec.worktree);
-    try {
-      removeWorktree(dir, rec.worktree);
-    } catch {
-      /* worktree may already be gone; ledger state is authoritative */
+    if (signedWorktree) {
+      clearSentinel(signedWorktree);
+      try {
+        removeWorktree(dir, signedWorktree);
+      } catch {
+        /* worktree may already be gone; ledger state is authoritative */
+      }
     }
-    saveLedger(dir, ledger);
-    p.log.success(`Signed ${chalk.cyan(opts.sign)} — shipped, worktree released.`);
+    p.log.success(`Signed ${chalk.cyan(id)} — shipped, worktree released.`);
     p.outro('');
     return;
   }
 
   if (opts.abort) {
     p.intro(introTitle('Loop backlog — abort'));
-    const ledger = loadLedger(dir);
-    const inflight = ledger.items.filter((i) => IN_FLIGHT.includes(i.state));
-    for (const rec of inflight) {
-      rec.state = 'quarantined';
-      clearSentinel(rec.worktree);
+    const released: string[] = [];
+    await withLedger(dir, (ledger) => {
+      for (const rec of ledger.items) {
+        if (!IN_FLIGHT.includes(rec.state)) continue;
+        rec.state = transition(rec.state, 'abort');
+        released.push(rec.worktree);
+      }
+    });
+    for (const wt of released) {
+      clearSentinel(wt);
       try {
-        removeWorktree(dir, rec.worktree);
+        removeWorktree(dir, wt);
       } catch {
         /* best-effort */
       }
     }
-    saveLedger(dir, ledger);
-    p.log.success(`Aborted — quarantined ${inflight.length} in-flight item(s); worktrees released.`);
+    p.log.success(`Aborted — quarantined ${released.length} in-flight item(s); worktrees released.`);
     p.outro('');
     return;
   }
@@ -198,7 +312,7 @@ export async function loopBacklogCommand(opts: BacklogOptions): Promise<void> {
   if (!opts.dryRun) {
     p.log.success(`${q.ready.length} ready · ${q.skipped.length} skipped`);
     if (q.ready.length) {
-      p.note(q.ready.map((i) => `  ${symbols.pass} ${i.id} ${chalk.dim(`(priority ${i.priority})`)}`).join('\n'), 'Ready');
+      p.note(q.ready.map((i: BacklogItem) => `  ${symbols.pass} ${i.id} ${chalk.dim(`(priority ${i.priority})`)}`).join('\n'), 'Ready');
     }
     if (q.skipped.length) {
       p.note(q.skipped.map((s) => `  ${symbols.fail} ${s.item.id} — ${s.reason}`).join('\n'), 'Skipped');
