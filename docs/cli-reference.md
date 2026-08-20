@@ -37,7 +37,7 @@ npx devtronic init [path] [options]
 **Options:**
 | Option | Description |
 |--------|-------------|
-| `--ide <ides>` | IDEs to configure, comma-separated (e.g., `claude-code,cursor`) |
+| `--ide <ides>` | IDEs to configure, comma-separated. Valid: `claude-code`, `cursor`, `codex`, `opencode`, `antigravity`, `github-copilot` |
 | `--preset <name>` | Use a preset configuration |
 | `-y, --yes` | Skip prompts, use detected defaults |
 | `--preview` | Show what would be generated without making changes |

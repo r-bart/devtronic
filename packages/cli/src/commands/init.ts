@@ -45,6 +45,11 @@ import {
   DESIGN_SKILL_COUNT,
   BASE_AGENT_COUNT,
 } from '../generators/plugin.js';
+import {
+  generatePortableSkills,
+  PORTABLE_SKILLS_DIR,
+  PORTABLE_SKILL_IDES,
+} from '../generators/portableSkills.js';
 import { registerGitHubPlugin } from '../utils/settings.js';
 import { introTitle, showLogo, symbols, formatKV } from '../utils/ui.js';
 import { getCliVersion } from '../utils/version.js';
@@ -62,7 +67,12 @@ const IDE_TEMPLATE_MAP: Record<IDE, string> = {
   antigravity: 'antigravity',
   'github-copilot': 'github-copilot',
   opencode: 'opencode',
+  codex: 'codex',
 };
+
+// IDEs configured entirely by generated files (AGENTS.md + portable skills),
+// with no static template directory to copy from.
+const SKILLS_ONLY_IDES: IDE[] = ['codex'];
 
 // Files that should be generated dynamically instead of copied from templates
 const DYNAMIC_RULE_FILES: Record<IDE, string[]> = {
@@ -71,6 +81,7 @@ const DYNAMIC_RULE_FILES: Record<IDE, string[]> = {
   antigravity: ['.agents/rules/architecture.md'],
   'github-copilot': [], // Copilot uses single file, handled separately
   opencode: [], // OpenCode reads AGENTS.md natively — no separate rules directory needed
+  codex: [], // Codex reads AGENTS.md natively — rules live there
 };
 
 const THOUGHTS_DIRS = [
@@ -159,7 +170,14 @@ export async function initCommand(options: InitOptions): Promise<void> {
 
   if (options.ide) {
     // Parse from CLI option
-    const VALID_IDES: IDE[] = ['claude-code', 'cursor', 'antigravity', 'github-copilot', 'opencode'];
+    const VALID_IDES: IDE[] = [
+      'claude-code',
+      'cursor',
+      'antigravity',
+      'github-copilot',
+      'opencode',
+      'codex',
+    ];
     selectedIDEs = options.ide.split(',').map((s) => s.trim()) as IDE[];
     const invalidIDEs = selectedIDEs.filter((ide) => !VALID_IDES.includes(ide));
     if (invalidIDEs.length > 0) {
@@ -319,7 +337,10 @@ export async function initCommand(options: InitOptions): Promise<void> {
     const templateDir = join(TEMPLATES_DIR, templateName);
 
     if (!existsSync(templateDir)) {
-      p.log.warn(`Template not found: ${templateName}`);
+      // Skills-only IDEs have no static template — their files are generated.
+      if (!SKILLS_ONLY_IDES.includes(ide)) {
+        p.log.warn(`Template not found: ${templateName}`);
+      }
       continue;
     }
 
@@ -396,6 +417,19 @@ export async function initCommand(options: InitOptions): Promise<void> {
           manifest.files[rulePath] = createManifestEntry(ruleContent);
         }
       }
+    }
+  }
+
+  // Export the core skills in the Agent Skills open format. Codex, Cursor,
+  // OpenCode and Copilot/VS Code all read `.agents/skills/`, so one write
+  // serves every non-Claude runtime the user picked.
+  if (selectedIDEs.some((ide) => PORTABLE_SKILL_IDES.includes(ide))) {
+    const portable = generatePortableSkills(targetDir, TEMPLATES_DIR, projectConfig);
+    if (portable.skills.length > 0) {
+      Object.assign(manifest.files, portable.files);
+      generatedFiles.push(
+        `${PORTABLE_SKILLS_DIR}/ (${portable.skills.length} skills, Agent Skills format)`
+      );
     }
   }
 

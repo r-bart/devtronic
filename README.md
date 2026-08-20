@@ -15,7 +15,7 @@ devtronic is that structure. A toolkit composed by skills, agents, quality gates
 
 Not a silver bullet. A starting point built from experience, open to iteration.
 
-Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
+Works with **Claude Code**, **OpenAI Codex**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
 
 ---
 
@@ -109,11 +109,23 @@ npx devtronic init
 | IDE | Config Location | Status |
 |-----|-----------------|--------|
 | Claude Code | GitHub marketplace + `.claude/rules/` | Full support ([plugin mode](./docs/plugins.md)) |
-| Cursor | `.cursor/rules/*.mdc` | Full support |
-| Google Antigravity | `.agents/rules/*.md` | Full support |
-| GitHub Copilot | `.github/copilot-instructions.md` | Full support (enable in [GitHub settings](https://docs.github.com/copilot/customizing-copilot)) |
-| OpenCode | `.opencode/rules/*.md` | Full support |
+| Cursor | `.cursor/rules/*.mdc` + `.agents/skills/` | Full support |
+| OpenAI Codex | `AGENTS.md` + `.agents/skills/` | Full support |
+| Google Antigravity | `.agents/rules/*.md` + `.agents/skills/` | Rules full; skills unverified |
+| GitHub Copilot | `.github/copilot-instructions.md` + `.agents/skills/` | Full support (enable in [GitHub settings](https://docs.github.com/copilot/customizing-copilot)) |
+| OpenCode | `.opencode/rules/*.md` + `.agents/skills/` | Full support |
 | Zed | Uses `AGENTS.md` directly | Native |
+
+### Portable skills
+
+Every IDE except Claude Code gets the full core skill set written to
+`.agents/skills/<name>/SKILL.md`, in the [Agent Skills](https://agentskills.io)
+open format. Codex, Cursor, OpenCode and Copilot/VS Code all read that one
+directory, so a single export serves all of them.
+
+Claude Code keeps its own copy through the plugin, which adds the Claude
+Code-only execution controls (`context: fork`, agents, hooks) that the portable
+export strips.
 
 ---
 
@@ -135,7 +147,7 @@ npx devtronic init
 │       ├── Rules     Quality standards (IDE-specific format)    │
 │       │                                                         │
 │       └── Hooks     Automated workflow (lint, checkpoint, etc.) │
-│                     5 hooks included (Claude Code)              │
+│                     6 hooks included (Claude Code)              │
 │                                                                 │
 │  thoughts/          Persistent documents (specs, plans, etc.)  │
 │                                                                 │
@@ -383,7 +395,7 @@ See [CLI Reference](./docs/cli-reference.md) for full documentation.
 
 ### Official Documentation
 
-- [Claude Code Docs](https://docs.anthropic.com/en/docs/claude-code)
+- [Claude Code Docs](https://code.claude.com/docs/en/overview)
 - [Cursor Rules](https://docs.cursor.com/context/rules)
 - [Google Antigravity](https://antigravity.google/)
 - [GitHub Copilot Instructions](https://docs.github.com/copilot/customizing-copilot)

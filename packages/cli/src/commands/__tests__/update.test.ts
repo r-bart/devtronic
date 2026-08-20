@@ -60,6 +60,7 @@ function createAnalysis(overrides: Partial<ProjectAnalysis> = {}): ProjectAnalys
       antigravity: false,
       'github-copilot': false,
       opencode: false,
+    codex: false,
     },
     hasTypescript: true,
     hasGit: true,

@@ -28,12 +28,25 @@ import {
   GITHUB_MARKETPLACE_REPO,
   GITHUB_MARKETPLACE_NAME,
 } from '../generators/plugin.js';
+import {
+  computePortableSkills,
+  generatePortableSkills,
+  PORTABLE_SKILLS_DIR,
+  PORTABLE_SKILL_IDES,
+} from '../generators/portableSkills.js';
 import { registerGitHubPlugin } from '../utils/settings.js';
 import { getCliVersion } from '../utils/version.js';
 import { introTitle, symbols, formatKV } from '../utils/ui.js';
 import { detectOrphanedAddonFiles, registerAddonInConfig, readAddonConfig } from '../utils/addonConfig.js';
 import { getAddonSourceDir } from '../addons/registry.js';
 import { syncAddonFiles } from '../generators/addonFiles.js';
+
+/**
+ * Root files `init` personalizes and writes from scratch. They live in the
+ * manifest but in no template directory, so removal detection must skip them —
+ * otherwise every update offers to delete the project's own AGENTS.md.
+ */
+const GENERATED_ROOT_FILES = ['AGENTS.md', 'CLAUDE.md', 'loop.manifest.yaml'];
 
 export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (!options.check && !options.dryRun) {
@@ -187,6 +200,20 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
   }
 
+  // Portable skills are generated, so the template loop above never sees them.
+  // Compare them here, or an install predating the export reports "up to date"
+  // forever and never gains the skills.
+  if (manifest.selectedIDEs.some((ide) => PORTABLE_SKILL_IDES.includes(ide)) && manifest.projectConfig) {
+    for (const [relPath, content] of computePortableSkills(TEMPLATES_DIR, manifest.projectConfig)) {
+      const fileInfo = manifest.files[relPath];
+      if (!fileInfo || !fileExists(join(targetDir, relPath))) {
+        newFiles.push(relPath);
+      } else if (fileInfo.checksum !== calculateChecksum(content)) {
+        outdatedFiles.push(relPath);
+      }
+    }
+  }
+
   // Detect removed files (in manifest but not in any template)
   const removedFromTemplate: Array<{ path: string; info?: RemovalInfo }> = [];
 
@@ -202,6 +229,12 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     if (pluginPathPrefix && relativePath.startsWith(pluginPathPrefix)) continue;
     // Also skip the marketplace descriptor that sits one level above the plugin dir
     if (manifest.pluginPath && relativePath.startsWith('.claude-plugins/') && relativePath.endsWith('marketplace.json')) continue;
+    // Portable skills are generated from the claude-code template, not copied
+    // from an IDE template directory — they'd otherwise read as "removed".
+    if (relativePath.startsWith(`${PORTABLE_SKILLS_DIR}/`)) continue;
+    // Same for the personalized files init writes from scratch. Without this,
+    // `update` offers to delete the user's AGENTS.md.
+    if (GENERATED_ROOT_FILES.includes(relativePath)) continue;
 
     let foundInAnyTemplate = false;
 
@@ -400,6 +433,23 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
   }
 
+  // Refresh the portable skill set. It is generated, not copied, so the
+  // template loop above never reaches it — without this an existing install
+  // never gains the skills and never sees a skill update.
+  if (manifest.selectedIDEs.some((ide) => PORTABLE_SKILL_IDES.includes(ide))) {
+    const portableConfig = manifest.projectConfig;
+    if (portableConfig) {
+      // Files the user edited by hand are never rewritten, as everywhere else.
+      const portable = generatePortableSkills(
+        targetDir,
+        TEMPLATES_DIR,
+        portableConfig,
+        modifiedFiles
+      );
+      Object.assign(updatedManifest.files, portable.files);
+    }
+  }
+
   // Re-register GitHub marketplace if in marketplace mode (idempotent)
   if (manifest.installMode === 'marketplace') {
     registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
@@ -429,7 +479,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     );
 
     // Make scripts executable
-    for (const script of ['checkpoint.sh', 'stop-guard.sh']) {
+    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);
@@ -738,7 +788,7 @@ async function regenerateWithNewStack(
       analysis.packageManager
     );
 
-    for (const script of ['checkpoint.sh', 'stop-guard.sh']) {
+    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);

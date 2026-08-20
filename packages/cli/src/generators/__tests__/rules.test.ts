@@ -266,6 +266,7 @@ describe('generateAgentsMd (from analysis)', () => {
         antigravity: false,
         'github-copilot': false,
         opencode: false,
+    codex: false,
       },
       stack: {
         stateManagement: [],
