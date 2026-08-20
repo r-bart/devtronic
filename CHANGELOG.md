@@ -42,6 +42,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The generated and bundled `version-check.sh` are asserted identical, the same guard that now
   covers `hooks.json` after the two copies drifted apart in 1.5.0.
 
+### Documentation
+- `docs/plugins.md` described the `PostToolUse` filter as per-handler `if:` conditions
+  (`Edit(**/*.ts)`, …). That implementation was written and then reverted during the 1.5.0
+  review — the filter lives in `auto-lint.sh`, which reads the real `tool_input.file_path` —
+  but the documentation kept the version that never shipped.
+- The `SessionStart` section documents the version check, and both READMEs name it.
+
 ---
 
 ## [1.5.0] - 2026-08-20

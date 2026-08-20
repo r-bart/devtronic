@@ -123,9 +123,22 @@ Event: startup
 Type: prompt (haiku)
 ```
 
-Quick project orientation — checks git status, recent commits, and in-progress work. A
-second, silent `command` step sweeps a stale convergence-loop ownership sentinel (from a
-crashed loop) so a returning human is never stuck behind a `Stop` gate that never guards.
+Quick project orientation — checks git status, recent commits, and in-progress work.
+
+Two silent `command` steps run alongside it. The first sweeps a stale convergence-loop
+ownership sentinel (from a crashed loop) so a returning human is never stuck behind a `Stop`
+gate that never guards. The second runs `version-check.sh`, which compares the version in
+`.ai-template/manifest.json` against the installed CLI and prints one line when they differ:
+
+```
+devtronic: this project was last written by 1.3.0, the CLI is 1.5.1.
+Run `devtronic update` to bring the project files in step.
+```
+
+It names `npm i -g devtronic@latest` instead when the project is the newer of the two. It is
+silent when they agree, makes no network call, and always exits 0 — a session never fails to
+start because of it. It reports only: `devtronic update` retires files and asks about the ones
+you made yours, so it needs a human.
 
 **Cost**: ~$0.002/session
 
@@ -136,9 +149,10 @@ Event: Write | Edit
 Type: command
 ```
 
-Auto-runs lint-fix after a source file changes. Each handler carries an `if:` condition
-(`Edit(**/*.ts)`, `Edit(**/*.tsx)`, …) so the linter does not spawn on markdown or JSON
-writes. Auto-detects your package manager. Errors suppressed so they never block Claude.
+Auto-runs lint-fix after a source file changes. The filter lives in `auto-lint.sh`, which
+reads the real `tool_input.file_path` and exits early on anything that is not lintable source,
+so editing a README does not spawn a lint pass. Auto-detects your package manager. Errors
+suppressed so they never block Claude.
 
 ### Stop
 

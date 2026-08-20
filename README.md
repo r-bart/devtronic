@@ -133,23 +133,24 @@ export strips.
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    AI ARCHITECTURE LAYERS                        │
+│                    AI ARCHITECTURE LAYERS                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
-│       ├── Skills    Reusable workflows (/spec, etc.)              │
+│       ├── Skills    Reusable workflows (/spec, etc.)            │
 │       │             21 core + 12 design phase + 8 addon         │
 │       │                                                         │
-│       ├── Agents    Specialized subagents (quality, review)    │
+│       ├── Agents    Specialized subagents (quality, review)     │
 │       │             15 core + 4 addon agents                    │
 │       │                                                         │
-│       ├── Rules     Quality standards (IDE-specific format)    │
+│       ├── Rules     Quality standards (IDE-specific format)     │
 │       │                                                         │
-│       └── Hooks     Automated workflow (lint, checkpoint, etc.) │
+│       └── Hooks     Automated workflow (lint, checkpoint,       │
+│                     version drift)                              │
 │                     6 hooks included (Claude Code)              │
 │                                                                 │
-│  thoughts/          Persistent documents (specs, plans, etc.)  │
+│  thoughts/          Persistent documents (specs, plans, etc.)   │
 │                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
