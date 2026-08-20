@@ -22,6 +22,16 @@
             "timeout": 10
           }
         ]
+      },
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "${CLAUDE_PLUGIN_ROOT}/scripts/version-check.sh 2>/dev/null || true",
+            "timeout": 15
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -33,18 +43,6 @@
             "command": "${CLAUDE_PLUGIN_ROOT}/scripts/auto-lint.sh 2>/dev/null || true",
             "timeout": 30,
             "statusMessage": "Auto-linting..."
-          }
-        ]
-      }
-    ],
-    "StopFailure": [
-      {
-        "matcher": "rate_limit|overloaded|authentication_failed",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "if [ -f .claude/.loop-owner ] && grep -q '\"owner\":\"machine\"' .claude/.loop-owner; then rm -f .claude/.loop-owner; fi; exit 0",
-            "timeout": 10
           }
         ]
       }
@@ -64,6 +62,18 @@
             "model": "haiku",
             "timeout": 15,
             "statusMessage": "Checking done criteria..."
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "matcher": "rate_limit|overloaded|authentication_failed",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f .claude/.loop-owner ] && grep -q '\"owner\":\"machine\"' .claude/.loop-owner; then rm -f .claude/.loop-owner; fi; exit 0",
+            "timeout": 10
           }
         ]
       }

@@ -536,7 +536,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     );
 
     // Make scripts executable
-    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
+    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh', 'version-check.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);

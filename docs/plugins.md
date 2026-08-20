@@ -89,10 +89,11 @@ The marketplace repo (`r-bart/devtronic-plugin`) contains:
 │   │   └── ...
 │   ├── agents/                         # 15 agents
 │   ├── hooks/
-│   │   └── hooks.json                  # 5 workflow hooks
+│   │   └── hooks.json                  # 6 hook events
 │   └── scripts/
 │       ├── stop-guard.sh
 │       ├── auto-lint.sh
+│       ├── version-check.sh
 │       └── checkpoint.sh
 ├── LICENSE
 └── README.md

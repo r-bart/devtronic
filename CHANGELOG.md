@@ -5,7 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.5.1] - 2026-08-20
+
+### Added
+- **The session tells you when the project is behind.** A `SessionStart` hook runs
+  `version-check.sh`, which compares the version recorded in `.ai-template/manifest.json`
+  against the installed CLI and prints one line when they differ — naming `devtronic update` or
+  `npm i -g devtronic@latest` depending on which side is older. Everything it needs has existed
+  since the manifest did; nothing ran the comparison unless you typed `devtronic info`, so this
+  repository sat on 1.3.0 through two minor releases without a word. Silent when the two agree,
+  local (no registry call), and always exits 0 — a session never fails to start because of it.
+  It reports and stops there: `update` retires files and asks about the ones you made yours, so
+  applying it unattended is how work gets lost.
 
 ### Fixed
 - **`devtronic update` announced ~50 files it was never going to write.** The command walks the
@@ -22,10 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the user's and is never touched.
 
 ### Internal
-- 35 tests over the two rules above: `isPluginManagedPath()` (20) and `stripDevtronicHooks()`
-  (15, over half of them asserting a user's hook survives). Both mutation-checked — removing the
-  detection guard brings the phantom files back, and treating every hook as devtronic's fails
-  the four tests that protect the user's.
+- 46 tests over the three changes: `isPluginManagedPath()` (20), `stripDevtronicHooks()` (15,
+  over half of them asserting a user's hook survives), and `version-check.sh` (11, run as a real
+  script against a temporary project and a fake CLI on `PATH`). All mutation-checked — removing
+  the detection guard brings the phantom files back, treating every hook as devtronic's fails
+  the four tests that protect the user's, and swapping `sort -V` for `sort` fails the one that
+  pins numeric version ordering.
+- The generated and bundled `version-check.sh` are asserted identical, the same guard that now
+  covers `hooks.json` after the two copies drifted apart in 1.5.0.
 
 ---
 

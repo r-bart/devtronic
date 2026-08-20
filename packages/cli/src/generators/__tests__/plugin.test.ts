@@ -249,8 +249,9 @@ describe('generatePlugin', () => {
     const result = generatePlugin(targetDir, templatesDir, '1.8.0', createConfig(), 'npm');
 
     // marketplace.json + plugin.json + 3 skills (brief/SKILL.md, audit/SKILL.md, audit/report-template.md)
-    // + 2 agents + hooks.json + checkpoint.sh + stop-guard.sh + auto-lint.sh = 11 files
-    expect(Object.keys(result.files)).toHaveLength(11);
+    // + 2 agents + hooks.json + checkpoint.sh + stop-guard.sh + auto-lint.sh
+    // + version-check.sh = 12 files
+    expect(Object.keys(result.files)).toHaveLength(12);
 
     // Every entry should have checksum and originalChecksum
     for (const entry of Object.values(result.files)) {
