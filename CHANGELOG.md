@@ -45,6 +45,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   learning.
 
 ### Changed
+- **Skill renames to clear Claude Code built-ins.** `/loop` → `/converge` (the bundled `/loop`
+  runs a prompt on a schedule; the short form always resolved to it, not to ours). `/recap` →
+  folded into `/summary --quick`, which keeps writing `thoughts/RECAP.md` so `/handoff` and
+  `/execute-plan` are unaffected; the orchestration addon now ships two skills. Renamed
+  `/design-system-sync` → `/design-tokens-sync`, which was one word from the bundled
+  `/design-sync`. All three are registered in `REMOVED_FILES`, so `devtronic update` explains
+  the move. The CLI command stays `devtronic loop` and `loop.manifest.yaml` keeps its name —
+  neither collides with anything.
 - **Codex addon skills move from `.codex/skills/` to `.agents/skills/`** — Codex reads
   repository skills from `.agents/skills`; `.codex/` holds `config.toml` and agent
   definitions. **OpenCode addon skills move from `.opencode/command/<name>.md` to

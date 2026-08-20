@@ -246,7 +246,7 @@ Continue from where I left off.
 
 ---
 
-### /loop - Autonomous Convergence Loop
+### /converge - Autonomous Convergence Loop
 
 **Purpose**: Drive a feature to done by reading `loop.manifest.yaml` and running the
 human/machine **barbell** — humans sign the two ends (the DoD up front, the ship at the
@@ -259,7 +259,7 @@ back); the machine converges the middle under gates that never tire.
 **Process**: `devtronic loop --validate` → `--dry-run` → clean-tree guard → per phase
 branch on owner (`human` STOPs via `AskUserQuestion`; `machine` owns the tree, runs Tier ①
 gates fail-fast per iteration, barriers before advancing, Tier ② adversarial fan-out,
-bounded by `budget.max_iterations`) → trace every iteration to `thoughts/loop/<feature>.trace.md`
+bounded by `budget.max_iterations`) → trace every iteration to `thoughts/converge/<feature>.trace.md`
 → release ownership on exit/error/abort.
 
 **Coexistence**: While a `machine` phase owns the tree (worktree-scoped sentinel), the
@@ -272,7 +272,7 @@ releases ownership. See `devtronic loop` in the [CLI reference](./cli-reference.
 **Limitations**: Claude Code only. Anti-gaming hardening (holdout DoD, AFK cost budget) is
 deferred — the human ship sign-off is the current backstop.
 
-**Backlog mode (`/loop --backlog`)**: drives a queue of *ready* `/backlog` items (each with a
+**Backlog mode (`/converge --backlog`)**: drives a queue of *ready* `/backlog` items (each with a
 `- Spec:` + `- DoD:` bullet) through the loop unattended — the **loop of loops**. Each item
 converges in its own worktree, then parks for your ship-signature; you drain the queue out of
 session with `devtronic loop --backlog --status` / `--sign <item>`. Bounded by a width cap
@@ -395,21 +395,24 @@ These skills are available when the **orchestration** addon is enabled during `d
 
 ---
 
-### /recap - Quick Session Summary
+### /summary --quick - Quick Session Summary
 
 **Purpose**: Generate a compact, structured summary from git activity and modified files.
+
+Replaces the former `/recap` skill. Claude Code now ships a built-in `/recap`
+command, so the name was no longer ours to use.
 
 **When to use**:
 - End of a work session
 - After ad-hoc work not driven by `/execute-plan`
 - Before `/handoff` to capture session details
 
-**Comparison with `/summary`**:
-| | `/recap` | `/summary` |
-|-|----------|------------|
+**Comparison with plain `/summary`**:
+| | `/summary --quick` | `/summary` |
+|-|--------------------|------------|
 | Purpose | Quick compact overview | Detailed narrative with rationale |
-| Output | Tree-style + bullets | Full markdown document |
-| Speed | Fast (git-based) | Thorough (reads code + explains) |
+| Source | git log, git diff | the changes plus the code behind them |
+| Output | `thoughts/RECAP.md` | `thoughts/summaries/` |
 
 **Output**: `thoughts/RECAP.md` (also updates `thoughts/STATE.md`)
 
@@ -715,7 +718,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 |------|----------|---------|
 | `--define` | `/design-system-define` | Create or extract design system |
 | `--audit` | `/design-system-audit` | Detect drift and hardcoded values |
-| `--sync` | `/design-system-sync` | Sync tokens to project config files |
+| `--sync` | `/design-tokens-sync` | Sync tokens to project config files |
 
 ---
 
@@ -741,7 +744,7 @@ A structured UX/UI design phase that bridges product requirements and implementa
 
 ---
 
-### /design-system-sync - Token Synchronization
+### /design-tokens-sync - Token Synchronization
 
 **Purpose**: Syncs `thoughts/design/design-system.md` → project config files (Tailwind, CSS vars, tokens.json). Always one-directional: design system is the source of truth.
 

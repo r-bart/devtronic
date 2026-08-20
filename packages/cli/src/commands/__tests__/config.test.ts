@@ -163,7 +163,7 @@ describe('addon validation', () => {
   it('orchestration addon has the correct skills', () => {
     const addon = ADDONS.orchestration;
     expect(addon.skills).toContain('briefing');
-    expect(addon.skills).toContain('recap');
+    expect(addon.skills).toContain('handoff');
     expect(addon.skills).toContain('handoff');
   });
 });

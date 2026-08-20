@@ -41,8 +41,8 @@ export const ADDONS: Record<AddonName, AddonInfo> = {
   orchestration: {
     name: 'orchestration',
     label: 'Orchestration Workflow',
-    description: 'Structured pre-planning alignment, session recaps, and context rotation for long multi-session work.',
-    skills: ['briefing', 'recap', 'handoff'],
+    description: 'Structured pre-planning alignment and context rotation for long multi-session work.',
+    skills: ['briefing', 'handoff'],
     agents: [],
   },
   'design-best-practices': {

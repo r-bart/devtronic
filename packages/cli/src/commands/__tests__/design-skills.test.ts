@@ -53,7 +53,7 @@ const DESIGN_SKILLS: { folder: string; name: string; dispatcher?: boolean }[] = 
   { folder: 'design-system', name: 'design-system', dispatcher: true },
   { folder: 'design-system-define', name: 'design-system-define' },
   { folder: 'design-system-audit', name: 'design-system-audit' },
-  { folder: 'design-system-sync', name: 'design-system-sync' },
+  { folder: 'design-tokens-sync', name: 'design-tokens-sync' },
   { folder: 'design-audit', name: 'design-audit' },
   { folder: 'design-review', name: 'design-review' },
   { folder: 'design-spec', name: 'design-spec' },

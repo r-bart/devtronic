@@ -199,7 +199,7 @@ describe('addonCommand — remove', () => {
   it('removes skill files and updates manifest', async () => {
     // Set up manifest with orchestration enabled and tracked files
     const skillFiles: Record<string, { checksum: string; modified: boolean; originalChecksum: string }> = {};
-    const skills = ['briefing', 'recap', 'handoff'];
+    const skills = ['briefing', 'handoff'];
 
     for (const skill of skills) {
       const relPath = join(PLUGIN_ROOT, 'skills', skill, 'SKILL.md');

@@ -29,7 +29,7 @@ devtronic includes a structured design phase that bridges product requirements a
 | `/design-system` | Design system router | flags | routes to sub-skills |
 | `/design-system-define` | Create/extract design system | user input or CSS | `thoughts/design/design-system.md` |
 | `/design-system-audit` | Detect design system drift | codebase + design-system.md | `thoughts/design/design-system-audit.md` |
-| `/design-system-sync` | Sync tokens to project config | design-system.md | tailwind.config / CSS vars |
+| `/design-tokens-sync` | Sync tokens to project config | design-system.md | tailwind.config / CSS vars |
 | `/design-audit` | UX heuristics + accessibility | wireframes or code | `thoughts/design/audit.md` |
 | `/design-review` | Implementation vs design QA | code + wireframes.md | findings report |
 | `/design-spec` | Developer handoff spec | all design artifacts | `thoughts/design/spec.md` |

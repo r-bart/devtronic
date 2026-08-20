@@ -163,13 +163,13 @@ IMPORTANT: See \`docs/ARCHITECTURE.md\` for structure. See \`.claude/rules/\` fo
   const workflowSection = config.enabledAddons?.includes('orchestration')
     ? `## Workflow
 
-- **New feature**: \`/briefing\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/recap\`
+- **New feature**: \`/briefing\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/summary --quick\`
 - **Bug fix**: \`/brief\` → fix → test → \`/summary\` → \`/post-review\`
 - **Refactor**: \`/brief\` → \`/create-plan\` → \`/execute-plan\` → \`/summary\` → \`/post-review\`
 - **Session start**: \`/brief\` for orientation
 - **Session end**: \`/handoff\` for clean context rotation
 
-> \`/briefing\` for pre-planning alignment. \`/recap\` for quick summaries. \`/checkpoint\` to save progress.`
+> \`/briefing\` for pre-planning alignment. \`/summary --quick\` for quick summaries. \`/checkpoint\` to save progress.`
     : `## Workflow
 
 - **New feature**: \`/brief\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/summary\` → \`/post-review\`
@@ -314,7 +314,7 @@ ${archOneLiner} See \`docs/ARCHITECTURE.md\` for detailed structure.`;
   const workflowSection = config.enabledAddons?.includes('orchestration')
     ? `## Workflow
 
-- **New feature**: \`/briefing\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/recap\`
+- **New feature**: \`/briefing\` → \`/spec\` → \`/create-plan\` → \`/generate-tests\` → \`/execute-plan\` → \`/summary --quick\`
 - **Bug fix**: \`/brief\` → fix → test → \`/summary\`
 - **Session start**: \`/brief\` for orientation
 - **Session end**: \`/handoff\` for clean context rotation`
@@ -362,7 +362,7 @@ export const CORE_SKILLS: Array<{ name: string; desc: string }> = [
   { name: 'research', desc: 'Codebase investigation (--deep, --external)' },
   { name: 'create-plan', desc: 'Phased implementation plan with task dependencies' },
   { name: 'execute-plan', desc: 'Parallel phase execution of plans' },
-  { name: 'loop', desc: 'Autonomous convergence loop from loop.manifest.yaml' },
+  { name: 'converge', desc: 'Autonomous convergence loop from loop.manifest.yaml' },
   { name: 'quick', desc: 'Fast ad-hoc tasks: implement, verify, commit' },
   { name: 'generate-tests', desc: 'Failing tests from spec (Tests-as-DoD)' },
   { name: 'post-review', desc: 'Pre-PR review (architecture, quality, requirements)' },
@@ -384,7 +384,6 @@ export const CORE_SKILLS: Array<{ name: string; desc: string }> = [
 const ADDON_SKILLS: Record<AddonName, Array<{ name: string; desc: string }>> = {
   orchestration: [
     { name: 'briefing', desc: 'Pre-planning alignment Q&A' },
-    { name: 'recap', desc: 'Quick session summary from git activity' },
     { name: 'handoff', desc: 'Context rotation for fresh sessions' },
   ],
   'design-best-practices': [

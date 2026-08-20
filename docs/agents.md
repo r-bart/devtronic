@@ -952,7 +952,7 @@ Delegated by **`/design-audit`** with HTML/JSX/CSS source files or wireframe tex
 
 ### When Invoked
 
-Delegated by `/design-system-define`, `/design-system-sync`, `/design-system-audit`.
+Delegated by `/design-system-define`, `/design-tokens-sync`, `/design-system-audit`.
 
 ### Supported Sources
 

@@ -1,5 +1,5 @@
 ---
-name: design-system-sync
+name: design-tokens-sync
 description: Syncs design tokens from thoughts/design/design-system.md to project config files (Tailwind, CSS vars, tokens.json).
 argument-hint: "[--dry-run]"
 allowed-tools: Edit(thoughts/**)

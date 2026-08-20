@@ -117,7 +117,7 @@ You have **X skills**, **Y agents**, and **Z rules** installed.
 | Session | checkpoint, handoff, recap, backlog | `/checkpoint` |
 | Research | research, investigate, learn | `/research [topic]` |
 | Design | design, design-research, design-define, design-ia, design-wireframe | `/design --research` |
-| Design System | design-system, design-system-define, design-system-audit, design-system-sync | `/design-system --define` |
+| Design System | design-system, design-system-define, design-system-audit, design-tokens-sync | `/design-system --define` |
 | Quality | audit, design-audit, design-review | `/audit` |
 | Scaffold | scaffold, setup, create-skill, worktree | `/scaffold` |
 | Quick | quick, opensrc | `/quick [task]` |

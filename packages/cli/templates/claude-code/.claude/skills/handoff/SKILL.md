@@ -22,7 +22,7 @@ Reason: `$ARGUMENTS`
 **Not for:**
 - Quick saves mid-session → use `/checkpoint`
 - End of planned execution → `/execute-plan` handles its own recap
-- Just documenting what happened → use `/recap` or `/summary`
+- Just documenting what happened → use `/summary` (add `--quick` for the compact form)
 
 **Difference from `/checkpoint`:**
 
@@ -42,7 +42,7 @@ Reason: `$ARGUMENTS`
    └── What was accomplished, what's pending, key decisions
 
 2. RECAP
-   └── Run /recap logic if RECAP.md is stale
+   └── Run /summary --quick if RECAP.md is stale
 
 3. SAVE
    └── Update STATE.md with handoff context
@@ -70,7 +70,7 @@ Gather context for the handoff:
 
 Check if `thoughts/RECAP.md` is fresh (updated in last 10 minutes).
 
-- If stale or missing: generate a recap (same logic as `/recap`)
+- If stale or missing: generate a recap (same logic as `/summary --quick`)
 - If fresh: use existing content
 
 ---
@@ -172,7 +172,7 @@ Please read thoughts/STATE.md and thoughts/RECAP.md, then continue with:
 
 ## Tips
 
-1. **Run `/recap` first** if you want a more detailed session summary
+1. **Run `/summary --quick` first** if you want a more detailed session summary
 2. **Be specific about next steps** — the resume instructions should be actionable
 3. **Don't over-use** — if you're just taking a short break, `/checkpoint` is lighter
 4. **Key decisions are gold** — always capture important decisions made during the session

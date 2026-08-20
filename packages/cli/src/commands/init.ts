@@ -472,7 +472,7 @@ export async function initCommand(options: InitOptions): Promise<void> {
   }
 
   // Seed the convergence-loop manifest (guarded — never overwrite human edits).
-  // Inert by default: nothing runs until `/loop` is invoked.
+  // Inert by default: nothing runs until `/converge` is invoked.
   const loopManifestPath = join(targetDir, 'loop.manifest.yaml');
   if (!fileExists(loopManifestPath)) {
     const seedPath = join(TEMPLATES_DIR, 'loop.manifest.example.yaml');

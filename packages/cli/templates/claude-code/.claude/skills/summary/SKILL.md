@@ -1,7 +1,7 @@
 ---
 name: summary
-description: Generate a structured post-change summary. Captures what changed, why, what's pending, and files modified.
-argument-hint: "[feature-name]"
+description: Generate a structured post-change summary. Captures what changed, why, what's pending, and files modified. Use --quick for a compact session recap from git activity.
+argument-hint: "[feature-name] [--quick]"
 allowed-tools: Edit(thoughts/**)
 ---
 
@@ -22,6 +22,79 @@ Generates a structured summary of what was accomplished in the current session. 
 **Difference from `/post-review`**: Post-review validates quality and catches issues. Summary documents the narrative of changes for posterity.
 
 ---
+
+---
+
+## Quick mode (`--quick`)
+
+A compact session recap built from git activity, for when you want *what
+happened* rather than *why it happened*. It replaces the former `/recap` skill,
+whose name now belongs to a built-in Claude Code command.
+
+| | `/summary --quick` | `/summary` |
+|-|--------------------|------------|
+| **Purpose** | Compact overview of the session | Detailed narrative with rationale |
+| **Source** | git log, git diff, modified files | the changes plus the code behind them |
+| **Output** | `thoughts/RECAP.md` | `thoughts/summaries/` |
+| **Best for** | "What happened?" | "Why did it happen?" |
+
+**Skip when** `/execute-plan` already wrote a recap (check the `thoughts/RECAP.md`
+timestamp), or nothing meaningful happened — no commits, no changes.
+
+### Process
+
+```
+1. GATHER    git log since session start, git diff, modified files
+2. GROUP     cluster the changes into logical tasks
+3. WRITE     thoughts/RECAP.md
+4. DISPLAY   tree-style summary in the conversation
+```
+
+Take the session start from the `thoughts/STATE.md` timestamp when it exists,
+and fall back to the last 4 hours.
+
+```bash
+git log --oneline --since="4 hours ago" 2>/dev/null
+git status --short
+git diff --stat
+```
+
+### Output — `thoughts/RECAP.md`
+
+Keep this path stable: `/handoff` reads it, and `/execute-plan` writes it.
+
+```markdown
+# Session Recap
+
+**Date**: YYYY-MM-DD HH:MM
+**Branch**: [current branch]
+**Duration**: ~[estimated from git timestamps]
+
+## Completed
+
+- [Task/change description] — `file1.ts`, `file2.ts`
+
+## In Progress
+
+- [Uncommitted work description] — `file4.ts`
+
+## Files Modified
+
+| File | Status | Task |
+|------|--------|------|
+| `src/auth/login.ts` | new | Auth module |
+
+## Pending Work
+
+- [ ] [Remaining task]
+
+## Next Steps
+
+1. [Most logical next action]
+```
+
+If `thoughts/STATE.md` exists, update its `Last Activity` and `Workflow Position`
+fields as well.
 
 ## Process
 
