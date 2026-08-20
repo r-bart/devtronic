@@ -114,4 +114,4 @@ For each component in design-system.md: is it actually implemented? Does it expo
 ## Tips
 - Run `--files src/components` to audit just the component library
 - Compliance % is a lagging indicator — track it over time
-- Unused tokens accumulate — prune them in design:system-sync
+- Unused tokens accumulate — prune them in `/design-tokens-sync`

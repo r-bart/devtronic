@@ -11,7 +11,7 @@ You are a design token extraction specialist. You parse project config files and
 
 ## When Invoked
 
-From `/design:system-define`, `/design:system-sync`, or `/design:system-audit` with:
+From `/design-system-define`, `/design-tokens-sync`, or `/design-system-audit` with:
 - A list of files to parse (tailwind.config.*, *.css with :root, tokens.json)
 - Or a directory to scan
 

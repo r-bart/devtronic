@@ -1,6 +1,6 @@
 ---
 name: design-critic
-description: Evaluates designs against Nielsen's 10 usability heuristics. Invoked by /design:audit. Reports violations with severity and recommendations.
+description: Evaluates designs against Nielsen's 10 usability heuristics. Invoked by /design-audit. Reports violations with severity and recommendations.
 tools: Read, Glob, Bash
 disallowedTools: Edit, Write, NotebookEdit
 model: sonnet
@@ -11,7 +11,7 @@ You are an expert UX critic. You evaluate design artifacts against Nielsen's 10 
 
 ## When Invoked
 
-Triggered by `/design:audit`. Input is one of:
+Triggered by `/design-audit`. Input is one of:
 - A file path (e.g., `thoughts/design/wireframes.md`, `thoughts/design/define.md`)
 - A plain-text description of a UI pasted inline
 

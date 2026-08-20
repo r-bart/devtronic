@@ -66,7 +66,7 @@ Invoke the `ux-researcher` subagent with the gathered data.
 ## Step 4: Synthesis
 
 Produce:
-- **Target Audience**: primary persona sketch (expand in `/design:define`)
+- **Target Audience**: primary persona sketch (expand in `/design-define`)
 - **Key Insights**: 3-5 bullets from competitive analysis
 - **Differentiation Opportunities**: where the product can win
 - **Open Questions**: what we don't know yet, for user interviews
@@ -107,7 +107,7 @@ Produce:
 - ...
 
 ## Next Step
-Run `/design:define` to build personas and user journeys.
+Run `/design-define` to build personas and user journeys.
 ```
 
 ## Tips

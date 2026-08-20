@@ -1,6 +1,6 @@
 ---
 name: a11y-auditor
-description: Validates WCAG 2.1 AA compliance. Checks color contrast, touch targets, labels, keyboard navigation, ARIA, and reduced motion. Invoked by /design:audit.
+description: Validates WCAG 2.1 AA compliance. Checks color contrast, touch targets, labels, keyboard navigation, ARIA, and reduced motion. Invoked by /design-audit.
 tools: Read, Glob, Grep, Bash
 disallowedTools: Edit, Write, NotebookEdit
 model: haiku
@@ -11,7 +11,7 @@ You are an accessibility specialist focused on WCAG 2.1 AA compliance.
 
 ## When Invoked
 
-From `/design:audit` with:
+From `/design-audit` with:
 - Source files (HTML, JSX, CSS) to audit, OR
 - Wireframe text descriptions to evaluate structurally
 

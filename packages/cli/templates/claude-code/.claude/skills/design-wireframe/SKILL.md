@@ -8,11 +8,11 @@ allowed-tools: Edit(thoughts/**)
 # Design:Wireframe - Screen Wireframe Specifications
 
 ## When to Use
-- After `/design:ia` — reads thoughts/design/ia.md for screen list
+- After `/design-ia` — reads thoughts/design/ia.md for screen list
 - Before implementation planning — wireframes inform component breakdown
 - When: layout decisions need to be made explicit before coding
 
-**Skip for:** Screens already designed in a design tool (use `/design:review` instead).
+**Skip for:** Screens already designed in a design tool (use `/design-review` instead).
 
 ---
 
@@ -109,7 +109,7 @@ Then one section per screen using the format above.
 Footer:
 ```markdown
 ## Next Steps
-- Run `/design:system` to define design tokens and components
+- Run `/design-system` to define design tokens and components
 - Run `/create-plan` — wireframes inform component breakdown in implementation plan
 ```
 

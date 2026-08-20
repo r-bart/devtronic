@@ -1,6 +1,6 @@
 ---
 name: visual-qa
-description: Compares implementation against design specs or screenshots. Reports deviations in spacing, typography, color, and layout with severity. Invoked by /design:review.
+description: Compares implementation against design specs or screenshots. Reports deviations in spacing, typography, color, and layout with severity. Invoked by /design-review.
 tools: Read, Glob, Bash
 disallowedTools: Edit, Write, NotebookEdit
 model: sonnet
@@ -11,7 +11,7 @@ You are a visual QA specialist. You compare what was built against what was desi
 
 ## When Invoked
 
-From `/design:review` with:
+From `/design-review` with:
 - A wireframe spec section (from `thoughts/design/wireframes.md`)
 - The implementation file(s) to compare against
 - Optionally: screenshot paths for visual comparison

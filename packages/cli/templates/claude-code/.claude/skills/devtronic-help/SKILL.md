@@ -113,14 +113,16 @@ You have **X skills**, **Y agents**, and **Z rules** installed.
 
 | Category | Skills | Start With |
 |----------|--------|------------|
-| Workflow | brief, spec, create-plan, execute-plan, summary, post-review | `/brief` |
-| Session | checkpoint, handoff, recap, backlog | `/checkpoint` |
+| Workflow | brief, spec, create-plan, generate-tests, execute-plan, summary, post-review | `/brief` |
+| Session | checkpoint, handoff, briefing, backlog | `/checkpoint` |
+| Convergence | converge | `/converge` |
 | Research | research, investigate, learn | `/research [topic]` |
-| Design | design, design-research, design-define, design-ia, design-wireframe | `/design --research` |
+| Design | design, design-research, design-define, design-ia, design-wireframe, design-spec | `/design --research` |
 | Design System | design-system, design-system-define, design-system-audit, design-tokens-sync | `/design-system --define` |
 | Quality | audit, design-audit, design-review | `/audit` |
 | Scaffold | scaffold, setup, create-skill, worktree | `/scaffold` |
 | Quick | quick, opensrc | `/quick [task]` |
+| Meta | devtronic-help | `/devtronic-help` |
 
 ## What Do You Want to Do?
 
@@ -213,11 +215,11 @@ Filter skills and agents whose name or description matches the keyword. Display 
 ## Session Management
 
 ```
-/brief          ← Start session (orientation)
-/checkpoint     ← Save progress mid-session
-/handoff        ← End session, prepare for next
-/recap          ← Quick summary from git
-/summary        ← Detailed post-change summary
+/brief            ← Start session (orientation)
+/checkpoint       ← Save progress mid-session
+/handoff          ← End session, prepare for next
+/summary --quick  ← Quick summary from git
+/summary          ← Detailed post-change summary
 ```
 
 ## Design System

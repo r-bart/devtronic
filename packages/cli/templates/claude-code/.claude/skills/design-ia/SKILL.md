@@ -8,7 +8,7 @@ allowed-tools: Edit(thoughts/**)
 # Design:IA - Information Architecture & Navigation
 
 ## When to Use
-- After `/design:define` — reads thoughts/design/define.md
+- After `/design-define` — reads thoughts/design/define.md
 - Before wireframing — IA is the skeleton that wireframes flesh out
 - When navigation structure is unclear or complex
 
@@ -94,7 +94,7 @@ Home
 - [ ] [Any dead-ends, missing states, or inconsistencies]
 
 ## Next Step
-Run `/design:wireframe` to specify layout for each screen.
+Run `/design-wireframe` to specify layout for each screen.
 ```
 
 ## Tips

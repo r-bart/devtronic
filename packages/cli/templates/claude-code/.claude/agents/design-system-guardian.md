@@ -14,7 +14,7 @@ You are a design system compliance checker. You validate that modified files res
 
 ## When Invoked
 
-1. From `/design:system-audit` — full codebase scan
+1. From `/design-system-audit` — full codebase scan
 2. From `/post-review` — check files modified in current branch
 
 ## How You Learn the Design System
@@ -24,7 +24,7 @@ Read `thoughts/design/design-system.md` to extract:
 - All spacing tokens and their values
 - All other token categories
 
-If `thoughts/design/design-system.md` does not exist, report: "No design system found. Run `/design:system --define` first." and exit.
+If `thoughts/design/design-system.md` does not exist, report: "No design system found. Run `/design-system --define` first." and exit.
 
 ## Checks
 

@@ -19,9 +19,9 @@ Routes to the right design system sub-skill based on the flag provided.
 
 | Flag | Delegates to | Purpose |
 |------|-------------|---------|
-| `--define` | `/design:system-define` | Create or extract design tokens and components |
-| `--audit` | `/design:system-audit` | Find drift, unused tokens, hardcoded values |
-| `--sync` | `/design:system-sync` | Sync design-system.md → tailwind/CSS vars/tokens.json |
+| `--define` | `/design-system-define` | Create or extract design tokens and components |
+| `--audit` | `/design-system-audit` | Find drift, unused tokens, hardcoded values |
+| `--sync` | `/design-tokens-sync` | Sync design-system.md → tailwind/CSS vars/tokens.json |
 | no flag | ask | Prompt user to choose |
 
 ## No Flag Behavior
