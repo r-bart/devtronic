@@ -5,7 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-08-20
+
+Skills were pre-approving tools they had no business holding, three of them answered to names
+Claude Code had since taken, and two runtimes were being written to paths they never read. This
+release fixes all three. **Run `devtronic update` after upgrading** — it explains each move and
+installs the new locations.
+
+### Upgrading
+
+| Was | Now | Why |
+|-----|-----|-----|
+| `/loop` | `/converge` | Claude Code ships a built-in `/loop`; the short form always resolved to it |
+| `/recap` | `/summary --quick` | Claude Code ships a built-in `/recap`; the output is unchanged |
+| `/design-system-sync` | `/design-tokens-sync` | One word from the built-in `/design-sync` |
+| `.codex/skills/` | `.agents/skills/` | Codex reads repository skills from `.agents/skills` |
+| `.opencode/command/<name>.md` | `.opencode/skills/<name>/SKILL.md` | OpenCode reads skills, not commands |
+| Node.js 18 | Node.js 20+ | Node 18 left maintenance in April 2026 |
+
+`devtronic loop` and `loop.manifest.yaml` keep their names — neither collides with anything.
+`thoughts/RECAP.md` is still written, so `/handoff` and `/execute-plan` are unaffected. Both
+legacy runtime directories are swept on update; nothing is left behind to shadow the new paths.
+
+Skills that used to run shell commands and write files without prompting no longer do. If a
+workflow you rely on now asks for permission where it did not before, that is the fix, not a
+regression: the previous grant was unbounded.
 
 ### Security
 - **`allowed-tools` no longer grants broad, unprompted access.** In current Claude Code the
@@ -84,6 +108,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   generated-file exclusion pinned), `detectExistingConfigs` (20 tests, 16% → 100%), and the
   `legacySkillDirs` sweep (9 tests). Each guard was mutation-checked: breaking the code it
   protects makes the tests fail.
+- **Skill cross-references are now tested** (44 tests). Nothing checked that a router
+  delegates to a skill that exists, that `/devtronic-help` indexes every shipped skill and no
+  others, or that a renamed skill is never invoked under its old name. All three drifts were
+  present; all three are now failures. Mutation-checked in both directions.
 
 ### Fixed
 - **`devtronic uninstall` no longer deletes `loop.manifest.yaml` without asking.** The bulk
@@ -101,6 +129,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Addon skill frontmatter used two keys that do not exist: `user-invokable` (the real field is
   `user-invocable`, and `true` is the default) and `args:` (the real field is `arguments:`,
   and these skills take flags, not named arguments). Both removed.
+- **The design routers pointed at skills that do not exist.** Every delegate was written
+  `/design:research`, `/design:system-audit` and so on — a `design:` namespace devtronic has
+  never shipped. 37 references across 8 skills and 6 agents now name the real skills
+  (`/design-research`, `/design-system-audit`, …), and `/design-system --sync` reaches
+  `/design-tokens-sync` instead of the name it carried two renames ago.
+- **`/devtronic-help` was out of date with the skills it indexes.** It still listed `/recap`,
+  removed in this release, and never listed `converge`, `generate-tests`, `briefing`,
+  `design-spec` or itself.
 
 ---
 

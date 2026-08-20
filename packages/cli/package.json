@@ -1,6 +1,6 @@
 {
   "name": "devtronic",
-  "version": "1.4.4",
+  "version": "2.0.0",
   "description": "AI-assisted development toolkit — skills, agents, quality gates, and rules for Claude Code, Cursor, Copilot, and Antigravity",
   "type": "module",
   "bin": {
