@@ -4,7 +4,12 @@ import type { AddonName, ConflictResolution, ExistingConfigs, IDE } from '../typ
 import { ADDONS } from '../types.js';
 import { getExistingConfigsList } from '../analyzers/existingConfigs.js';
 
-const IDE_OPTIONS: Array<{ value: IDE; label: string; hint?: string }> = [
+/**
+ * Every IDE devtronic can target, in the order the prompts offer them. Single
+ * source of truth: `add` used to keep its own copy and drifted — `codex` was
+ * added to init and `devtronic add codex` kept answering "Unknown IDE".
+ */
+export const IDE_OPTIONS: Array<{ value: IDE; label: string; hint?: string }> = [
   { value: 'claude-code', label: 'Claude Code', hint: 'CLI + Skills + Agents' },
   { value: 'cursor', label: 'Cursor', hint: 'Rules (.mdc) + Skills' },
   { value: 'codex', label: 'OpenAI Codex', hint: 'AGENTS.md + Skills' },

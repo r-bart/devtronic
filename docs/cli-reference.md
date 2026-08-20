@@ -121,9 +121,10 @@ npx devtronic add [ide]
 **Available IDEs:**
 - `claude-code`
 - `cursor`
+- `codex`
+- `opencode`
 - `antigravity`
 - `github-copilot`
-- `opencode`
 
 **Examples:**
 

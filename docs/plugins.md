@@ -80,7 +80,7 @@ The marketplace repo (`r-bart/devtronic-plugin`) contains:
 ├── plugins/devtronic/
 │   ├── .claude-plugin/
 │   │   └── plugin.json                 # Plugin metadata + version
-│   ├── skills/                         # 36+ skills (21 core + 12 design + addon)
+│   ├── skills/                         # 35 skills (21 core + 12 design + 2 orchestration)
 │   │   ├── brief/SKILL.md
 │   │   ├── spec/SKILL.md
 │   │   ├── scaffold/
@@ -345,7 +345,7 @@ devtronic ships three optional addon packs:
 
 | Addon | Type | Skills | Agents |
 |-------|------|--------|--------|
-| `orchestration` | Marketplace | `briefing`, `recap`, `handoff` | — |
+| `orchestration` | Marketplace | `briefing`, `handoff` | — |
 | `design-best-practices` | File-mode | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | — |
 | `auto-devtronic` | File-mode | `auto-devtronic` | `issue-parser`, `failure-analyst`, `quality-executor`, `afk-task-validator` |
 

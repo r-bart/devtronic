@@ -24,7 +24,7 @@ Works with **Claude Code**, **OpenAI Codex**, **Cursor**, **Google Antigravity**
 | Document | Description |
 |----------|-------------|
 | [Tutorials](./docs/tutorials/) | Step-by-step guides for common use cases |
-| [Skills Reference](./docs/skills.md) | Detailed documentation of all 21 core + 12 design phase + 9 addon skills |
+| [Skills Reference](./docs/skills.md) | Detailed documentation of all 21 core + 12 design phase + 8 addon skills |
 | [Agents Reference](./docs/agents.md) | Detailed documentation of all 15 core agents + 4 auto-devtronic addon agents |
 | [Plugin Mode](./docs/plugins.md) | Claude Code plugin architecture, hooks, and migration |
 | [CLI Reference](./docs/cli-reference.md) | Full command documentation |
@@ -139,7 +139,7 @@ export strips.
 │  AGENTS.md        Universal context for all AI agents           │
 │       │                                                         │
 │       ├── Skills    Reusable workflows (/spec, etc.)              │
-│       │             21 core + 12 design phase + 9 addon         │
+│       │             21 core + 12 design phase + 8 addon         │
 │       │                                                         │
 │       ├── Agents    Specialized subagents (quality, review)    │
 │       │             15 core + 4 addon agents                    │
@@ -222,7 +222,7 @@ See the [CLI reference](./docs/cli-reference.md) and [Skills reference](./docs/s
 
 ## What's Included
 
-### Skills (21 core + 12 design phase + 9 addon)
+### Skills (21 core + 12 design phase + 8 addon)
 
 | Category | Skills |
 |----------|--------|

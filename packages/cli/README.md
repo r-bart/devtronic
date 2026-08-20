@@ -1,6 +1,6 @@
 # devtronic
 
-CLI for setting up AI-assisted development in your projects. Works with **Claude Code**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
+CLI for setting up AI-assisted development in your projects. Works with **Claude Code**, **OpenAI Codex**, **Cursor**, **Google Antigravity**, **GitHub Copilot**, and **OpenCode**.
 
 ## Quick Start
 
@@ -56,9 +56,10 @@ See the [full docs](https://github.com/r-bart/devtronic/blob/main/docs/cli-refer
 
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
-- **Skills** (21 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/converge`, `/summary`, `/audit`, `/devtronic-help`, etc.)
+- **Skills** (21 core + 12 design + 8 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/converge`, `/summary`, `/audit`, `/devtronic-help`, etc.)
 - **Agents** (15 + 4 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
-- **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
+- **Hooks** (6) — Automated workflow (lint-on-save, checkpoint, loop gates, etc.)
+- **Portable skills** — the core skill set at `.agents/skills/` for every IDE except Claude Code
 - **thoughts/** — Structured directory for AI working documents
 
 ## Addons
@@ -75,7 +76,7 @@ npx devtronic addon remove <name>               # Uninstall
 
 | Addon | Skills | Description |
 |-------|--------|-------------|
-| `orchestration` | `briefing`, `recap`, `handoff` | Pre-planning alignment, session recaps, context rotation for multi-session work |
+| `orchestration` | `briefing`, `handoff` | Pre-planning alignment and context rotation for multi-session work |
 | `design-best-practices` | `design-init`, `design-critique`, `design-refine`, `design-tokens`, `design-harden` | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
 | `auto-devtronic` | `auto-devtronic` (`/devtronic --validate` for AFK-readiness scoring) | Autonomous engineering loop — takes a GitHub issue, runs spec → tests → plan → implement → PR, self-corrects via failing tests |
 
@@ -86,14 +87,21 @@ During `npx devtronic init` (Claude Code only), a multiselect prompt lets you en
 | IDE | Config Format | Features |
 |-----|--------------|----------|
 | Claude Code | `.claude/rules/*.md` + plugin | Full (skills, agents, hooks, rules) |
-| Cursor | `.cursor/rules/*.mdc` | Rules + AGENTS.md |
-| Google Antigravity | `.agents/rules/*.md` | Rules + AGENTS.md |
-| GitHub Copilot | `.github/copilot-instructions.md` | Rules |
-| OpenCode | `.opencode/rules/*.md` | Rules + AGENTS.md |
+| OpenAI Codex | `AGENTS.md` + `.agents/skills/` | Skills + AGENTS.md |
+| Cursor | `.cursor/rules/*.mdc` + `.agents/skills/` | Rules + skills + AGENTS.md |
+| Google Antigravity | `.agents/rules/*.md` + `.agents/skills/` | Rules + AGENTS.md; skills unverified |
+| GitHub Copilot | `.github/copilot-instructions.md` + `.agents/skills/` | Rules + skills |
+| OpenCode | `.opencode/rules/*.md` + `.agents/skills/` | Rules + skills + AGENTS.md |
+
+Every IDE except Claude Code gets the core skill set written to
+`.agents/skills/<name>/SKILL.md` in the [Agent Skills](https://agentskills.io) open format —
+the one directory Codex, Cursor, OpenCode and Copilot all read. Claude Code keeps its own copy
+through the plugin, which adds the Claude Code-only execution controls the portable export
+strips.
 
 ## Requirements
 
-- Node.js >= 18.0.0
+- Node.js >= 20.0.0
 
 ## Documentation
 

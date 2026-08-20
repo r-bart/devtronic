@@ -26,14 +26,9 @@ import {
 import { getCliVersion } from '../utils/version.js';
 import { getRuleContentForIDE } from '../utils/rules.js';
 import { introTitle, symbols } from '../utils/ui.js';
+import { IDE_OPTIONS } from '../prompts/init.js';
 
-const ALL_IDES: { value: IDE; label: string }[] = [
-  { value: 'claude-code', label: 'Claude Code' },
-  { value: 'cursor', label: 'Cursor' },
-  { value: 'opencode', label: 'OpenCode' },
-  { value: 'antigravity', label: 'Google Antigravity' },
-  { value: 'github-copilot', label: 'GitHub Copilot' },
-];
+const ALL_IDES: { value: IDE; label: string }[] = IDE_OPTIONS;
 
 export async function addCommand(ide: string | undefined, options: AddOptions): Promise<void> {
   if (!options.yes) {
