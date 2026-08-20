@@ -367,7 +367,7 @@ continues. You still sign each item's DoD (up front) and ship (per item) — the
 
 ## Orchestration Addon Skills
 
-These skills are available when the **orchestration** addon is enabled during `devtronic init`. They add structured pre-planning alignment, session recaps, and context rotation.
+These skills are available when the **orchestration** addon is enabled during `devtronic init`. They add structured pre-planning alignment and context rotation. Session recaps moved to the core `/summary --quick`.
 
 **Enable during init**: Select "Orchestration Workflow" when prompted for addons.
 

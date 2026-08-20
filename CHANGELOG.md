@@ -108,6 +108,9 @@ regression: the previous grant was unbounded.
   generated-file exclusion pinned), `detectExistingConfigs` (20 tests, 16% → 100%), and the
   `legacySkillDirs` sweep (9 tests). Each guard was mutation-checked: breaking the code it
   protects makes the tests fail.
+- **The documented surface is now tested** (22 tests). The npm README's Node requirement is
+  checked against `engines`, both READMEs must name every IDE and every addon skill, and the
+  prompt list must cover the `IDE` union — the drift that hid `codex` from `add`.
 - **Skill cross-references are now tested** (44 tests). Nothing checked that a router
   delegates to a skill that exists, that `/devtronic-help` indexes every shipped skill and no
   others, or that a renamed skill is never invoked under its old name. All three drifts were
@@ -137,6 +140,13 @@ regression: the previous grant was unbounded.
 - **`/devtronic-help` was out of date with the skills it indexes.** It still listed `/recap`,
   removed in this release, and never listed `converge`, `generate-tests`, `briefing`,
   `design-spec` or itself.
+- **`devtronic add codex` answered "Unknown IDE".** `add` kept a private copy of the IDE list
+  and never received `codex`, so the release's own new target was reachable from `init` and
+  from nowhere else. Both commands now read one exported `IDE_OPTIONS`.
+- **The npm README contradicted the package.** It still promised `Node.js >= 18.0.0` against
+  an `engines` of 20, omitted Codex and the portable skill export, and listed `recap` as an
+  orchestration addon skill. `docs/customization.md`, `docs/plugins.md` and `docs/skills.md`
+  carried the same stale addon listing.
 
 ---
 
