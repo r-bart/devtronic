@@ -443,7 +443,7 @@ npx devtronic doctor --fix
 ◆ devtronic Doctor
 
   Health Check
-  ✓ Manifest is valid (v1.0.0)
+  ✓ Manifest is valid (v1.5.0)
   ✓ 42/42 manifest files exist
   ✓ Scripts have executable permissions
   ✓ Plugin registered in .claude/settings.json
@@ -683,7 +683,7 @@ After installation, a manifest is created at `.ai-template/manifest.json`:
 
 ```json
 {
-  "version": "1.0.0",
+  "version": "1.5.0",
   "implantedAt": "2026-02-01",
   "selectedIDEs": ["claude-code", "cursor"],
   "projectConfig": {
