@@ -2,7 +2,7 @@ import { resolve, join, dirname } from 'node:path';
 import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, rmSync, chmodSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { UpdateOptions, Manifest, ProjectConfig } from '../types.js';
+import type { UpdateOptions, Manifest, ProjectConfig, IDE } from '../types.js';
 import { analyzeProject } from '../analyzers/index.js';
 import {
   readManifest,
@@ -47,6 +47,68 @@ import { syncAddonFiles } from '../generators/addonFiles.js';
  * otherwise every update offers to delete the project's own AGENTS.md.
  */
 const GENERATED_ROOT_FILES = ['AGENTS.md', 'CLAUDE.md', 'loop.manifest.yaml'];
+
+export interface RemovedFile {
+  path: string;
+  info?: RemovalInfo;
+}
+
+export interface RemovalDetectionInput {
+  manifest: Pick<Manifest, 'files' | 'selectedIDEs' | 'pluginPath'>;
+  /** Whether the path exists inside the given IDE's template directory */
+  existsInTemplate: (ide: IDE, relativePath: string) => boolean;
+  /** Whether the path still exists in the user's project */
+  existsInProject: (relativePath: string) => boolean;
+}
+
+/**
+ * Decides which tracked files were dropped from the templates, so `update` can
+ * offer to delete them.
+ *
+ * Only files that a template directory actually ships are eligible. Everything
+ * devtronic *generates* has to be excluded by hand, because a generated file is
+ * in the manifest and in no template, which is exactly the shape of a removal.
+ * Miss one and `update` offers to delete the user's own AGENTS.md.
+ *
+ * Filesystem access is injected so the rule itself stays testable.
+ */
+export function detectRemovedFiles(input: RemovalDetectionInput): RemovedFile[] {
+  const { manifest, existsInTemplate, existsInProject } = input;
+  const removed: RemovedFile[] = [];
+  const pluginPathPrefix = manifest.pluginPath ? manifest.pluginPath + '/' : null;
+
+  for (const [relativePath, fileInfo] of Object.entries(manifest.files)) {
+    // The user chose to keep this one.
+    if (fileInfo.ignored) continue;
+
+    // Plugin files are regenerated, not copied from a template.
+    if (pluginPathPrefix && relativePath.startsWith(pluginPathPrefix)) continue;
+    // The marketplace descriptor sits one level above the plugin directory.
+    if (
+      manifest.pluginPath &&
+      relativePath.startsWith('.claude-plugins/') &&
+      relativePath.endsWith('marketplace.json')
+    ) {
+      continue;
+    }
+    // Portable skills are generated from the claude-code template.
+    if (relativePath.startsWith(`${PORTABLE_SKILLS_DIR}/`)) continue;
+    // Personalized root files init writes from scratch.
+    if (GENERATED_ROOT_FILES.includes(relativePath)) continue;
+
+    const shippedByATemplate = manifest.selectedIDEs.some((ide) =>
+      existsInTemplate(ide, relativePath)
+    );
+    if (shippedByATemplate) continue;
+
+    // Nothing to offer if it is already gone from disk.
+    if (!existsInProject(relativePath)) continue;
+
+    removed.push({ path: relativePath, info: REMOVED_FILES[relativePath] });
+  }
+
+  return removed;
+}
 
 export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (!options.check && !options.dryRun) {
@@ -215,47 +277,12 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
   }
 
   // Detect removed files (in manifest but not in any template)
-  const removedFromTemplate: Array<{ path: string; info?: RemovalInfo }> = [];
-
-  // Plugin files are generated dynamically — they don't exist in the static
-  // template directory. Skip them in "removed" detection to avoid false positives.
-  const pluginPathPrefix = manifest.pluginPath ? manifest.pluginPath + '/' : null;
-
-  for (const [relativePath, fileInfo] of Object.entries(manifest.files)) {
-    // Skip files already marked as ignored
-    if (fileInfo.ignored) continue;
-
-    // Skip plugin-generated files — they're regenerated, not copied from templates
-    if (pluginPathPrefix && relativePath.startsWith(pluginPathPrefix)) continue;
-    // Also skip the marketplace descriptor that sits one level above the plugin dir
-    if (manifest.pluginPath && relativePath.startsWith('.claude-plugins/') && relativePath.endsWith('marketplace.json')) continue;
-    // Portable skills are generated from the claude-code template, not copied
-    // from an IDE template directory — they'd otherwise read as "removed".
-    if (relativePath.startsWith(`${PORTABLE_SKILLS_DIR}/`)) continue;
-    // Same for the personalized files init writes from scratch. Without this,
-    // `update` offers to delete the user's AGENTS.md.
-    if (GENERATED_ROOT_FILES.includes(relativePath)) continue;
-
-    let foundInAnyTemplate = false;
-
-    for (const ide of manifest.selectedIDEs) {
-      const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
-      if (existsSync(join(templateDir, relativePath))) {
-        foundInAnyTemplate = true;
-        break;
-      }
-    }
-
-    if (!foundInAnyTemplate) {
-      const localPath = join(targetDir, relativePath);
-      if (fileExists(localPath)) {
-        removedFromTemplate.push({
-          path: relativePath,
-          info: REMOVED_FILES[relativePath],
-        });
-      }
-    }
-  }
+  const removedFromTemplate = detectRemovedFiles({
+    manifest,
+    existsInTemplate: (ide, relativePath) =>
+      existsSync(join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide], relativePath)),
+    existsInProject: (relativePath) => fileExists(join(targetDir, relativePath)),
+  });
 
   if (modifiedFiles.length > 0) {
     p.note(

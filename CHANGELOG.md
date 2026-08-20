@@ -68,6 +68,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Claude Code documentation links updated from `docs.anthropic.com` to `code.claude.com`.
 - Minimum Node.js raised to 20; CI matrix is now 20/22/24.
 
+### Internal
+- **Removal detection extracted to a pure function.** `detectRemovedFiles()` takes the
+  manifest and two filesystem predicates, so the rule that decides what `update` offers to
+  delete is testable on its own. It was previously inline in a 700-line interactive command
+  with no test touching it — `updateCommand` is still never invoked in the suite.
+- Closed the three coverage gaps that mattered: `detectRemovedFiles` (18 tests, every
+  generated-file exclusion pinned), `detectExistingConfigs` (20 tests, 16% → 100%), and the
+  `legacySkillDirs` sweep (9 tests). Each guard was mutation-checked: breaking the code it
+  protects makes the tests fail.
+
 ### Fixed
 - **`devtronic update` no longer offers to delete `AGENTS.md`, `CLAUDE.md` and
   `loop.manifest.yaml`.** Removal detection listed every manifest-tracked file absent from a
