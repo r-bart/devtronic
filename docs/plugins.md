@@ -113,7 +113,7 @@ These remain in your project (not in the plugin):
 
 ## Workflow Hooks
 
-The plugin includes 5 hooks that automate parts of your development workflow:
+The plugin includes 6 hooks that automate parts of your development workflow:
 
 ### SessionStart
 
@@ -135,7 +135,9 @@ Event: Write | Edit
 Type: command
 ```
 
-Auto-runs lint-fix after every file change. Auto-detects your package manager. Errors suppressed so they never block Claude.
+Auto-runs lint-fix after a source file changes. Each handler carries an `if:` condition
+(`Edit(**/*.ts)`, `Edit(**/*.tsx)`, …) so the linter does not spawn on markdown or JSON
+writes. Auto-detects your package manager. Errors suppressed so they never block Claude.
 
 ### Stop
 
@@ -333,7 +335,7 @@ These are separate from devtronic plugin skills and won't be affected by updates
 
 ### Disabling Individual Hooks
 
-Hooks are defined in the marketplace repo and can't be edited locally. To disable specific hooks, you can override them at the project level in `.claude/settings.json` or disable the entire plugin. See [Claude Code hooks documentation](https://docs.anthropic.com/en/docs/claude-code/hooks) for override options.
+Hooks are defined in the marketplace repo and can't be edited locally. To disable specific hooks, you can override them at the project level in `.claude/settings.json` or disable the entire plugin. See [Claude Code hooks documentation](https://code.claude.com/docs/en/hooks) for override options.
 
 —-
 

@@ -210,7 +210,7 @@ describe('generatePlugin', () => {
 
     const content = JSON.parse(readFileSync(hooksPath, 'utf-8'));
     expect(content.hooks).toBeTruthy();
-    expect(Object.keys(content.hooks)).toHaveLength(5);
+    expect(Object.keys(content.hooks)).toHaveLength(6);
   });
 
   it('generates checkpoint.sh script', () => {
@@ -249,8 +249,8 @@ describe('generatePlugin', () => {
     const result = generatePlugin(targetDir, templatesDir, '1.8.0', createConfig(), 'npm');
 
     // marketplace.json + plugin.json + 3 skills (brief/SKILL.md, audit/SKILL.md, audit/report-template.md)
-    // + 2 agents + hooks.json + checkpoint.sh + stop-guard.sh = 10 files
-    expect(Object.keys(result.files)).toHaveLength(10);
+    // + 2 agents + hooks.json + checkpoint.sh + stop-guard.sh + auto-lint.sh = 11 files
+    expect(Object.keys(result.files)).toHaveLength(11);
 
     // Every entry should have checksum and originalChecksum
     for (const entry of Object.values(result.files)) {
@@ -275,11 +275,9 @@ describe('generatePlugin', () => {
 
     generatePlugin(targetDir, templatesDir, '1.8.0', createConfig(), 'pnpm');
 
-    const hooksPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'hooks', 'hooks.json');
-    const content = JSON.parse(readFileSync(hooksPath, 'utf-8'));
-    const lintHook = content.hooks.PostToolUse[0].hooks[0];
-
-    expect(lintHook.command).toContain('pnpm');
+    // The package manager is baked into the script the hook calls, not the hook.
+    const autoLintPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'scripts', 'auto-lint.sh');
+    expect(readFileSync(autoLintPath, 'utf-8')).toContain('pnpm');
   });
 });
 

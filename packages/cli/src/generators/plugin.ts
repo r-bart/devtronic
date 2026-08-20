@@ -9,7 +9,12 @@ import {
   readFile,
   createManifestEntry,
 } from '../utils/files.js';
-import { generateHooks, generateCheckpointScript, generateStopGuardScript } from './hooks.js';
+import {
+  generateHooks,
+  generateCheckpointScript,
+  generateStopGuardScript,
+  generateAutoLintScript,
+} from './hooks.js';
 import { CORE_SKILLS } from './rules.js';
 
 export const PLUGIN_NAME = 'devtronic';
@@ -160,7 +165,7 @@ export function generatePlugin(
   copyTemplateDir(targetDir, join(templateClaudeDir, 'agents'), join(pluginRoot, 'agents'), files);
 
   // 5. Generate hooks.json
-  const hooksContent = generateHooks(config, packageManager);
+  const hooksContent = generateHooks();
   const hooksRelPath = join(pluginRoot, 'hooks', 'hooks.json');
   writeGeneratedFile(targetDir, hooksRelPath, hooksContent, files);
 
@@ -173,6 +178,11 @@ export function generatePlugin(
   const stopGuardContent = generateStopGuardScript(config);
   const stopGuardRelPath = join(pluginRoot, 'scripts', 'stop-guard.sh');
   writeGeneratedFile(targetDir, stopGuardRelPath, stopGuardContent, files);
+
+  // 8. Generate auto-lint script (PostToolUse); it filters non-source edits
+  const autoLintContent = generateAutoLintScript(config, packageManager);
+  const autoLintRelPath = join(pluginRoot, 'scripts', 'auto-lint.sh');
+  writeGeneratedFile(targetDir, autoLintRelPath, autoLintContent, files);
 
   return { files, pluginPath: pluginRoot };
 }
