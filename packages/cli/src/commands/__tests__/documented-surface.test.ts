@@ -22,6 +22,7 @@ const REPO_ROOT = join(CLI_ROOT, '..', '..');
 const pkg = JSON.parse(readFileSync(join(CLI_ROOT, 'package.json'), 'utf-8'));
 const npmReadme = readFileSync(join(CLI_ROOT, 'README.md'), 'utf-8');
 const rootReadme = readFileSync(join(REPO_ROOT, 'README.md'), 'utf-8');
+const cliReference = readFileSync(join(REPO_ROOT, 'docs', 'cli-reference.md'), 'utf-8');
 
 // ─── The IDE list has one owner ───────────────────────────────────────────────
 
@@ -49,6 +50,13 @@ describe('every targetable IDE is reachable', () => {
     for (const option of IDE_OPTIONS) {
       expect(option.label.length, `${option.value} has no label`).toBeGreaterThan(0);
     }
+  });
+
+  it('the CLI reference documents the same list `add` accepts', () => {
+    // `add <ide>` takes the kebab id, so the doc lists ids, not labels.
+    const section = cliReference.split('**Available IDEs:**')[1]?.split('\n\n')[0] ?? '';
+    const documented = [...section.matchAll(/`([a-z][a-z0-9-]*)`/g)].map((m) => m[1]);
+    expect(documented.sort()).toEqual(IDE_OPTIONS.map((o) => o.value).sort());
   });
 });
 
