@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+- **`devtronic update` announced ~50 files it was never going to write.** The command walks the
+  template tree twice — once to report, once to apply — and only the apply loop asked whether
+  the install was in plugin or marketplace mode. So every marketplace user was shown the whole
+  skill and agent set as "New Files in This Version", confirmed adding them, and saw none
+  appear. The list was never empty either, so `All files are up to date!` could not fire for a
+  marketplace install however current it was. Both loops now share `isPluginManagedPath()`.
+- **Migrating to the plugin left devtronic's old inline hooks in `.claude/settings.json`.** The
+  plugin supplies the same hooks, so both ran: the SessionStart prompt fired twice per session,
+  and the unfiltered `npx eslint --fix` linted every markdown write alongside the plugin's
+  filtered `auto-lint.sh`. `registerGitHubPlugin()` now strips them and reports which events it
+  cleaned. Matching is by signature and deliberately narrow — a hook devtronic did not write is
+  the user's and is never touched.
+
+### Internal
+- 35 tests over the two rules above: `isPluginManagedPath()` (20) and `stripDevtronicHooks()`
+  (15, over half of them asserting a user's hook survives). Both mutation-checked — removing the
+  detection guard brings the phantom files back, and treating every hook as devtronic's fails
+  the four tests that protect the user's.
+
+---
+
 ## [1.5.0] - 2026-08-20
 
 Skills were pre-approving tools they had no business holding, three of them answered to names
