@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2026-08-20
+## [1.5.0] - 2026-08-20
 
 Skills were pre-approving tools they had no business holding, three of them answered to names
 Claude Code had since taken, and two runtimes were being written to paths they never read. This
@@ -13,6 +13,11 @@ release fixes all three. **Run `devtronic update` after upgrading** — it expla
 installs the new locations.
 
 ### Upgrading
+
+**Read this before upgrading.** The version number is a minor, but three things change under
+you: three skills answer to new names, two runtimes read new paths, and Node 18 is no longer
+supported. `devtronic update` handles the files; the skill names are yours to update in any
+notes or scripts that call them.
 
 | Was | Now | Why |
 |-----|-----|-----|

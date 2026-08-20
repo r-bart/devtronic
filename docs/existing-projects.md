@@ -211,7 +211,7 @@ After installation, a manifest is created at `.ai-template/manifest.json`:
 
 ```json
 {
-  "version": "1.8.0",
+  "version": "1.5.0",
   "implantedAt": "2026-02-01",
   "selectedIDEs": ["claude-code", "cursor"],
   "projectConfig": {

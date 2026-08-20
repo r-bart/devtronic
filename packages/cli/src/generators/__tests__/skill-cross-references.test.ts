@@ -3,7 +3,7 @@
  * indexes, prose points at the next step. Nothing checked those names against
  * the skills that actually ship.
  *
- * The v2 renames made the cost visible. `/design-system --sync` still routed to
+ * The 1.5.0 renames made the cost visible. `/design-system --sync` still routed to
  * `/design:system-sync` — a name that never existed under that form and, after
  * the rename to `design-tokens-sync`, was wrong twice over. `devtronic-help`
  * still listed `/recap`, removed in the same release, and had never listed
@@ -116,7 +116,7 @@ describe('devtronic-help lists every shipped skill', () => {
 // ─── Retired names stay retired ───────────────────────────────────────────────
 
 describe('renamed skills are not invoked under their old names', () => {
-  /** Renamed in v2.0.0 to clear Claude Code built-ins. */
+  /** Renamed in v1.5.0 to clear Claude Code built-ins. */
   const RETIRED = ['loop', 'recap', 'design-system-sync'];
 
   /** Prose that documents the rename is the one legitimate mention. */
@@ -143,7 +143,7 @@ describe('renamed skills are not invoked under their old names', () => {
           .filter(({ line }) => pattern.test(line) && !EXPLAINS_THE_RENAME.test(line))
           .map(({ n, line }) => `${path}:${n}: ${line.trim()}`)
       );
-      expect(offenders, `/${name} was renamed in v2.0.0`).toEqual([]);
+      expect(offenders, `/${name} was renamed in v1.5.0`).toEqual([]);
     });
   }
 });

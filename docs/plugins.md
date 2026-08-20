@@ -393,7 +393,7 @@ The installation manifest at `.ai-template/manifest.json` includes:
 
 ```json
 {
-  "version": "1.2.6",
+  "version": "1.5.0",
   "installMode": "marketplace",
   "files": {
     "CLAUDE.md": {
