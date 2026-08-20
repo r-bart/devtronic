@@ -27,6 +27,48 @@ const VALID_KEYS: Array<keyof ProjectConfig> = [
   ...ARRAY_KEYS,
 ];
 
+export type ConfigSetResult =
+  | { ok: true; key: keyof ProjectConfig; value: string | string[] }
+  | { ok: false; error: string };
+
+/**
+ * Validates and normalizes a `devtronic config set <key> <value>` pair.
+ *
+ * Everything that can be decided without touching the manifest lives here: is
+ * the key real, is the value a list, and are the addon names ones we ship. The
+ * command then only has to write the result.
+ */
+export function resolveConfigSet(key: string, rawValue: string): ConfigSetResult {
+  if (!VALID_KEYS.includes(key as keyof ProjectConfig)) {
+    return { ok: false, error: `Unknown config key: ${key}\n\nValid keys: ${VALID_KEYS.join(', ')}` };
+  }
+
+  const configKey = key as keyof ProjectConfig;
+
+  if (!ARRAY_KEYS.includes(configKey as (typeof ARRAY_KEYS)[number])) {
+    return { ok: true, key: configKey, value: rawValue };
+  }
+
+  // Comma-separated list. Blank entries are dropped, so "a,,b" and "a, b" agree.
+  const values = rawValue
+    .split(',')
+    .map((v) => v.trim())
+    .filter(Boolean);
+
+  if (configKey === 'enabledAddons') {
+    const known = Object.keys(ADDONS);
+    const unknown = values.filter((v) => !known.includes(v));
+    if (unknown.length > 0) {
+      return {
+        ok: false,
+        error: `Unknown addon(s): ${unknown.join(', ')}\n\nValid addons: ${known.join(', ')}`,
+      };
+    }
+  }
+
+  return { ok: true, key: configKey, value: values };
+}
+
 export async function configCommand(options: ConfigOptions): Promise<void> {
   const targetDir = resolve(options.path || '.');
 
@@ -84,40 +126,23 @@ export async function configSetCommand(
     process.exit(1);
   }
 
-  if (!VALID_KEYS.includes(key as keyof ProjectConfig)) {
-    p.cancel(
-      `Unknown config key: ${key}\n\nValid keys: ${VALID_KEYS.join(', ')}`
-    );
+  const resolved = resolveConfigSet(key, value);
+
+  if (!resolved.ok) {
+    p.cancel(resolved.error);
     process.exit(1);
   }
 
-  const configKey = key as keyof ProjectConfig;
-
+  const configKey = resolved.key;
   const previousArch = manifest.projectConfig.architecture;
 
-  if (ARRAY_KEYS.includes(configKey as typeof ARRAY_KEYS[number])) {
-    // Array value — accept comma-separated
-    const arrayValue = value.split(',').map((v) => v.trim()).filter(Boolean);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (manifest.projectConfig as any)[configKey] = resolved.value;
 
-    // Validate addon names
-    if (configKey === 'enabledAddons') {
-      const validAddons = Object.keys(ADDONS);
-      const invalid = arrayValue.filter((v) => !validAddons.includes(v));
-      if (invalid.length > 0) {
-        p.cancel(
-          `Unknown addon(s): ${invalid.join(', ')}\n\nValid addons: ${validAddons.join(', ')}`
-        );
-        process.exit(1);
-      }
-    }
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (manifest.projectConfig as any)[configKey] = arrayValue;
-    p.log.success(`${chalk.bold(key)} set to ${chalk.cyan(arrayValue.join(', '))}`);
+  if (Array.isArray(resolved.value)) {
+    p.log.success(`${chalk.bold(key)} set to ${chalk.cyan(resolved.value.join(', '))}`);
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (manifest.projectConfig as any)[configKey] = value;
-    p.log.success(`${chalk.bold(key)} set to ${chalk.cyan(value)}`);
+    p.log.success(`${chalk.bold(key)} set to ${chalk.cyan(resolved.value)}`);
   }
 
   writeManifest(targetDir, manifest);

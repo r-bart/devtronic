@@ -73,12 +73,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   manifest and two filesystem predicates, so the rule that decides what `update` offers to
   delete is testable on its own. It was previously inline in a 700-line interactive command
   with no test touching it — `updateCommand` is still never invoked in the suite.
+- **Four command tests were reimplementing the logic they claimed to cover.** `uninstall`,
+  `config` and `list` each had a test file that copied the command's loop into itself and
+  never imported the module, so they passed whatever the command did — and `uninstall.ts`,
+  `config.ts` and `list.ts` reported zero coverage. Replaced by tests against extracted pure
+  functions: `planUninstall()`, `resolveConfigSet()` and `describeMarkdown()`. The remaining
+  one, `addon.test.ts`, covers ground that `addon-enable-disable.test.ts` already tests for
+  real against the module.
 - Closed the three coverage gaps that mattered: `detectRemovedFiles` (18 tests, every
   generated-file exclusion pinned), `detectExistingConfigs` (20 tests, 16% → 100%), and the
   `legacySkillDirs` sweep (9 tests). Each guard was mutation-checked: breaking the code it
   protects makes the tests fail.
 
 ### Fixed
+- **`devtronic uninstall` no longer deletes `loop.manifest.yaml` without asking.** The bulk
+  managed-file sweep protected only `CLAUDE.md` and `AGENTS.md`, so the project's hand-tuned
+  convergence policy — gates, phases, DoD — went silently. It now sits alongside them behind
+  its own confirmation.
+- **`devtronic list` shows each skill's declared description.** It read the first prose
+  paragraph after the heading and ignored the `description:` frontmatter field, so the CLI and
+  the runtime disagreed about what a skill was for.
 - **`devtronic update` no longer offers to delete `AGENTS.md`, `CLAUDE.md` and
   `loop.manifest.yaml`.** Removal detection listed every manifest-tracked file absent from a
   template directory, and those three are generated, not copied. Pre-existing since the

@@ -166,33 +166,65 @@ function discoverAgents(agentsDir: string): DiscoveredItem[] {
   return items;
 }
 
+/** Longest description `devtronic list` will print before truncating */
+const MAX_DESCRIPTION = 60;
+
 /**
- * Extracts a short description from a markdown file.
- * Reads the first non-empty line after the first heading.
+ * Picks the one-line description to show for a skill or agent.
+ *
+ * The frontmatter `description` wins when there is one: it is the text the
+ * runtime itself reads, so the CLI and the agent agree on what a skill is for.
+ * Older files without frontmatter fall back to the first prose line after the
+ * heading.
  */
+export function describeMarkdown(content: string): string {
+  return truncate(stripMarkdown(frontmatterDescription(content) ?? firstProseLine(content)));
+}
+
+/** Reads `description:` out of the YAML frontmatter block, if present. */
+function frontmatterDescription(content: string): string | null {
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return null;
+
+  for (const line of match[1].split('\n')) {
+    const field = line.match(/^description:\s*(.+)$/);
+    if (!field) continue;
+    // Strip a surrounding quote pair; descriptions holding a colon need one.
+    return field[1].trim().replace(/^(['"])(.*)\1$/, '$2');
+  }
+  return null;
+}
+
+/** First non-empty line after the first markdown heading. */
+function firstProseLine(content: string): string {
+  let pastHeading = false;
+
+  for (const line of content.split('\n')) {
+    const trimmed = line.trim();
+    if (trimmed.startsWith('#')) {
+      pastHeading = true;
+      continue;
+    }
+    if (pastHeading && trimmed.length > 0) return trimmed;
+  }
+  return '';
+}
+
+function stripMarkdown(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/\*(.+?)\*/g, '$1')
+    .replace(/`(.+?)`/g, '$1')
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1');
+}
+
+function truncate(text: string): string {
+  return text.length > MAX_DESCRIPTION ? text.slice(0, MAX_DESCRIPTION - 3) + '...' : text;
+}
+
 function extractDescription(filePath: string): string {
   try {
-    const content = readFileSync(filePath, 'utf-8');
-    const lines = content.split('\n');
-    let pastHeading = false;
-
-    for (const line of lines) {
-      const trimmed = line.trim();
-      if (trimmed.startsWith('#')) {
-        pastHeading = true;
-        continue;
-      }
-      if (pastHeading && trimmed.length > 0) {
-        // Strip markdown formatting (bold, italic, code, links)
-        const plain = trimmed
-          .replace(/\*\*(.+?)\*\*/g, '$1')
-          .replace(/\*(.+?)\*/g, '$1')
-          .replace(/`(.+?)`/g, '$1')
-          .replace(/\[(.+?)\]\(.+?\)/g, '$1');
-        return plain.length > 60 ? plain.slice(0, 57) + '...' : plain;
-      }
-    }
-    return '';
+    return describeMarkdown(readFileSync(filePath, 'utf-8'));
   } catch {
     return '';
   }

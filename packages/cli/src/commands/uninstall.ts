@@ -2,15 +2,97 @@ import { existsSync, rmSync, readdirSync } from 'node:fs';
 import { resolve, join, dirname } from 'node:path';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { UninstallOptions } from '../types.js';
+import type { Manifest, UninstallOptions } from '../types.js';
 import { fileExists, readManifest, MANIFEST_DIR } from '../utils/files.js';
 import { unregisterPlugin, readClaudeSettings, writeClaudeSettings } from '../utils/settings.js';
 import { PLUGIN_NAME, MARKETPLACE_NAME, PLUGIN_DIR, GITHUB_MARKETPLACE_NAME } from '../generators/plugin.js';
 import { ensureInteractive } from '../utils/tty.js';
 import { introTitle, symbols } from '../utils/ui.js';
 
-/** Top-level files that devtronic may have created */
-const DEVTRONIC_FILES = ['CLAUDE.md', 'AGENTS.md'];
+/**
+ * Files devtronic generates but the user is expected to edit. None of them is
+ * ever deleted without an explicit yes, so they are held out of the bulk
+ * managed-file sweep and offered one by one instead.
+ *
+ * `loop.manifest.yaml` belongs here for the same reason as `CLAUDE.md`: it is
+ * the project's own convergence policy, hand-tuned, and impossible to recover.
+ */
+export const USER_AUTHORED_FILES = ['CLAUDE.md', 'AGENTS.md', 'loop.manifest.yaml'] as const;
+
+export type UserAuthoredFile = (typeof USER_AUTHORED_FILES)[number];
+
+export interface UninstallInventory {
+  manifest: Pick<Manifest, 'files' | 'installMode'>;
+  /** Whether a manifest-tracked path still exists in the project */
+  existsInProject: (relativePath: string) => boolean;
+  /** Whether the local plugin directory is on disk */
+  hasPluginDir: boolean;
+  /** Whether the thoughts/ directory is on disk */
+  hasThoughts: boolean;
+}
+
+/** What the user answered for each file that may hold their own work */
+export type UserContentChoices = Partial<Record<UserAuthoredFile | 'thoughts', boolean>>;
+
+export interface UninstallPlan {
+  /** Managed files deleted outright — templates and rules, nothing hand-written */
+  managedFiles: string[];
+  /** Files present on disk that hold the user's own work, and the verdict on each */
+  userFiles: Array<{ path: string; remove: boolean }>;
+  /** Manifest entries whose file is already gone */
+  missingFiles: string[];
+  removeThoughts: boolean;
+  removePluginDir: boolean;
+  unregisterPlugin: boolean;
+  unregisterMarketplace: boolean;
+}
+
+/**
+ * Decides what an uninstall touches, before anything is deleted.
+ *
+ * The split that matters: a *managed* file is one devtronic wrote and owns, and
+ * it goes without asking. A *user-authored* file is one devtronic seeded and the
+ * user then made theirs, and it only goes on an explicit yes. Getting a file
+ * into the wrong bucket destroys work that cannot be recovered, which is why
+ * this is a pure function with tests rather than a loop inside a prompt flow.
+ */
+export function planUninstall(
+  inventory: UninstallInventory,
+  choices: UserContentChoices
+): UninstallPlan {
+  const { manifest, existsInProject, hasPluginDir, hasThoughts } = inventory;
+  const tracked = Object.keys(manifest.files);
+  const present = tracked.filter((f) => existsInProject(f));
+
+  const isUserAuthored = (path: string): path is UserAuthoredFile =>
+    (USER_AUTHORED_FILES as readonly string[]).includes(path);
+
+  const managedFiles = present.filter(
+    (f) =>
+      !isUserAuthored(f) &&
+      // thoughts/ is handled as a whole directory, on its own question
+      !f.startsWith('thoughts/') &&
+      // plugin files go with the plugin directory
+      !f.startsWith(PLUGIN_DIR + '/')
+  );
+
+  // Offer every user-authored file that is actually on disk, tracked or not:
+  // an older install may predate the manifest entry.
+  const userFiles = USER_AUTHORED_FILES.filter((f) => existsInProject(f)).map((path) => ({
+    path,
+    remove: choices[path] === true,
+  }));
+
+  return {
+    managedFiles,
+    userFiles,
+    missingFiles: tracked.filter((f) => !existsInProject(f)),
+    removeThoughts: hasThoughts && choices.thoughts === true,
+    removePluginDir: hasPluginDir,
+    unregisterPlugin: manifest.installMode === 'plugin',
+    unregisterMarketplace: manifest.installMode === 'marketplace',
+  };
+}
 
 export async function uninstallCommand(options: UninstallOptions): Promise<void> {
   ensureInteractive('uninstall');
@@ -45,6 +127,7 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
   const hasThoughts = existsSync(join(targetDir, 'thoughts'));
   const hasClaudeMd = fileExists(join(targetDir, 'CLAUDE.md'));
   const hasAgentsMd = fileExists(join(targetDir, 'AGENTS.md'));
+  const hasLoopManifest = fileExists(join(targetDir, 'loop.manifest.yaml'));
 
   // ── Show what will be removed ───────────────────────────────────────
   p.log.info(`Installation found: v${manifest.version} (${manifest.implantedAt})`);
@@ -76,6 +159,10 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
     removalLines.push(`  ${symbols.warn} AGENTS.md`);
   }
 
+  if (hasLoopManifest) {
+    removalLines.push(`  ${symbols.warn} loop.manifest.yaml ${chalk.dim('(your convergence policy)')}`);
+  }
+
   if (hasThoughts) {
     removalLines.push(`  ${symbols.warn} thoughts/ directory ${chalk.dim('(checkpoints, notes, specs)')}`);
   }
@@ -102,9 +189,10 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
   // ── Ask about user-generated content ────────────────────────────────
   let removeClaudeMd = false;
   let removeAgentsMd = false;
+  let removeLoopManifest = false;
   let removeThoughts = false;
 
-  if (hasClaudeMd || hasAgentsMd || hasThoughts) {
+  if (hasClaudeMd || hasAgentsMd || hasLoopManifest || hasThoughts) {
     p.log.step('Some files may contain your own work. Keep or remove?');
 
     if (hasClaudeMd) {
@@ -122,6 +210,14 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
         initialValue: true,
       });
       removeAgentsMd = !p.isCancel(confirmAgents) && confirmAgents;
+    }
+
+    if (hasLoopManifest) {
+      const confirmLoop = await p.confirm({
+        message: 'Remove loop.manifest.yaml? (your gates, phases and DoD policy)',
+        initialValue: false,
+      });
+      removeLoopManifest = !p.isCancel(confirmLoop) && confirmLoop;
     }
 
     if (hasThoughts) {
@@ -163,6 +259,21 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
       errors.push(`Failed to unregister marketplace: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
+
+  const plan = planUninstall(
+    {
+      manifest,
+      existsInProject: (relativePath) => fileExists(join(targetDir, relativePath)),
+      hasPluginDir: hasPlugin,
+      hasThoughts,
+    },
+    {
+      'CLAUDE.md': removeClaudeMd,
+      'AGENTS.md': removeAgentsMd,
+      'loop.manifest.yaml': removeLoopManifest,
+      thoughts: removeThoughts,
+    }
+  );
 
   // 1. Unregister plugin from .claude/settings.json
   if (hasPlugin) {
@@ -212,14 +323,8 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
     }
   }
 
-  // 3. Remove managed files (rules, templates — excluding CLAUDE.md, AGENTS.md, thoughts)
-  for (const file of existingFiles) {
-    // Skip files handled separately
-    if (DEVTRONIC_FILES.includes(file)) continue;
-    if (file.startsWith('thoughts/')) continue;
-    // Skip plugin files (already removed above)
-    if (file.startsWith(PLUGIN_DIR + '/')) continue;
-
+  // 3. Remove managed files (rules, templates — never a user-authored file)
+  for (const file of plan.managedFiles) {
     try {
       const filePath = join(targetDir, file);
       if (existsSync(filePath)) {
@@ -234,37 +339,23 @@ export async function uninstallCommand(options: UninstallOptions): Promise<void>
     }
   }
 
-  // 4. Remove CLAUDE.md
-  if (hasClaudeMd) {
-    if (removeClaudeMd) {
-      try {
-        rmSync(join(targetDir, 'CLAUDE.md'), { force: true });
-        removed.push('CLAUDE.md');
-      } catch (err) {
-        errors.push(`Failed to remove CLAUDE.md: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    } else {
-      kept.push('CLAUDE.md');
+  // 4. Remove the user-authored files the human said yes to
+  for (const { path: file, remove } of plan.userFiles) {
+    if (!remove) {
+      kept.push(file);
+      continue;
+    }
+    try {
+      rmSync(join(targetDir, file), { force: true });
+      removed.push(file);
+    } catch (err) {
+      errors.push(`Failed to remove ${file}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  // 5. Remove AGENTS.md
-  if (hasAgentsMd) {
-    if (removeAgentsMd) {
-      try {
-        rmSync(join(targetDir, 'AGENTS.md'), { force: true });
-        removed.push('AGENTS.md');
-      } catch (err) {
-        errors.push(`Failed to remove AGENTS.md: ${err instanceof Error ? err.message : String(err)}`);
-      }
-    } else {
-      kept.push('AGENTS.md');
-    }
-  }
-
-  // 6. Remove thoughts/ directory
+  // 5. Remove thoughts/ directory
   if (hasThoughts) {
-    if (removeThoughts) {
+    if (plan.removeThoughts) {
       try {
         rmSync(join(targetDir, 'thoughts'), { recursive: true, force: true });
         removed.push('thoughts/');
