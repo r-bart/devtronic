@@ -2,7 +2,7 @@ import { resolve, join, dirname } from 'node:path';
 import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, rmSync, chmodSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { UpdateOptions, Manifest, ProjectConfig, IDE } from '../types.js';
+import type { UpdateOptions, Manifest, ProjectConfig, IDE, InstallMode } from '../types.js';
 import { analyzeProject } from '../analyzers/index.js';
 import {
   readManifest,
@@ -47,6 +47,28 @@ import { syncAddonFiles } from '../generators/addonFiles.js';
  * otherwise every update offers to delete the project's own AGENTS.md.
  */
 const GENERATED_ROOT_FILES = ['AGENTS.md', 'CLAUDE.md', 'loop.manifest.yaml'];
+
+/**
+ * In plugin and marketplace mode the skills and agents come from the plugin,
+ * not from the project, so `update` must neither copy them nor announce them.
+ *
+ * The apply loop has always skipped them. The detection loop did not, so every
+ * marketplace install was told ~50 files were about to be added and then saw
+ * none of them appear — and, because the list was never empty, never once saw
+ * "All files are up to date!".
+ */
+export function isPluginManagedPath(
+  ide: IDE,
+  installMode: InstallMode | undefined,
+  relativePath: string
+): boolean {
+  const viaPlugin =
+    ide === 'claude-code' && (installMode === 'plugin' || installMode === 'marketplace');
+  return (
+    viaPlugin &&
+    (relativePath.startsWith('.claude/skills/') || relativePath.startsWith('.claude/agents/'))
+  );
+}
 
 export interface RemovedFile {
   path: string;
@@ -249,6 +271,9 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
     const files = getAllFilesRecursive(templateDir);
     for (const file of files) {
+      // The plugin ships these; the project never holds a copy.
+      if (isPluginManagedPath(ide, manifest.installMode, file)) continue;
+
       const templatePath = join(templateDir, file);
       const templateContent = readFile(templatePath);
       const templateChecksum = calculateChecksum(templateContent);
@@ -436,8 +461,6 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
     if (!existsSync(templateDir)) continue;
 
-    const isPluginMode = ide === 'claude-code' && (manifest.installMode === 'plugin' || manifest.installMode === 'marketplace');
-
     const files = getAllFilesRecursive(templateDir);
     for (const file of files) {
       // Skip modified files
@@ -445,8 +468,9 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
         continue;
       }
 
-      // Skip skills and agents if plugin mode — they're in the plugin
-      if (isPluginMode && (file.startsWith('.claude/skills/') || file.startsWith('.claude/agents/'))) {
+      // Skip skills and agents in plugin mode — they're in the plugin. Same
+      // predicate the detection loop uses, so the two cannot disagree again.
+      if (isPluginManagedPath(ide, manifest.installMode, file)) {
         continue;
       }
 
@@ -479,7 +503,13 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
 
   // Re-register GitHub marketplace if in marketplace mode (idempotent)
   if (manifest.installMode === 'marketplace') {
-    registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
+    const strippedHooks = registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
+    if (strippedHooks.length > 0) {
+      // Left behind by the standalone era; the plugin supplies them now.
+      p.log.info(
+        `Removed devtronic's duplicate inline hooks from .claude/settings.json (${strippedHooks.join(', ')}). Hooks you added yourself were left alone.`
+      );
+    }
   }
 
   // Update plugin files if in local plugin mode (not marketplace — marketplace updates via /plugin update)
@@ -506,7 +536,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     );
 
     // Make scripts executable
-    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
+    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh', 'version-check.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);

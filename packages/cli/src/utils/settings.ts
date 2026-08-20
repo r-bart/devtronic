@@ -40,6 +40,99 @@ export function writeClaudeSettings(targetDir: string, settings: ClaudeSettings)
   writeFile(settingsPath, JSON.stringify(settings, null, 2));
 }
 
+/**
+ * Hook entries devtronic itself wrote into `.claude/settings.json` back when a
+ * standalone install carried its own hooks.
+ *
+ * Once a project moves to the plugin, the plugin supplies these same hooks, and
+ * the leftovers in settings.json run *as well*: the same SessionStart prompt
+ * fires twice, and the unfiltered `npx eslint --fix` lints every markdown write
+ * alongside the plugin's filtered `auto-lint.sh`.
+ *
+ * Matching is by signature, and deliberately narrow. A hook devtronic did not
+ * write is never touched — an unrecognised entry is a hook the user added, and
+ * removing it would take work they cannot get back.
+ */
+const DEVTRONIC_HOOK_SIGNATURES: RegExp[] = [
+  // Standalone-era command hooks.
+  /^npx eslint --fix --quiet/,
+  /^\$\{CLAUDE_PLUGIN_ROOT\}\/scripts\//,
+  /^\.claude\/scripts\/(checkpoint|stop-guard|auto-lint)\.sh/,
+  /^bash \.claude\/scripts\//,
+  // Standalone-era prompt hooks, matched on their opening words.
+  /^Quick project orientation:/,
+  /^A subagent has finished\./,
+  /^If thoughts\/plans\/ contains a recent plan/,
+];
+
+interface SettingsHookEntry {
+  type?: string;
+  command?: string;
+  prompt?: string;
+  [key: string]: unknown;
+}
+
+interface SettingsHookMatcher {
+  matcher?: string;
+  hooks?: SettingsHookEntry[];
+  [key: string]: unknown;
+}
+
+function isDevtronicHook(entry: SettingsHookEntry): boolean {
+  const body = entry.command ?? entry.prompt;
+  if (typeof body !== 'string') return false;
+  return DEVTRONIC_HOOK_SIGNATURES.some((re) => re.test(body.trim()));
+}
+
+/**
+ * Removes devtronic's own inline hooks from a settings object, leaving every
+ * other hook untouched. Returns the event names it emptied, for reporting.
+ *
+ * Pure: takes and returns a plain object so the rule is testable on its own.
+ */
+export function stripDevtronicHooks(settings: ClaudeSettings): {
+  settings: ClaudeSettings;
+  removed: string[];
+} {
+  const hooks = settings.hooks as Record<string, SettingsHookMatcher[]> | undefined;
+  if (!hooks || typeof hooks !== 'object') return { settings, removed: [] };
+
+  const removed: string[] = [];
+  const kept: Record<string, SettingsHookMatcher[]> = {};
+
+  for (const [event, matchers] of Object.entries(hooks)) {
+    if (!Array.isArray(matchers)) {
+      kept[event] = matchers;
+      continue;
+    }
+
+    const survivors: SettingsHookMatcher[] = [];
+    let droppedHere = false;
+
+    for (const matcher of matchers) {
+      const entries = Array.isArray(matcher.hooks) ? matcher.hooks : [];
+      const keptEntries = entries.filter((e) => !isDevtronicHook(e));
+      if (keptEntries.length !== entries.length) droppedHere = true;
+      // A matcher whose every hook was devtronic's goes with them. One that had
+      // none to begin with is the user's empty placeholder, and stays.
+      if (keptEntries.length > 0 || entries.length === 0) {
+        survivors.push(entries.length === keptEntries.length ? matcher : { ...matcher, hooks: keptEntries });
+      }
+    }
+
+    if (droppedHere) removed.push(event);
+    if (survivors.length > 0) kept[event] = survivors;
+  }
+
+  const next: ClaudeSettings = { ...settings };
+  if (Object.keys(kept).length > 0) {
+    next.hooks = kept;
+  } else {
+    delete next.hooks;
+  }
+  return { settings: next, removed };
+}
+
 /** Legacy names from before the project was renamed to devtronic */
 const LEGACY_PLUGIN_NAMES = ['dev-ai', 'ai-agentic'];
 const LEGACY_MARKETPLACE_NAMES = ['dev-ai-local', 'ai-agentic-local', 'devtronic-local'];
@@ -103,8 +196,10 @@ export function registerGitHubPlugin(
   pluginName: string,
   marketplaceName: string,
   githubRepo: string
-): void {
-  const settings = readClaudeSettings(targetDir);
+): string[] {
+  // The plugin now supplies the hooks, so devtronic's own inline copies are
+  // duplicates. Anything the user added stays.
+  const { settings, removed } = stripDevtronicHooks(readClaudeSettings(targetDir));
 
   // Clean up legacy marketplaces and plugins (includes old local marketplace)
   if (settings.extraKnownMarketplaces) {
@@ -142,6 +237,7 @@ export function registerGitHubPlugin(
   }
 
   writeClaudeSettings(targetDir, settings);
+  return removed;
 }
 
 /**

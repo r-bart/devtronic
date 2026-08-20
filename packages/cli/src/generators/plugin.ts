@@ -14,6 +14,7 @@ import {
   generateCheckpointScript,
   generateStopGuardScript,
   generateAutoLintScript,
+  generateVersionCheckScript,
 } from './hooks.js';
 import { CORE_SKILLS } from './rules.js';
 
@@ -183,6 +184,11 @@ export function generatePlugin(
   const autoLintContent = generateAutoLintScript(config, packageManager);
   const autoLintRelPath = join(pluginRoot, 'scripts', 'auto-lint.sh');
   writeGeneratedFile(targetDir, autoLintRelPath, autoLintContent, files);
+
+  // 9. Generate version-check script (SessionStart); reports project ↔ CLI drift
+  const versionCheckContent = generateVersionCheckScript();
+  const versionCheckRelPath = join(pluginRoot, 'scripts', 'version-check.sh');
+  writeGeneratedFile(targetDir, versionCheckRelPath, versionCheckContent, files);
 
   return { files, pluginPath: pluginRoot };
 }

@@ -58,7 +58,8 @@ See the [full docs](https://github.com/r-bart/devtronic/blob/main/docs/cli-refer
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
 - **Skills** (21 core + 12 design + 8 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/converge`, `/summary`, `/audit`, `/devtronic-help`, etc.)
 - **Agents** (15 + 4 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
-- **Hooks** (6) — Automated workflow (lint-on-save, checkpoint, loop gates, etc.)
+- **Hooks** (6) — Automated workflow (lint-on-save, checkpoint, loop gates, and a session-start
+  notice when the project's files are older than the CLI)
 - **Portable skills** — the core skill set at `.agents/skills/` for every IDE except Claude Code
 - **thoughts/** — Structured directory for AI working documents
 

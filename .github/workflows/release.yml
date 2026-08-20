@@ -99,6 +99,7 @@ jobs:
           cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/stop-guard.sh" "$PLUGIN_DIR/scripts/"
           cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/auto-lint.sh" "$PLUGIN_DIR/scripts/"
           cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/checkpoint.sh" "$PLUGIN_DIR/scripts/"
+          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/version-check.sh" "$PLUGIN_DIR/scripts/"
           chmod +x "$PLUGIN_DIR/scripts/"*.sh
 
           # Update plugin.json version (count skills and agents dynamically)
