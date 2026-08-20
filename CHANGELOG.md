@@ -7,6 +7,69 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+- **`allowed-tools` no longer grants broad, unprompted access.** In current Claude Code the
+  field is a per-turn *pre-approval*, not a tool allowlist — every skill declaring
+  `allowed-tools: … Bash, Write, Edit` was silently handing itself unprompted shell and write
+  access for the whole turn. All 36 core skills and the 6 addon skills were rewritten: writes
+  are pre-approved only inside `thoughts/` (`Edit(thoughts/**)`), the few genuine shell needs
+  are scoped to exact commands (`Bash(git worktree *)`, `Bash(devtronic loop *)`), and
+  everything else goes back through the normal permission flow.
+- **Read-only skills and agents are now actually read-only.** `brief`, `learn`,
+  `devtronic-help`, `design-critique` and `design-harden` declare
+  `disallowed-tools: Edit, Write, NotebookEdit`; the 14 analysis agents gained the equivalent
+  `disallowedTools`.
+
+### Added
+- **Portable skill export (Agent Skills open format).** Every non-Claude IDE now receives the
+  core skill set at `.agents/skills/<name>/SKILL.md` — the one directory read by Codex,
+  Cursor, OpenCode and Copilot/VS Code. Claude Code-only execution controls (`context`,
+  `background`, `model`, `effort`, `hooks`, `agent`) are stripped on export. Addon skills are
+  filtered by enabled addon, exactly as the plugin generator filters them, and `devtronic
+  update` installs and refreshes the set for existing installs.
+- **OpenAI Codex as a first-class target** (`--ide codex`): `AGENTS.md` plus the portable
+  skill set. Codex has no static rules template — its rules live in `AGENTS.md`.
+- **`StopFailure` hook.** A turn that dies on `rate_limit`, `overloaded` or
+  `authentication_failed` now releases the loop ownership sentinel, instead of leaving the
+  Stop gate deferring for the full 900 s staleness window. Guarded on `owner:machine`, so a
+  human-owned barrier is never cleared by a failed turn.
+- Skills that write side effects (`loop`, `quick`, `execute-plan`, `scaffold`, `setup`,
+  `worktree`, `backlog`, `generate-tests`, `create-skill`, `design-system-sync`, `opensrc`)
+  declare `disable-model-invocation: true`, so Claude cannot trigger them unasked.
+- Analysis-only skills (`audit`, `design-audit`, `design-system-audit`, `design-review`) run
+  with `context: fork` + `background: false`, keeping their scan out of the main context
+  while still returning in the invoking turn.
+- Code-facing design skills declare `paths:` so they auto-activate only on UI files.
+- Analysis agents gained `maxTurns` bounds; `code-reviewer`, `architecture-checker`,
+  `design-system-guardian` and `test-generator` gained `memory: project` for cross-session
+  learning.
+
+### Changed
+- **Codex addon skills move from `.codex/skills/` to `.agents/skills/`** — Codex reads
+  repository skills from `.agents/skills`; `.codex/` holds `config.toml` and agent
+  definitions. **OpenCode addon skills move from `.opencode/command/<name>.md` to
+  `.opencode/skills/<name>/SKILL.md`.** Both legacy locations are swept on removal.
+- The CLI-generated `PostToolUse` hook now calls a generated `auto-lint.sh` that filters
+  non-source edits, matching the bundled marketplace hook. The two copies had drifted: only
+  the marketplace one skipped markdown and JSON writes. `generateHooks()` is now
+  argument-free, and a test asserts the generated and bundled `hooks.json` are identical.
+- `Task` renamed to `Agent` throughout skills, agents and docs (Claude Code renamed the tool
+  in v2.1.63; `Task` still works as an alias).
+- Antigravity detection narrowed from `.agents` to `.agents/rules`, so the shared skills
+  directory is not mistaken for an Antigravity install.
+- Claude Code documentation links updated from `docs.anthropic.com` to `code.claude.com`.
+- Minimum Node.js raised to 20; CI matrix is now 20/22/24.
+
+### Fixed
+- **`devtronic update` no longer offers to delete `AGENTS.md`, `CLAUDE.md` and
+  `loop.manifest.yaml`.** Removal detection listed every manifest-tracked file absent from a
+  template directory, and those three are generated, not copied. Pre-existing since the
+  manifest was introduced; found while reviewing the portable-skill export, which hit the
+  same code path.
+- Addon skill frontmatter used two keys that do not exist: `user-invokable` (the real field is
+  `user-invocable`, and `true` is the default) and `args:` (the real field is `arguments:`,
+  and these skills take flags, not named arguments). Both removed.
+
 ---
 
 ## [1.4.4] - 2026-07-08
