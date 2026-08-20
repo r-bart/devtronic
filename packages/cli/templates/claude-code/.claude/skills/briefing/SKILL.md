@@ -1,8 +1,8 @@
 ---
 name: briefing
 description: Pre-planning alignment Q&A. Generates targeted questions to clarify scope, style, priority and constraints before diving into implementation.
-allowed-tools: Read, Write, Bash, Glob, Grep, AskUserQuestion
 argument-hint: "[topic]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Briefing — Pre-Planning Alignment

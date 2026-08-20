@@ -1,8 +1,9 @@
 ---
 name: loop
 description: Orchestrates the autonomous convergence loop from loop.manifest.yaml — humans sign the DoD and the ship, the machine converges the middle under gates. Claude Code only.
-allowed-tools: Workflow, Task, Read, Write, Bash, Glob, Grep, AskUserQuestion
 argument-hint: "[feature|--resume]"
+allowed-tools: Edit(thoughts/**), Bash(devtronic loop *), Bash(npx --no-install devtronic *)
+disable-model-invocation: true
 ---
 
 # Loop — Autonomous Convergence Harness
@@ -147,7 +148,7 @@ devtronic loop --own <phase> --owner machine --at-barrier
 Run Tier ① once more; it must be green to cross.
 
 **Tier ② (subjective) at the barrier — adversarial fan-out.** For each subjective gate,
-spawn multiple independent reviewers via `Task`/`Workflow`, each prompted to **refute** the
+spawn multiple independent reviewers via `Agent`/`Workflow`, each prompted to **refute** the
 work (not bless it). Majority-refute → the finding stands → drop back into the middle loop
 to fix. Diverse lenses beat repetition: correctness, security, architecture boundaries.
 

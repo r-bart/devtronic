@@ -1,8 +1,8 @@
 ---
 name: checkpoint
 description: Save current session progress for resumption. Creates a compact state document with what's done, what's pending, and how to continue.
-allowed-tools: Read, Write, Bash, Glob
 argument-hint: "[task-name]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Checkpoint - Session State Compaction

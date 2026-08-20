@@ -145,7 +145,7 @@ Skills are invocable workflows. Create yours in `.claude/skills/`.
 name: my-skill
 description: Brief description shown in help
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # My Skill
@@ -171,23 +171,47 @@ allowed-tools: Read, Grep, Glob, Bash
 
 | Field | Description |
 |-------|-------------|
-| `name` | Skill name (used as `/command`) |
-| `description` | Brief description for help |
-| `disable-model-invocation` | Prevent recursive model calls |
-| `allowed-tools` | Tools the skill can use |
-| `command` | Override the slash command |
+| `name` | Display name. The command comes from the directory name |
+| `description` | What the skill does and when to use it — Claude reads this to decide when to load it |
+| `argument-hint` | Hint shown in autocomplete, e.g. `"[feature]"` |
+| `allowed-tools` | Tools **pre-approved** for the turn that invokes the skill |
+| `disallowed-tools` | Tools **removed** from Claude's pool while the skill is active |
+| `disable-model-invocation` | `true` means only you can invoke it, never Claude |
+| `context` | `fork` runs the skill in its own subagent context |
+| `background` | With `context: fork`, `false` waits for the result in the same turn |
+| `paths` | Globs that limit when the skill auto-activates |
 
-### Common Tool Sets
+### `allowed-tools` grants, it does not restrict
+
+This is the field most often misread. `allowed-tools` **pre-approves** the listed
+tools so Claude can use them without a permission prompt during that turn. It
+does not limit what the skill can reach — every other tool stays callable and
+follows your normal permission settings.
+
+So `allowed-tools: Bash, Write, Edit` does not mean "this skill may use Bash,
+Write and Edit". It means "let this skill run any shell command and write any
+file without asking you". Write narrow rules, or none at all:
 
 ```yaml
-# Read-only analysis
-allowed-tools: Read, Grep, Glob
+# Nothing to pre-approve — reads never prompt inside the workspace anyway
+# (no allowed-tools line)
 
-# Can modify files
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write
+# Writes confined to the artifacts directory
+allowed-tools: Edit(thoughts/**)
 
-# Full access
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, WebFetch
+# One exact command this skill always needs
+allowed-tools: Bash(git worktree *)
+```
+
+Path rules are checked against `Edit(...)` and `Read(...)` only. Use
+`Edit(docs/**)`, never `Write(docs/**)` — the latter is accepted but never
+consulted, and warns at startup.
+
+To actually restrict a skill, use `disallowed-tools`:
+
+```yaml
+# A read-only reviewer that must never modify code
+disallowed-tools: Edit, Write, NotebookEdit
 ```
 
 ### Example: Custom Deploy Skill
@@ -197,7 +221,7 @@ allowed-tools: Read, Grep, Glob, Bash, Edit, Write, WebFetch
 name: deploy
 description: Deploy to staging or production environment
 disable-model-invocation: true
-allowed-tools: Bash, Read
+allowed-tools: Bash(./scripts/deploy.sh *)
 ---
 
 # Deploy
@@ -241,7 +265,7 @@ After deployment, check:
 
 ## Custom Agents
 
-Agents are specialized subagents invoked via the Task tool.
+Agents are specialized subagents invoked via the Agent tool.
 
 ### Basic Structure
 
@@ -270,6 +294,26 @@ Claude should invoke you when:
 
 [Define expected output]
 ```
+
+### Frontmatter Options
+
+| Field | Description |
+|-------|-------------|
+| `name` | Unique id, lowercase and hyphens. Cannot contain `:` (reserved for plugin namespacing) |
+| `description` | When Claude should delegate to this agent |
+| `tools` | Allowlist. Inherits everything if omitted |
+| `disallowedTools` | Denylist, applied first. Use it to make a read-only agent actually read-only |
+| `model` | `haiku`, `sonnet`, `opus`, `fable`, a full model id, or `inherit` |
+| `maxTurns` | Cap on agentic turns before the agent stops |
+| `memory` | `user`, `project` or `local` — persistent memory across sessions |
+| `effort` | `low` … `max`. Inherits from the session by default |
+| `isolation` | `worktree` runs the agent in its own git worktree |
+| `skills` | Skills preloaded into the agent's context at startup |
+| `permissionMode` | `default`, `acceptEdits`, `auto`, `plan`, … (ignored for plugin agents) |
+
+devtronic's own agents use `disallowedTools` on every read-only analyst,
+`maxTurns` as a cost bound, and `memory: project` on the reviewers so they
+accumulate your project's conventions across sessions.
 
 ### Model Selection
 

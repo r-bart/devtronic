@@ -1,8 +1,19 @@
 ---
 name: design-review
 description: QA visual review — compares implementation against wireframe specs and design system. Surfaces deviations with severity.
-allowed-tools: Task, Read, Glob, Bash, Write
 argument-hint: "[component-name|--all]"
+allowed-tools: Edit(thoughts/**)
+context: fork
+background: false
+paths:
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.astro"
+  - "**/tailwind.config.*"
 ---
 
 # Design:Review - Implementation vs Design QA

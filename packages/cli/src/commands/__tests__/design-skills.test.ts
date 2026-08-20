@@ -83,15 +83,29 @@ describe('Design Skills - File existence', () => {
 describe('Design Skills - Frontmatter', () => {
   for (const { folder, name } of DESIGN_SKILLS) {
     it(`${folder} has required frontmatter fields`, () => {
-      // Spec: All skills must have name, description, allowed-tools, argument-hint
+      // Spec: every skill needs name, description and argument-hint. `allowed-tools`
+      // is a per-turn pre-approval, not a tool allowlist, so a skill that needs no
+      // pre-approval (a pure router) correctly omits it.
       const content = readSkill(folder);
       const fm = parseFrontmatter(content);
 
       expect(fm['name'], 'missing name').toBeTruthy();
       expect(fm['name']).toBe(name);
       expect(fm['description'], 'missing description').toBeTruthy();
-      expect(fm['allowed-tools'], 'missing allowed-tools').toBeTruthy();
       expect(fm['argument-hint'], 'missing argument-hint').toBeTruthy();
+    });
+
+    it(`${folder} pre-approves no broad tool`, () => {
+      // A bare `Bash`, `Write` or `Edit` grant would let the skill run unprompted.
+      const fm = parseFrontmatter(readSkill(folder));
+      const grants = (fm['allowed-tools'] ?? '')
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+
+      for (const grant of grants) {
+        expect(grant, `broad grant "${grant}"`).toMatch(/\(.+\)$/);
+      }
     });
   }
 });

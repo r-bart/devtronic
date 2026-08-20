@@ -1,8 +1,19 @@
 ---
 name: design-system-audit
 description: Audits the codebase for design system drift — finds hardcoded values, unused tokens, and components that bypass the system.
-allowed-tools: Task, Read, Glob, Grep, Write, Bash
 argument-hint: "[--files path/to/dir]"
+allowed-tools: Edit(thoughts/**)
+context: fork
+background: false
+paths:
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.astro"
+  - "**/tailwind.config.*"
 ---
 
 # Design:System-Audit - Design System Drift Detection

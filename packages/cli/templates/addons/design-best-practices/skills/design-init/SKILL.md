@@ -1,8 +1,7 @@
 ---
 name: design-init
 description: One-time project design context setup — gathers visual direction, constraints, and writes Design Context to CLAUDE.md
-user-invokable: true
-allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
+disable-model-invocation: true
 ---
 
 # Design Init

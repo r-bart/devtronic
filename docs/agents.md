@@ -1,6 +1,6 @@
 # Agents Reference
 
-Agents are specialized subagents that Claude invokes via the Task tool for specific purposes. Unlike skills (which you invoke with `/command`), agents are called automatically or by the main Claude instance when needed.
+Agents are specialized subagents that Claude invokes via the Agent tool for specific purposes. Unlike skills (which you invoke with `/command`), agents are called automatically or by the main Claude instance when needed.
 
 ---
 

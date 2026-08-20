@@ -1,8 +1,8 @@
 ---
 name: brief
 description: Quick contextual briefing with pre-flight validation. Scans docs, code, git, and runs health checks before starting work.
-allowed-tools: Task, Glob, Grep, Read, Bash
 argument-hint: "[topic]"
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # Brief - Quick Session Briefing
@@ -206,7 +206,7 @@ If no CONFIG.md or no `profile:` line, default to **balanced** (sonnet for subag
 
 ## Step 2: Parallel Scans
 
-Launch 3 parallel investigations using Task tool:
+Launch 3 parallel investigations using Agent tool:
 
 ### Scan A: Documentation
 

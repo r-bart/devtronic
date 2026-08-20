@@ -1,8 +1,8 @@
 ---
 name: spec
 description: Create a product specification (PRD) by interviewing the user. Captures requirements, UX decisions, edge cases, and success metrics before technical work begins.
-allowed-tools: AskUserQuestion, Write, Read, Glob
 argument-hint: "[feature]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Spec - Product Requirements Interview

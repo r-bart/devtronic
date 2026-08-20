@@ -2,8 +2,9 @@
 name: doc-sync
 description: Documentation consistency checker. Verifies docs match the actual codebase — counts, paths, commands, API signatures. Invoke before releases or after significant changes.
 tools: Read, Grep, Glob, Bash
-disallowedTools: Edit, Write
+disallowedTools: Edit, Write, NotebookEdit
 model: haiku
+maxTurns: 15
 ---
 
 You are a documentation consistency specialist for this project.

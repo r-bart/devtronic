@@ -1,8 +1,9 @@
 ---
 name: design-system-sync
 description: Syncs design tokens from thoughts/design/design-system.md to project config files (Tailwind, CSS vars, tokens.json).
-allowed-tools: Task, Read, Write, Edit, Glob, Bash, AskUserQuestion
 argument-hint: "[--dry-run]"
+allowed-tools: Edit(thoughts/**)
+disable-model-invocation: true
 ---
 
 # Design:System-Sync - Token Synchronization

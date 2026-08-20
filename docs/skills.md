@@ -917,7 +917,7 @@ For skills without supporting files, use a single Markdown file:
 name: my-skill
 description: What this skill does
 disable-model-invocation: true
-allowed-tools: Read, Grep, Glob, Bash
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # My Custom Skill

@@ -1,8 +1,7 @@
 ---
 name: design-harden
 description: Production hardening — text overflow, i18n, error states, accessibility, responsive, edge cases with severity report
-user-invokable: true
-allowed-tools: Read, Glob, Grep
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # Design Harden

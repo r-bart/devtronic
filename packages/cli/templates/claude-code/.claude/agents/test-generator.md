@@ -3,6 +3,8 @@ name: test-generator
 description: Test generation specialist. Analyzes source code and generates comprehensive unit tests following project patterns. Invoke when new code lacks tests or coverage needs improvement.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
+memory: project
+maxTurns: 25
 ---
 
 You are a test generation specialist for this project.

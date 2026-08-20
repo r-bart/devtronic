@@ -93,16 +93,18 @@ describe('design addon skill files', () => {
     });
   }
 
-  it('FR-6: design-init skill has user-invokable: true', () => {
-    // Spec: US-6
+  it('FR-6: design-init is user-invoked only (it writes to CLAUDE.md)', () => {
+    // Spec: US-6. `user-invocable: true` is the default, so the contract is the
+    // opposite guard: Claude must not trigger this skill on its own.
     const content = readFileSync(join(ADDON_ROOT, 'skills', 'design-init', 'SKILL.md'), 'utf-8');
-    expect(content).toContain('user-invokable: true');
+    expect(content).toContain('disable-model-invocation: true');
   });
 
-  it('FR-6: design-critique skill has user-invokable: true', () => {
-    // Spec: US-7
+  it('FR-6: design-critique stays invocable and cannot modify code', () => {
+    // Spec: US-7. A read-only critique: invocable by both, restricted to reads.
     const content = readFileSync(join(ADDON_ROOT, 'skills', 'design-critique', 'SKILL.md'), 'utf-8');
-    expect(content).toContain('user-invokable: true');
+    expect(content).not.toContain('disable-model-invocation');
+    expect(content).toContain('disallowed-tools: Edit, Write, NotebookEdit');
   });
 
   it('FR-6: design-refine skill accepts --direction argument', () => {

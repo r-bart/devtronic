@@ -1,8 +1,8 @@
 ---
 name: devtronic-help
 description: Devtronic meta-help. Discover available skills, agents, addons, and workflows without leaving the IDE. Use when unsure what devtronic can do or which skill to use next.
-allowed-tools: Glob, Read, Bash
 argument-hint: "[topic|--workflows|--addons|--agents|--all]"
+disallowed-tools: Edit, Write, NotebookEdit
 ---
 
 # Help - Devtronic Discovery

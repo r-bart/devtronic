@@ -1,8 +1,9 @@
 ---
 name: devtronic
 description: Autonomous engineering loop. Takes a GitHub issue or description, runs the full spec→test→plan→execute→review→PR pipeline, and self-corrects via failing tests until done. Two modes: --hitl (human gates, default) and --afk (fully autonomous).
-allowed-tools: Task, Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion
 argument-hint: "[issue-url|description] [--hitl|--afk] [--validate] [--max-retries N] [--skip-spec] [--branch name] [--dry-run]"
+allowed-tools: Edit(thoughts/**), Bash(devtronic loop *), Bash(npx --no-install devtronic *)
+disable-model-invocation: true
 ---
 
 # devtronic — Autonomous Engineering Loop
@@ -88,7 +89,7 @@ Only if the `--validate` flag is provided:
 
 ### Invoke the afk-task-validator agent
 
-Delegate to the `afk-task-validator` subagent (via the Task tool) with the task input —
+Delegate to the `afk-task-validator` subagent (via the Agent tool) with the task input —
 the GitHub issue URL or plain text description provided by the user — and ask it for a
 viability score (0-100) across the 5 dimensions.
 

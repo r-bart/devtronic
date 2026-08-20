@@ -4,6 +4,7 @@ description: Quick error diagnosis. Invoke automatically when there are stack tr
 tools: Bash, Read, Grep, Glob
 disallowedTools: Edit, Write, NotebookEdit
 model: haiku
+maxTurns: 15
 ---
 
 You are an error diagnosis specialist. When something fails, you quickly identify the root cause and suggest a fix.

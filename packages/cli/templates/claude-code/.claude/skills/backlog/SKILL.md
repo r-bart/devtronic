@@ -1,8 +1,9 @@
 ---
 name: backlog
 description: Manage the issue backlog. Add, prioritize, start work, complete, and cleanup items. Keeps the file manageable with automatic limits.
-allowed-tools: Read, Write, Edit, Glob, AskUserQuestion
 argument-hint: "[add|move|cleanup] [args]"
+allowed-tools: Edit(thoughts/**)
+disable-model-invocation: true
 ---
 
 # Backlog - Issue Management

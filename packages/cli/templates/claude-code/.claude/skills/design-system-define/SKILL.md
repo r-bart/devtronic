@@ -1,8 +1,17 @@
 ---
 name: design-system-define
 description: Creates or extracts a design system — tokens, components, and style guide — persisted to thoughts/design/design-system.md.
-allowed-tools: Task, Read, Write, Edit, AskUserQuestion, Bash, Glob
 argument-hint: "[--extract]"
+allowed-tools: Edit(thoughts/**)
+paths:
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.astro"
+  - "**/tailwind.config.*"
 ---
 
 # Design:System-Define - Create or Extract Design System
