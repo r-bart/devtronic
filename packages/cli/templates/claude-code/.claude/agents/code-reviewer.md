@@ -2,8 +2,10 @@
 name: code-reviewer
 description: Expert code reviewer. Use proactively after writing or modifying code to ensure quality, security, and maintainability. Performs read-only analysis.
 tools: Read, Grep, Glob, Bash
-disallowedTools: Edit, Write
+disallowedTools: Edit, Write, NotebookEdit
 model: sonnet
+memory: project
+maxTurns: 20
 ---
 
 You are a senior code reviewer for this project.

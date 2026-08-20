@@ -1,6 +1,6 @@
 {
   "name": "devtronic",
-  "version": "1.4.4",
+  "version": "2.0.0",
   "description": "AI-assisted development toolkit — skills, agents, quality gates, and rules for Claude Code, Cursor, Copilot, and Antigravity",
   "type": "module",
   "bin": {
@@ -49,7 +49,7 @@
     "url": "https://github.com/r-bart/devtronic/issues"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "dependencies": {
     "@clack/prompts": "^1.0.1",

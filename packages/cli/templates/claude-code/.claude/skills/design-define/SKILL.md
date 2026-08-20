@@ -1,14 +1,14 @@
 ---
 name: design-define
 description: Synthesis phase — generates personas, user journey maps, and HMW problem statements from research.
-allowed-tools: Task, Read, Write, AskUserQuestion
 argument-hint: "[topic]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Design:Define - Personas, Journeys & Problem Framing
 
 ## When to Use
-- After `/design:research` (reads thoughts/design/research.md)
+- After `/design-research` (reads thoughts/design/research.md)
 - When you have enough context to model the user
 - Before jumping to wireframes or IA
 
@@ -100,7 +100,7 @@ Ask the `ux-researcher` subagent to generate:
 ...
 
 ## Next Step
-Run `/design:ia` to define navigation structure and information architecture.
+Run `/design-ia` to define navigation structure and information architecture.
 ```
 
 ## Tips

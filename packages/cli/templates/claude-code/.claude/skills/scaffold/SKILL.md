@@ -1,8 +1,8 @@
 ---
 name: scaffold
 description: Create new projects from scratch with guided architecture and structure. Use when starting a brand new project.
-allowed-tools: Read, Glob, Bash, Write, AskUserQuestion
 argument-hint: "[project-name]"
+disable-model-invocation: true
 ---
 
 # Scaffold - Create Projects from Scratch

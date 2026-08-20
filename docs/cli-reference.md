@@ -37,7 +37,7 @@ npx devtronic init [path] [options]
 **Options:**
 | Option | Description |
 |--------|-------------|
-| `--ide <ides>` | IDEs to configure, comma-separated (e.g., `claude-code,cursor`) |
+| `--ide <ides>` | IDEs to configure, comma-separated. Valid: `claude-code`, `cursor`, `codex`, `opencode`, `antigravity`, `github-copilot` |
 | `--preset <name>` | Use a preset configuration |
 | `-y, --yes` | Skip prompts, use detected defaults |
 | `--preview` | Show what would be generated without making changes |
@@ -159,7 +159,7 @@ Shows all available addons with their status (installed / available) and descrip
 
 | Addon | Skills | Agents | Description |
 |-------|--------|--------|-------------|
-| `orchestration` | `/briefing`, `/recap`, `/handoff` (auto-namespaced in plugin mode) | — | Pre-planning alignment, session recaps, context rotation for long multi-session work |
+| `orchestration` | `/briefing`, `/handoff` (auto-namespaced in plugin mode) | — | Pre-planning alignment and context rotation for long multi-session work |
 | `design-best-practices` | `/design-init`, `/design-critique`, `/design-refine`, `/design-tokens`, `/design-harden` | — | Frontend design quality: typography, color, layout, accessibility, motion, UX writing |
 | `auto-devtronic` | `/devtronic` (with `--validate` for AFK-readiness scoring) | `issue-parser`, `failure-analyst`, `quality-executor`, `afk-task-validator` | Autonomous engineering loop — takes a GitHub issue, runs spec→test→plan→execute→PR pipeline, self-corrects via failing tests |
 
@@ -482,7 +482,7 @@ npx devtronic presets
 
 Validate and preview the **autonomous convergence loop** declared in
 `loop.manifest.yaml`. This is the deterministic *mechanism* half of the loop harness —
-the *orchestration* half is the `/loop` skill (Claude Code), which reads the same manifest
+the *orchestration* half is the `/converge` skill (Claude Code), which reads the same manifest
 and drives phases via `Workflow`/`Task`.
 
 ```bash
@@ -539,7 +539,7 @@ npx devtronic loop --backlog --abort
 
 Per-item worktrees live under `.loop-worktrees/` (add it to `.gitignore`). Eligibility,
 ordering (priority band, FIFO ties), the run ledger, and the budget/width caps are the
-deterministic spine; the `/loop --backlog` skill only sequences them.
+deterministic spine; the `/converge --backlog` skill only sequences them.
 
 **The two contracts (barbell).** The loop keeps a human at both ends and lets the machine
 converge the middle:

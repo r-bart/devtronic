@@ -39,11 +39,11 @@ The skills work **individually** — but the **convergence loop** is the upgrade
 only at the two ends (sign the **DoD** up front, the **ship** at the back) and let the machine
 converge everything in between under gates (the *barbell*).
 
-- **Inner loop (`/loop`)** — one feature: `/spec` → `/generate-tests` (you sign the DoD) →
-  `/loop <feature>` converges under Tier ① gates + adversarial Tier ② review, bounded by a
+- **Inner loop (`/converge`)** — one feature: `/spec` → `/generate-tests` (you sign the DoD) →
+  `/converge <feature>` converges under Tier ① gates + adversarial Tier ② review, bounded by a
   budget, and **stops at the ship** for your sign-off. Driven by a commented `loop.manifest.yaml`
   (seeded by `init`); preview with `devtronic loop --dry-run`.
-- **Outer loop (`/loop --backlog`)** — the *loop of loops*: point it at your `/backlog` (items
+- **Outer loop (`/converge --backlog`)** — the *loop of loops*: point it at your `/backlog` (items
   with `- Spec:` + `- DoD:`), walk away, and return to a queue of converged features ready to
   sign — each in its own worktree, bounded by a width cap + token budget, fail-soft.
 
@@ -56,7 +56,7 @@ See the [full docs](https://github.com/r-bart/devtronic/blob/main/docs/cli-refer
 
 - **AGENTS.md** — Universal AI context personalized to your stack
 - **Architecture rules** — IDE-specific format (`.claude/rules/`, `.cursor/rules/`, etc.)
-- **Skills** (21 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/loop`, `/summary`, `/audit`, `/devtronic-help`, etc.)
+- **Skills** (21 core + 12 design + 9 addon) — Reusable workflows (`/brief`, `/spec`, `/create-plan`, `/converge`, `/summary`, `/audit`, `/devtronic-help`, etc.)
 - **Agents** (15 + 4 addon) — Specialized subagents (code-reviewer, quality-runner, etc.)
 - **Hooks** (5) — Automated workflow (lint-on-save, checkpoint, etc.)
 - **thoughts/** — Structured directory for AI working documents

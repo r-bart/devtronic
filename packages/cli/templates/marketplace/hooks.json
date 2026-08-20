@@ -37,6 +37,18 @@
         ]
       }
     ],
+    "StopFailure": [
+      {
+        "matcher": "rate_limit|overloaded|authentication_failed",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -f .claude/.loop-owner ] && grep -q '\"owner\":\"machine\"' .claude/.loop-owner; then rm -f .claude/.loop-owner; fi; exit 0",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "hooks": [

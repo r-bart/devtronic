@@ -1,8 +1,9 @@
 ---
 name: create-skill
 description: Meta skill to create new skills. Guides through defining purpose, workflow steps, tools, and generates the skill file.
-allowed-tools: AskUserQuestion, Write, Read, Glob
 argument-hint: "[skill-name]"
+allowed-tools: Edit(.claude/skills/**)
+disable-model-invocation: true
 ---
 
 # Create Skill - Meta Skill Generator
@@ -24,7 +25,7 @@ A skill is a Markdown file in `.claude/skills/` that:
 - Defines a reusable workflow or prompt
 - Can be invoked with `/skill-name`
 - Guides Claude through specific tasks
-- Can restrict which tools are available
+- Can pre-approve narrow tool grants, or remove tools outright
 
 ---
 
@@ -83,27 +84,29 @@ Step 2: [Action] - [Brief description]
 ...
 ```
 
-### 2. Determine Tools
+### 2. Determine Permissions
+
+Every tool stays available to the skill regardless of what you write here. The
+only two questions are which prompts to skip, and which tools to take away.
 
 ```
-Which tools does this skill need?
+1. Does this skill write files it should never have to ask about?
+   → Name the directory, not the tool: Edit(thoughts/**)
+   → Answer "no" for a skill that edits source code. Those must prompt.
 
-Read/Write:
-- [ ] Read - Read files
-- [ ] Write - Create/overwrite files
-- [ ] Edit - Modify existing files
-- [ ] Glob - Find files by pattern
-- [ ] Grep - Search file contents
+2. Does it always run the same shell command?
+   → Name that command: Bash(npm test *), Bash(git worktree *)
+   → Answer "no" for ad-hoc commands. Those must prompt.
 
-Execution:
-- [ ] Bash - Run shell commands
-- [ ] Task - Launch sub-agents
+3. Must it be unable to modify code?
+   → disallowed-tools: Edit, Write, NotebookEdit
 
-Interaction:
-- [ ] AskUserQuestion - Ask user questions
-- [ ] WebFetch - Fetch web content
-- [ ] WebSearch - Search the web
+4. Would it be harmful for Claude to invoke it unasked?
+   → disable-model-invocation: true
 ```
+
+Reads, greps and globs never prompt inside the workspace, so a read-only skill
+usually needs no `allowed-tools` line at all.
 
 ### 3. Output (if applicable)
 
@@ -125,17 +128,39 @@ Does this skill produce a file output?
 
 ```yaml
 ---
-name: skill-name                    # Recommended: lowercase, hyphens, max 64 chars
-description: What it does           # Recommended: one line, Claude uses this to decide when to load
-disable-model-invocation: true      # Optional: prevent Claude from auto-loading (use for side-effect skills)
-allowed-tools: Tool1, Tool2         # Optional: restrict tools to minimum needed
-argument-hint: "[arg1] [--flag]"   # Optional: hint shown during autocomplete
-user-invocable: true                # Optional: set false to hide from / menu (default: true)
-model: sonnet                       # Optional: sonnet, opus, haiku, or specific model ID
-context: fork                       # Optional: run in isolated subagent context
-agent: Explore                      # Optional: subagent type when context: fork (Explore, Plan, general-purpose)
+name: skill-name                       # Recommended: lowercase, hyphens, max 64 chars
+description: What it does              # Recommended: one line, Claude uses this to decide when to load
+disable-model-invocation: true         # Optional: only the human can invoke it (use for side-effect skills)
+allowed-tools: Edit(thoughts/**)       # Optional: PRE-APPROVES these — see the warning below
+disallowed-tools: Edit, Write          # Optional: removes tools while the skill is active
+argument-hint: "[arg1] [--flag]"      # Optional: hint shown during autocomplete
+user-invocable: true                   # Optional: set false to hide from / menu (default: true)
+model: sonnet                          # Optional: sonnet, opus, haiku, or specific model ID
+context: fork                          # Optional: run in isolated subagent context
+background: false                      # Optional: with context: fork, wait for the result this turn
+agent: Explore                         # Optional: subagent type when context: fork
+paths: ["src/**/*.ts"]                # Optional: limit automatic activation to matching files
 ---
 ```
+
+### `allowed-tools` grants, it does not restrict
+
+**Read this before writing the field.** `allowed-tools` pre-approves the listed
+tools so they run without a permission prompt during the invoking turn. It never
+limits what the skill can reach.
+
+So `allowed-tools: Read, Write, Edit, Bash` does not mean "this skill uses these
+four tools". It means "let this skill run any shell command and write any file
+without asking the human". Rules for generating it:
+
+- **Default to omitting it.** Reads, greps and globs never prompt inside the
+  workspace, so listing them buys nothing.
+- **Scope every grant.** `Edit(thoughts/**)`, not `Write`. `Bash(npm test *)`,
+  not `Bash`. A grant with no parentheses is almost always a mistake.
+- **Path rules use `Edit(...)` and `Read(...)` only.** `Write(docs/**)` and
+  `Glob(docs/**)` are accepted but never consulted, and warn at startup.
+- **To restrict, use `disallowed-tools`.** A skill that must not modify code
+  declares `disallowed-tools: Edit, Write, NotebookEdit`.
 
 ### Skill Template
 
@@ -145,7 +170,7 @@ Generate the skill file based on gathered info:
 ---
 name: {name}
 description: {description}
-allowed-tools: {tools}
+{frontmatter-fields}
 ---
 
 # {Title}
@@ -230,7 +255,7 @@ Try running `/{name}` now to verify it works as expected.
 Edit the skill file to:
 - Add more detailed instructions
 - Include examples from your codebase
-- Adjust tool permissions
+- Tighten the `allowed-tools` grant or add `disallowed-tools`
 - Add supporting files by converting to directory: `.claude/skills/{name}/SKILL.md`
 ```
 
@@ -242,4 +267,4 @@ Edit the skill file to:
 2. **Be specific** - Vague instructions produce vague results
 3. **Include examples** - Show, don't tell
 4. **Test iteratively** - Run it, improve it
-5. **Restrict tools** - Only allow what's needed
+5. **Grant nothing you can't name** - A scoped rule or no rule at all

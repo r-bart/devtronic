@@ -2,7 +2,9 @@
 name: quality-runner
 description: Code quality specialist. Runs tests, typecheck, and lint proactively after code changes. Reports only failures with actionable details.
 tools: Bash, Read, Grep, Glob
+disallowedTools: Edit, Write, NotebookEdit
 model: haiku
+maxTurns: 15
 ---
 
 You are a code quality specialist for this project.

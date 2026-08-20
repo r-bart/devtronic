@@ -1,8 +1,8 @@
 ---
 name: design
 description: Orchestrates the design phase. Detects context and delegates to the right sub-skill.
-allowed-tools: Task, Read, Glob, AskUserQuestion, Write
 argument-hint: "[--research|--define|--ia|--wireframe|--system|--audit|--review|--spec]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Design - Design Phase Orchestrator
@@ -23,14 +23,14 @@ Entry point for the full UX/UI design phase. Detects current state and routes to
 
 | Flag | Delegates to | When |
 |------|-------------|------|
-| `--research` | `/design:research` | Discovery, competitive analysis |
-| `--define` | `/design:define` | Personas, journeys, HMW |
-| `--ia` | `/design:ia` | Information architecture, flows |
-| `--wireframe` | `/design:wireframe` | Screen wireframe specs |
-| `--system` | `/design:system` | Design system (add --define/--audit/--sync) |
-| `--audit` | `/design:audit` | UX heuristics + accessibility |
-| `--review` | `/design:review` | QA implementation vs design |
-| `--spec` | `/design:spec` | Dev handoff spec |
+| `--research` | `/design-research` | Discovery, competitive analysis |
+| `--define` | `/design-define` | Personas, journeys, HMW |
+| `--ia` | `/design-ia` | Information architecture, flows |
+| `--wireframe` | `/design-wireframe` | Screen wireframe specs |
+| `--system` | `/design-system` | Design system (add --define/--audit/--sync) |
+| `--audit` | `/design-audit` | UX heuristics + accessibility |
+| `--review` | `/design-review` | QA implementation vs design |
+| `--spec` | `/design-spec` | Dev handoff spec |
 
 ## Context Detection (no flag)
 

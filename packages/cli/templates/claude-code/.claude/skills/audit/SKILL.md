@@ -1,8 +1,10 @@
 ---
 name: audit
 description: "Comprehensive codebase audit (SonarQube lite): architecture, code smells, complexity, security, coverage, and technical debt."
-allowed-tools: Read, Grep, Glob, Bash, Task, Write, AskUserQuestion
 argument-hint: "[--architecture|--code|--complexity|--security|--quick|directory]"
+allowed-tools: Edit(thoughts/**)
+context: fork
+background: false
 ---
 
 # Audit - Comprehensive Codebase Scanner
@@ -46,7 +48,7 @@ One-stop skill for auditing codebase health: architecture, code quality, code sm
 │     └── Read docs/ARCHITECTURE.md or auto-detect                │
 │     └── Detect PM (lockfiles), find coverage reports            │
 │                                                                 │
-│  2. PARALLEL SCANS (5 Task agents)                              │
+│  2. PARALLEL SCANS (5 Agent subagents)                              │
 │     ├── A: Architecture violations                              │
 │     ├── B: Code quality grep (TODOs, console.logs, commented)   │
 │     ├── C: Code smells + duplication (file analysis)            │
@@ -138,7 +140,7 @@ Grep "^\\s*//.*function|^\\s*//.*const|^\\s*//.*class" --type ts
 
 ### Code Smells Detection
 
-Launch a Task agent (subagent_type: general-purpose) to detect code smells by reading source files:
+Launch a Agent subagent (subagent_type: general-purpose) to detect code smells by reading source files:
 
 | Smell | Warning | Critical | Detection |
 |-------|---------|----------|-----------|
@@ -196,7 +198,7 @@ Each `if/for/while/switch/catch` at nesting level N adds (1 + N) instead of 1.
 
 ### Analysis Strategy
 
-Launch up to 5 Task agents in parallel (subagent_type: general-purpose), one per top-level source directory. Each agent:
+Launch up to 5 Agent subagents in parallel (subagent_type: general-purpose), one per top-level source directory. Each agent:
 
 1. Reads source files in its directory (skip `node_modules`, `dist`, `build`, `coverage`, `.next`, generated files)
 2. Identifies functions/methods (named functions, arrow functions assigned to variables, class methods)

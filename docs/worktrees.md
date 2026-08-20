@@ -238,4 +238,4 @@ find ~ -name ".git" -type f 2>/dev/null | xargs grep -l "gitdir"
 ## References
 
 - [Git Worktree Documentation](https://git-scm.com/docs/git-worktree)
-- [Claude Code Docs: Parallel Sessions](https://docs.anthropic.com/en/docs/claude-code/tutorials#run-parallel-claude-code-sessions-with-git-worktrees)
+- [Claude Code Docs: Parallel Sessions](https://code.claude.com/docs/en/worktrees)

@@ -110,26 +110,27 @@ describe('Gemini adapter — passthrough Markdown', () => {
 
 // ─── OpenCode adapter ─────────────────────────────────────────────────────────
 
-describe('OpenCode adapter — strip name: from frontmatter', () => {
-  it('installs skill to .opencode/command/devtronic.md', () => {
+describe('OpenCode adapter — Agent Skills layout', () => {
+  const skillPath = ['.opencode', 'skills', 'devtronic', 'SKILL.md'];
+
+  it('installs skill to .opencode/skills/devtronic/SKILL.md', () => {
     const projectDir = join(tempDir, 'project');
     mkdirSync(projectDir);
 
     generateAddonFiles(projectDir, addonSourceDir, ['opencode']);
 
-    const destPath = join(projectDir, '.opencode', 'command', 'devtronic.md');
-    const content = readFileSync(destPath, 'utf-8');
+    const content = readFileSync(join(projectDir, ...skillPath), 'utf-8');
     expect(content).toBeDefined();
   });
 
-  it('removes the name: field from frontmatter', () => {
+  it('keeps the name: field so the skill matches its directory', () => {
     const projectDir = join(tempDir, 'project');
     mkdirSync(projectDir);
 
     generateAddonFiles(projectDir, addonSourceDir, ['opencode']);
 
-    const content = readFileSync(join(projectDir, '.opencode', 'command', 'devtronic.md'), 'utf-8');
-    expect(content).not.toMatch(/^name:/m);
+    const content = readFileSync(join(projectDir, ...skillPath), 'utf-8');
+    expect(content).toMatch(/^name: devtronic$/m);
   });
 
   it('preserves other frontmatter fields', () => {
@@ -138,19 +139,9 @@ describe('OpenCode adapter — strip name: from frontmatter', () => {
 
     generateAddonFiles(projectDir, addonSourceDir, ['opencode']);
 
-    const content = readFileSync(join(projectDir, '.opencode', 'command', 'devtronic.md'), 'utf-8');
+    const content = readFileSync(join(projectDir, ...skillPath), 'utf-8');
     expect(content).toContain('description: Autonomous engineering loop');
     expect(content).toContain('tags: [engineering, automation]');
-  });
-
-  it('keeps the frontmatter delimiters (--- ... ---)', () => {
-    const projectDir = join(tempDir, 'project');
-    mkdirSync(projectDir);
-
-    generateAddonFiles(projectDir, addonSourceDir, ['opencode']);
-
-    const content = readFileSync(join(projectDir, '.opencode', 'command', 'devtronic.md'), 'utf-8');
-    expect(content).toContain('---');
   });
 
   it('preserves the body after frontmatter', () => {
@@ -159,7 +150,7 @@ describe('OpenCode adapter — strip name: from frontmatter', () => {
 
     generateAddonFiles(projectDir, addonSourceDir, ['opencode']);
 
-    const content = readFileSync(join(projectDir, '.opencode', 'command', 'devtronic.md'), 'utf-8');
+    const content = readFileSync(join(projectDir, ...skillPath), 'utf-8');
     expect(content).toContain('# Devtronic');
     expect(content).toContain('Run the full autonomous engineering loop.');
   });
@@ -173,7 +164,7 @@ describe('OpenCode adapter — strip name: from frontmatter', () => {
 
     generateAddonFiles(projectDir, addonSourceDir, ['opencode']);
 
-    const content = readFileSync(join(projectDir, '.opencode', 'command', 'devtronic.md'), 'utf-8');
+    const content = readFileSync(join(projectDir, ...skillPath), 'utf-8');
     expect(content).toBe(noFrontmatterContent);
   });
 });
@@ -208,14 +199,14 @@ describe('Cursor adapter — passthrough Markdown', () => {
 
 // ─── Codex adapter ────────────────────────────────────────────────────────────
 
-describe('Codex adapter — passthrough Markdown at skills/<name>/SKILL.md', () => {
-  it('installs skill to .codex/skills/devtronic/SKILL.md', () => {
+describe('Codex adapter — passthrough Markdown at .agents/skills/<name>/SKILL.md', () => {
+  it('installs skill to .agents/skills/devtronic/SKILL.md', () => {
     const projectDir = join(tempDir, 'project');
     mkdirSync(projectDir);
 
     generateAddonFiles(projectDir, addonSourceDir, ['codex']);
 
-    const destPath = join(projectDir, '.codex', 'skills', 'devtronic', 'SKILL.md');
+    const destPath = join(projectDir, '.agents', 'skills', 'devtronic', 'SKILL.md');
     const content = readFileSync(destPath, 'utf-8');
     expect(content).toBe(SKILL_CONTENT);
   });
@@ -227,7 +218,7 @@ describe('Codex adapter — passthrough Markdown at skills/<name>/SKILL.md', () 
     generateAddonFiles(projectDir, addonSourceDir, ['codex']);
 
     const content = readFileSync(
-      join(projectDir, '.codex', 'skills', 'devtronic', 'SKILL.md'),
+      join(projectDir, '.agents', 'skills', 'devtronic', 'SKILL.md'),
       'utf-8'
     );
     expect(content).toContain('name: devtronic');

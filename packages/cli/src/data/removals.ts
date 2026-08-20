@@ -39,6 +39,21 @@ export const REMOVED_FILES: Record<string, RemovalInfo> = {
     version: '1.7.1',
     alternative: 'Now at .claude/skills/audit/SKILL.md',
   },
+  '.claude/skills/loop/SKILL.md': {
+    reason: 'Renamed to /converge — /loop now belongs to a bundled Claude Code skill',
+    version: '2.0.0',
+    alternative: 'Use /converge (or /devtronic:converge). The CLI command stays `devtronic loop`',
+  },
+  '.claude/skills/recap/SKILL.md': {
+    reason: 'Folded into /summary --quick — /recap is a built-in Claude Code command',
+    version: '2.0.0',
+    alternative: 'Use /summary --quick. It writes the same thoughts/RECAP.md',
+  },
+  '.claude/skills/design-system-sync/SKILL.md': {
+    reason: 'Renamed to /design-tokens-sync — too close to the bundled /design-sync skill',
+    version: '2.0.0',
+    alternative: 'Use /design-tokens-sync (also reachable via /design-system --sync)',
+  },
   '.claude/skills/scaffold.md': {
     reason: 'Converted to directory skill with supporting files',
     version: '1.7.1',

@@ -1,11 +1,12 @@
 ---
-name: loop
+name: converge
 description: Orchestrates the autonomous convergence loop from loop.manifest.yaml — humans sign the DoD and the ship, the machine converges the middle under gates. Claude Code only.
-allowed-tools: Workflow, Task, Read, Write, Bash, Glob, Grep, AskUserQuestion
 argument-hint: "[feature|--resume]"
+allowed-tools: Edit(thoughts/**), Bash(devtronic loop *), Bash(npx --no-install devtronic *)
+disable-model-invocation: true
 ---
 
-# Loop — Autonomous Convergence Harness
+# Converge — Autonomous Convergence Harness
 
 Drive `$ARGUMENTS` to done by reading `loop.manifest.yaml` and running the human/machine
 **barbell**: humans sign the two ends (the DoD up front, the ship at the back); the machine
@@ -46,7 +47,7 @@ lower quality floor — that is a manifest problem, not a loop problem.
 2. CLEAN TREE    refuse to take ownership over uncommitted human WIP (FR-7)
 3. PER PHASE     owner:human  → AskUserQuestion (STOP)
                  owner:machine → own tree, converge, release
-4. TRACE         append every iteration to thoughts/loop/<feature>.trace.md
+4. TRACE         append every iteration to thoughts/converge/<feature>.trace.md
 5. RELEASE       clear ownership on exit / completion / error / abort
 ```
 
@@ -147,7 +148,7 @@ devtronic loop --own <phase> --owner machine --at-barrier
 Run Tier ① once more; it must be green to cross.
 
 **Tier ② (subjective) at the barrier — adversarial fan-out.** For each subjective gate,
-spawn multiple independent reviewers via `Task`/`Workflow`, each prompted to **refute** the
+spawn multiple independent reviewers via `Agent`/`Workflow`, each prompted to **refute** the
 work (not bless it). Majority-refute → the finding stands → drop back into the middle loop
 to fix. Diverse lenses beat repetition: correctness, security, architecture boundaries.
 
@@ -157,7 +158,7 @@ converged, **escalate to the human** — do not spin.
 
 ### Step 4 — Trace (FR-8)
 
-Append a human-readable entry to `thoughts/loop/<feature>.trace.md` **every iteration**:
+Append a human-readable entry to `thoughts/converge/<feature>.trace.md` **every iteration**:
 timestamp, phase, iteration N, gates run + verdicts, Tier ② refutations, escalations. This
 is what the human reads at the ship gate — QA should be *confirm*, not *reverse-engineer the
 diff*. Without the trace the barbell's right end is blind.
@@ -176,7 +177,7 @@ release explicitly).
 
 ---
 
-## Backlog mode — the loop of loops (`/loop --backlog`)
+## Backlog mode — the loop of loops (`/converge --backlog`)
 
 Drive a **whole backlog** of ready features unattended: converge each in its own worktree,
 park it for your ship-signature, advance the next. Same barbell, at queue scale — you sign
@@ -200,7 +201,7 @@ worktrees, ledger state, or budget in prose — call `devtronic loop --backlog �
        ├─ exit 3  → AT CAPACITY (width/budget) — do NOT error; wait, drain a sign, retry
        └─ exit 1  → real error (not ready / unsafe id)
      run the inner loop for this item IN ITS WORKTREE (.loop-worktrees/<id>):
-        cd .loop-worktrees/<id> && <inner /loop for the item's spec/DoD>
+        cd .loop-worktrees/<id> && <inner /converge for the item's spec/DoD>
      on convergence:  devtronic loop --backlog --park "$id" --spent <Δtokens>
      on non-converge: devtronic loop --backlog --quarantine "$id"   (fail-soft; continue)
 2. DRAIN       report the parked queue; the human signs out of session (below)
@@ -230,9 +231,9 @@ devtronic loop --backlog --abort             # quarantine all in-flight, release
 
 ## `--resume`
 
-`/loop --resume` continues an interrupted run:
+`/converge --resume` continues an interrupted run:
 1. Read the ownership signal (`.claude/.loop-owner`) and the last checkpoint (`thoughts/`).
-2. Read the tail of `thoughts/loop/<feature>.trace.md` for where it stopped.
+2. Read the tail of `thoughts/converge/<feature>.trace.md` for where it stopped.
 3. Re-validate the manifest, then re-enter the phase loop at the recorded phase.
 
 ---

@@ -2,7 +2,7 @@
  * `devtronic loop --backlog` — the deterministic spine of the outer loop.
  *
  * Policy (which items, in what order) is the backlog + readiness; orchestration
- * (converge, park-ahead) is the `/loop` skill's "Backlog mode". This handler is
+ * (converge, park-ahead) is the `/converge` skill's "Backlog mode". This handler is
  * the tested middle: preview the queue, and mutate authoritative run state
  * (take / park / quarantine / sign / abort) that the skill drives per item.
  *

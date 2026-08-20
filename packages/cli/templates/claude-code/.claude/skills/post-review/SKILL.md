@@ -1,8 +1,8 @@
 ---
 name: post-review
 description: Post-feature review before PR. Checks requirements, architecture, quality, and captures lessons. Auto-invoke after completing a plan implementation. Use --strict for senior engineer mode.
-allowed-tools: Read, Grep, Glob, Bash, Edit, Write, Task
 argument-hint: "[--strict|--quick|files...]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Post-Feature Review
@@ -144,7 +144,7 @@ If no plan with done criteria exists, use the manual requirements checklist:
 **Spawn the `architecture-checker` subagent** to validate compliance on changed files:
 
 ```
-Use the Task tool with:
+Use the Agent tool with:
   subagent_type: "architecture-checker"
   model: "sonnet"
   prompt: "Check architecture compliance on these changed files: [file list from Step 1]"
@@ -160,7 +160,7 @@ The subagent reads architecture rules from `CLAUDE.md`, `docs/ARCHITECTURE.md`, 
 - Mark the review as NEEDS FIXES
 - Violations MUST be resolved before proceeding
 
-**If the subagent is unavailable** (e.g., Task tool not available), fall back to manual checklist:
+**If the subagent is unavailable** (e.g., Agent tool not available), fall back to manual checklist:
 
 ```markdown
 ## Architecture Compliance (manual fallback)

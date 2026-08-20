@@ -1,8 +1,8 @@
 ---
 name: quick
 description: Fast ad-hoc task execution. Skips spec/research/plan — just implement, verify, commit. For small, well-defined tasks.
-allowed-tools: Read, Write, Edit, Bash, Glob, Grep
 argument-hint: "<task description>"
+disable-model-invocation: true
 ---
 
 # Quick - Fast Ad-Hoc Task Execution

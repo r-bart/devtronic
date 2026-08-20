@@ -51,9 +51,6 @@ beforeEach(() => {
   mkdirSync(join(skillsDir, 'briefing'), { recursive: true });
   writeFileSync(join(skillsDir, 'briefing', 'SKILL.md'), '# Briefing skill');
 
-  mkdirSync(join(skillsDir, 'recap'), { recursive: true });
-  writeFileSync(join(skillsDir, 'recap', 'SKILL.md'), '# Recap skill');
-
   mkdirSync(join(skillsDir, 'handoff'), { recursive: true });
   writeFileSync(join(skillsDir, 'handoff', 'SKILL.md'), '# Handoff skill');
 
@@ -86,8 +83,6 @@ describe('addon skill filtering', () => {
     const briefingPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'skills', 'briefing', 'SKILL.md');
     expect(existsSync(briefingPath)).toBe(false);
 
-    const recapPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'skills', 'recap', 'SKILL.md');
-    expect(existsSync(recapPath)).toBe(false);
 
     const handoffPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'skills', 'handoff', 'SKILL.md');
     expect(existsSync(handoffPath)).toBe(false);
@@ -108,8 +103,6 @@ describe('addon skill filtering', () => {
     const briefingPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'skills', 'briefing', 'SKILL.md');
     expect(existsSync(briefingPath)).toBe(true);
 
-    const recapPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'skills', 'recap', 'SKILL.md');
-    expect(existsSync(recapPath)).toBe(true);
 
     const handoffPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'skills', 'handoff', 'SKILL.md');
     expect(existsSync(handoffPath)).toBe(true);

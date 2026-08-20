@@ -1,8 +1,17 @@
 ---
 name: design-system-define
 description: Creates or extracts a design system — tokens, components, and style guide — persisted to thoughts/design/design-system.md.
-allowed-tools: Task, Read, Write, Edit, AskUserQuestion, Bash, Glob
 argument-hint: "[--extract]"
+allowed-tools: Edit(thoughts/**)
+paths:
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.astro"
+  - "**/tailwind.config.*"
 ---
 
 # Design:System-Define - Create or Extract Design System
@@ -14,7 +23,7 @@ Two modes:
 ## When to Use
 - Starting a new project with no design system
 - Inheriting a codebase with implicit styles that need to be made explicit
-- After `/design:wireframe` — wireframes reveal what tokens are needed
+- After `/design-wireframe` — wireframes reveal what tokens are needed
 
 ---
 
@@ -131,8 +140,8 @@ Base unit: 4px
 
 ## Next Steps
 
-- Run `/design:system --sync` to apply tokens to project config files
-- Run `/design:system --audit` to check existing code against this system
+- Run `/design-system --sync` to apply tokens to project config files
+- Run `/design-system --audit` to check existing code against this system
 ```
 
 ## Tips

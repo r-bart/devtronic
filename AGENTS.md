@@ -26,7 +26,7 @@ Document your architecture patterns. See `docs/ARCHITECTURE.md` for detailed str
 
 ## Workflow
 
-- **New feature**: `/briefing` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/recap`
+- **New feature**: `/briefing` → `/spec` → `/create-plan` → `/generate-tests` → `/execute-plan` → `/summary --quick`
 - **Bug fix**: `/brief` → fix → test → `/summary`
 - **Session start**: `/brief` for orientation
 - **Session end**: `/handoff` for clean context rotation
@@ -54,6 +54,6 @@ Document your architecture patterns. See `docs/ARCHITECTURE.md` for detailed str
 - `/create-skill` — Generate new custom skills
 - `/devtronic-help` — Discover skills, agents, addons, and workflows from the IDE
 - `/briefing` — Pre-planning alignment Q&A
-- `/recap` — Quick session summary from git activity
+- `/summary --quick` — Quick session summary from git activity
 - `/handoff` — Context rotation for fresh sessions
 - `/devtronic` — Autonomous engineering loop — spec→test→plan→execute→PR

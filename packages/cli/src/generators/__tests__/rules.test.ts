@@ -266,6 +266,7 @@ describe('generateAgentsMd (from analysis)', () => {
         antigravity: false,
         'github-copilot': false,
         opencode: false,
+    codex: false,
       },
       stack: {
         stateManagement: [],
@@ -430,7 +431,7 @@ describe('orchestration addon integration', () => {
       const result = generateClaudeMd(orchestrationConfig, createScripts(), 'npm');
       expect(result).toContain('/briefing');
       expect(result).toContain('/execute-plan');
-      expect(result).toContain('/recap');
+      expect(result).toContain('/summary --quick');
       expect(result).toContain('/handoff');
     });
 
@@ -446,7 +447,7 @@ describe('orchestration addon integration', () => {
       const result = generateClaudeMd(orchestrationConfig, createScripts(), 'npm');
       expect(result).toContain('## Available Skills');
       expect(result).toContain('/briefing');
-      expect(result).toContain('/recap');
+      expect(result).toContain('/summary --quick');
       expect(result).toContain('/handoff');
     });
 
@@ -454,7 +455,7 @@ describe('orchestration addon integration', () => {
       const result = generateClaudeMd(standardConfig, createScripts(), 'npm');
       expect(result).toContain('## Available Skills');
       expect(result).not.toContain('`/briefing`');
-      expect(result).not.toContain('`/recap`');
+      expect(result).not.toContain('`/summary --quick`');
       expect(result).not.toContain('`/handoff`');
     });
   });
@@ -464,7 +465,7 @@ describe('orchestration addon integration', () => {
       const result = generateAgentsMdFromConfig(orchestrationConfig, createScripts(), 'npm');
       expect(result).toContain('/briefing');
       expect(result).toContain('/execute-plan');
-      expect(result).toContain('/recap');
+      expect(result).toContain('/summary --quick');
       expect(result).toContain('/handoff');
     });
 
@@ -478,14 +479,14 @@ describe('orchestration addon integration', () => {
     it('includes addon skills in Available Skills when enabled', () => {
       const result = generateAgentsMdFromConfig(orchestrationConfig, createScripts(), 'npm');
       expect(result).toContain('`/briefing`');
-      expect(result).toContain('`/recap`');
+      expect(result).toContain('`/summary --quick`');
       expect(result).toContain('`/handoff`');
     });
 
     it('excludes addon skills from Available Skills when not enabled', () => {
       const result = generateAgentsMdFromConfig(standardConfig, createScripts(), 'npm');
       expect(result).not.toContain('`/briefing`');
-      expect(result).not.toContain('`/recap`');
+      expect(result).not.toContain('`/summary --quick`');
       expect(result).not.toContain('`/handoff`');
     });
   });

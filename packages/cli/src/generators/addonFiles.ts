@@ -30,17 +30,6 @@ const AGENT_PATHS: Record<string, string> = {
   gemini: '.gemini',
 };
 
-/**
- * Strips the `name:` field from YAML frontmatter only.
- * OpenCode derives command name from filename — explicit name: causes conflicts.
- */
-function stripFrontmatterName(content: string): string {
-  return content.replace(/^(---\n)([\s\S]*?)(---)/m, (_match, open, body, close) => {
-    const cleaned = body.split('\n').filter((l: string) => !l.startsWith('name:')).join('\n');
-    return `${open}${cleaned}${close}`;
-  });
-}
-
 interface RuntimeInstallSpec {
   /** Base directory relative to project root */
   baseDir: string;
@@ -48,6 +37,11 @@ interface RuntimeInstallSpec {
   skillAdapter: (skillName: string, content: string) => { relPath: string; content: string };
   /** Subdirectory under baseDir where rules are installed (if supported) */
   rulesDir?: string;
+  /**
+   * Directories this runtime used in earlier devtronic versions. Removal sweeps
+   * them so an upgrade that changes `baseDir` doesn't leave orphan skill files.
+   */
+  legacySkillDirs?: string[];
 }
 
 const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
@@ -67,12 +61,16 @@ const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
     }),
     rulesDir: 'rules',
   },
+  // OpenCode reads Agent Skills from `.opencode/skills` (and also from
+  // `.claude/skills` and `.agents/skills`). The old `command/<name>.md` layout
+  // is legacy and gets swept on removal.
   opencode: {
     baseDir: '.opencode',
     skillAdapter: (name, content) => ({
-      relPath: `command/${name}.md`,
-      content: stripFrontmatterName(content),
+      relPath: `skills/${name}/SKILL.md`,
+      content,
     }),
+    legacySkillDirs: ['.opencode/command'],
   },
   cursor: {
     baseDir: '.cursor',
@@ -82,12 +80,17 @@ const RUNTIME_SPECS: Record<string, RuntimeInstallSpec> = {
     }),
     rulesDir: 'rules',
   },
+  // Codex reads repository skills from `.agents/skills`, not `.codex/skills`
+  // (`.codex/` holds config.toml and agent definitions). `.agents/skills` is
+  // also read by Cursor, OpenCode and Copilot/VS Code, so one directory serves
+  // every non-Claude runtime.
   codex: {
-    baseDir: '.codex',
+    baseDir: '.agents',
     skillAdapter: (name, content) => ({
       relPath: `skills/${name}/SKILL.md`,
       content,
     }),
+    legacySkillDirs: ['.codex/skills'],
   },
 };
 
@@ -328,6 +331,17 @@ export function removeAddonFiles(
           const entries = readdirSync(parentDir);
           if (entries.length === 0) rmdirSync(parentDir);
         } catch { /* ignore */ }
+      }
+    }
+
+    // Sweep skill files left behind by a runtime directory that moved between
+    // devtronic versions (e.g. .codex/skills → .agents/skills).
+    for (const legacyDir of spec.legacySkillDirs ?? []) {
+      for (const skillName of knownSkills) {
+        const legacyFile = join(projectDir, legacyDir, `${skillName}.md`);
+        if (existsSync(legacyFile)) unlinkSync(legacyFile);
+        const legacyDirPath = join(projectDir, legacyDir, skillName);
+        if (existsSync(legacyDirPath)) rmSync(legacyDirPath, { recursive: true, force: true });
       }
     }
 

@@ -1,8 +1,19 @@
 ---
 name: design-audit
 description: UX audit — evaluates designs against Nielsen's 10 heuristics and WCAG 2.1 AA accessibility. Consolidates findings with severity.
-allowed-tools: Task, Read, Glob, Write, Bash
 argument-hint: "[--wireframes|--code|--both]"
+allowed-tools: Edit(thoughts/**)
+context: fork
+background: false
+paths:
+  - "**/*.css"
+  - "**/*.scss"
+  - "**/*.tsx"
+  - "**/*.jsx"
+  - "**/*.vue"
+  - "**/*.svelte"
+  - "**/*.astro"
+  - "**/tailwind.config.*"
 ---
 
 # Design:Audit - UX Heuristics & Accessibility

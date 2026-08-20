@@ -1,8 +1,9 @@
 ---
 name: execute-plan
 description: Execute a plan in parallel phases. Reads task dependencies and runs independent tasks as concurrent subagents. Claude Code only.
-allowed-tools: Task, Read, Write, Bash, Glob, Grep, Edit
 argument-hint: "[plan-path|--latest]"
+allowed-tools: Edit(thoughts/**)
+disable-model-invocation: true
 ---
 
 # Execute Plan - Parallel Phase Execution
@@ -370,10 +371,10 @@ Options:
 
 ## Limitations
 
-- **Claude Code only** — Uses Task tool for parallel subagents
+- **Claude Code only** — Uses Agent tool for parallel subagents
 - **No interactive tasks** — Subagents cannot ask user questions mid-task
 - **File conflict risk** — Tasks in the same phase must NOT modify the same files
-- **Sequential fallback** — If Task tool is unavailable, executes tasks sequentially
+- **Sequential fallback** — If Agent tool is unavailable, executes tasks sequentially
 
 ---
 

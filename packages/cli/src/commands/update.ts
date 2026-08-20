@@ -2,7 +2,7 @@ import { resolve, join, dirname } from 'node:path';
 import { existsSync, unlinkSync, lstatSync, readdirSync, rmdirSync, rmSync, chmodSync } from 'node:fs';
 import * as p from '@clack/prompts';
 import chalk from 'chalk';
-import type { UpdateOptions, Manifest, ProjectConfig } from '../types.js';
+import type { UpdateOptions, Manifest, ProjectConfig, IDE } from '../types.js';
 import { analyzeProject } from '../analyzers/index.js';
 import {
   readManifest,
@@ -28,12 +28,87 @@ import {
   GITHUB_MARKETPLACE_REPO,
   GITHUB_MARKETPLACE_NAME,
 } from '../generators/plugin.js';
+import {
+  computePortableSkills,
+  generatePortableSkills,
+  PORTABLE_SKILLS_DIR,
+  PORTABLE_SKILL_IDES,
+} from '../generators/portableSkills.js';
 import { registerGitHubPlugin } from '../utils/settings.js';
 import { getCliVersion } from '../utils/version.js';
 import { introTitle, symbols, formatKV } from '../utils/ui.js';
 import { detectOrphanedAddonFiles, registerAddonInConfig, readAddonConfig } from '../utils/addonConfig.js';
 import { getAddonSourceDir } from '../addons/registry.js';
 import { syncAddonFiles } from '../generators/addonFiles.js';
+
+/**
+ * Root files `init` personalizes and writes from scratch. They live in the
+ * manifest but in no template directory, so removal detection must skip them —
+ * otherwise every update offers to delete the project's own AGENTS.md.
+ */
+const GENERATED_ROOT_FILES = ['AGENTS.md', 'CLAUDE.md', 'loop.manifest.yaml'];
+
+export interface RemovedFile {
+  path: string;
+  info?: RemovalInfo;
+}
+
+export interface RemovalDetectionInput {
+  manifest: Pick<Manifest, 'files' | 'selectedIDEs' | 'pluginPath'>;
+  /** Whether the path exists inside the given IDE's template directory */
+  existsInTemplate: (ide: IDE, relativePath: string) => boolean;
+  /** Whether the path still exists in the user's project */
+  existsInProject: (relativePath: string) => boolean;
+}
+
+/**
+ * Decides which tracked files were dropped from the templates, so `update` can
+ * offer to delete them.
+ *
+ * Only files that a template directory actually ships are eligible. Everything
+ * devtronic *generates* has to be excluded by hand, because a generated file is
+ * in the manifest and in no template, which is exactly the shape of a removal.
+ * Miss one and `update` offers to delete the user's own AGENTS.md.
+ *
+ * Filesystem access is injected so the rule itself stays testable.
+ */
+export function detectRemovedFiles(input: RemovalDetectionInput): RemovedFile[] {
+  const { manifest, existsInTemplate, existsInProject } = input;
+  const removed: RemovedFile[] = [];
+  const pluginPathPrefix = manifest.pluginPath ? manifest.pluginPath + '/' : null;
+
+  for (const [relativePath, fileInfo] of Object.entries(manifest.files)) {
+    // The user chose to keep this one.
+    if (fileInfo.ignored) continue;
+
+    // Plugin files are regenerated, not copied from a template.
+    if (pluginPathPrefix && relativePath.startsWith(pluginPathPrefix)) continue;
+    // The marketplace descriptor sits one level above the plugin directory.
+    if (
+      manifest.pluginPath &&
+      relativePath.startsWith('.claude-plugins/') &&
+      relativePath.endsWith('marketplace.json')
+    ) {
+      continue;
+    }
+    // Portable skills are generated from the claude-code template.
+    if (relativePath.startsWith(`${PORTABLE_SKILLS_DIR}/`)) continue;
+    // Personalized root files init writes from scratch.
+    if (GENERATED_ROOT_FILES.includes(relativePath)) continue;
+
+    const shippedByATemplate = manifest.selectedIDEs.some((ide) =>
+      existsInTemplate(ide, relativePath)
+    );
+    if (shippedByATemplate) continue;
+
+    // Nothing to offer if it is already gone from disk.
+    if (!existsInProject(relativePath)) continue;
+
+    removed.push({ path: relativePath, info: REMOVED_FILES[relativePath] });
+  }
+
+  return removed;
+}
 
 export async function updateCommand(options: UpdateOptions): Promise<void> {
   if (!options.check && !options.dryRun) {
@@ -187,42 +262,27 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
   }
 
-  // Detect removed files (in manifest but not in any template)
-  const removedFromTemplate: Array<{ path: string; info?: RemovalInfo }> = [];
-
-  // Plugin files are generated dynamically — they don't exist in the static
-  // template directory. Skip them in "removed" detection to avoid false positives.
-  const pluginPathPrefix = manifest.pluginPath ? manifest.pluginPath + '/' : null;
-
-  for (const [relativePath, fileInfo] of Object.entries(manifest.files)) {
-    // Skip files already marked as ignored
-    if (fileInfo.ignored) continue;
-
-    // Skip plugin-generated files — they're regenerated, not copied from templates
-    if (pluginPathPrefix && relativePath.startsWith(pluginPathPrefix)) continue;
-    // Also skip the marketplace descriptor that sits one level above the plugin dir
-    if (manifest.pluginPath && relativePath.startsWith('.claude-plugins/') && relativePath.endsWith('marketplace.json')) continue;
-
-    let foundInAnyTemplate = false;
-
-    for (const ide of manifest.selectedIDEs) {
-      const templateDir = join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide]);
-      if (existsSync(join(templateDir, relativePath))) {
-        foundInAnyTemplate = true;
-        break;
-      }
-    }
-
-    if (!foundInAnyTemplate) {
-      const localPath = join(targetDir, relativePath);
-      if (fileExists(localPath)) {
-        removedFromTemplate.push({
-          path: relativePath,
-          info: REMOVED_FILES[relativePath],
-        });
+  // Portable skills are generated, so the template loop above never sees them.
+  // Compare them here, or an install predating the export reports "up to date"
+  // forever and never gains the skills.
+  if (manifest.selectedIDEs.some((ide) => PORTABLE_SKILL_IDES.includes(ide)) && manifest.projectConfig) {
+    for (const [relPath, content] of computePortableSkills(TEMPLATES_DIR, manifest.projectConfig)) {
+      const fileInfo = manifest.files[relPath];
+      if (!fileInfo || !fileExists(join(targetDir, relPath))) {
+        newFiles.push(relPath);
+      } else if (fileInfo.checksum !== calculateChecksum(content)) {
+        outdatedFiles.push(relPath);
       }
     }
   }
+
+  // Detect removed files (in manifest but not in any template)
+  const removedFromTemplate = detectRemovedFiles({
+    manifest,
+    existsInTemplate: (ide, relativePath) =>
+      existsSync(join(TEMPLATES_DIR, IDE_TEMPLATE_MAP[ide], relativePath)),
+    existsInProject: (relativePath) => fileExists(join(targetDir, relativePath)),
+  });
 
   if (modifiedFiles.length > 0) {
     p.note(
@@ -400,6 +460,23 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
   }
 
+  // Refresh the portable skill set. It is generated, not copied, so the
+  // template loop above never reaches it — without this an existing install
+  // never gains the skills and never sees a skill update.
+  if (manifest.selectedIDEs.some((ide) => PORTABLE_SKILL_IDES.includes(ide))) {
+    const portableConfig = manifest.projectConfig;
+    if (portableConfig) {
+      // Files the user edited by hand are never rewritten, as everywhere else.
+      const portable = generatePortableSkills(
+        targetDir,
+        TEMPLATES_DIR,
+        portableConfig,
+        modifiedFiles
+      );
+      Object.assign(updatedManifest.files, portable.files);
+    }
+  }
+
   // Re-register GitHub marketplace if in marketplace mode (idempotent)
   if (manifest.installMode === 'marketplace') {
     registerGitHubPlugin(targetDir, PLUGIN_NAME, GITHUB_MARKETPLACE_NAME, GITHUB_MARKETPLACE_REPO);
@@ -429,7 +506,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     );
 
     // Make scripts executable
-    for (const script of ['checkpoint.sh', 'stop-guard.sh']) {
+    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);
@@ -738,7 +815,7 @@ async function regenerateWithNewStack(
       analysis.packageManager
     );
 
-    for (const script of ['checkpoint.sh', 'stop-guard.sh']) {
+    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);

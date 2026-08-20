@@ -1,8 +1,9 @@
 ---
 name: backlog
 description: Manage the issue backlog. Add, prioritize, start work, complete, and cleanup items. Keeps the file manageable with automatic limits.
-allowed-tools: Read, Write, Edit, Glob, AskUserQuestion
 argument-hint: "[add|move|cleanup] [args]"
+allowed-tools: Edit(thoughts/**)
+disable-model-invocation: true
 ---
 
 # Backlog - Issue Management
@@ -99,13 +100,13 @@ Before executing any `/backlog` command:
 - **Completed**: 2026-02-05 (PR #234)
 ```
 
-### Loop eligibility (for `/loop --backlog`)
+### Loop eligibility (for `/converge --backlog`)
 
 An item is **eligible** for the autonomous backlog loop only when it declares both a
 `- Spec:` and a `- DoD:` bullet pointing at files that exist. Its **priority band** is the
 section it sits under (🔴 High / 🟡 Medium / 🟢 Low). Items without spec/DoD are simply not
 loop-eligible — the `- DoD:` bullet is optional and backward-compatible; existing items are
-unaffected. See `/loop --backlog` and `devtronic loop --backlog --validate`.
+unaffected. See `/converge --backlog` and `devtronic loop --backlog --validate`.
 
 ---
 

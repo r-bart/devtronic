@@ -1,8 +1,8 @@
 ---
 name: design-spec
 description: Generates a developer-ready design specification from design artifacts. Bridges design phase and implementation planning.
-allowed-tools: Task, Read, Write, Glob
 argument-hint: "[screen-name|--all]"
+allowed-tools: Edit(thoughts/**)
 ---
 
 # Design:Spec - Developer Handoff Specification

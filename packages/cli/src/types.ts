@@ -41,8 +41,8 @@ export const ADDONS: Record<AddonName, AddonInfo> = {
   orchestration: {
     name: 'orchestration',
     label: 'Orchestration Workflow',
-    description: 'Structured pre-planning alignment, session recaps, and context rotation for long multi-session work.',
-    skills: ['briefing', 'recap', 'handoff'],
+    description: 'Structured pre-planning alignment and context rotation for long multi-session work.',
+    skills: ['briefing', 'handoff'],
     agents: [],
   },
   'design-best-practices': {
@@ -83,7 +83,8 @@ export type IDE =
   | 'cursor'
   | 'antigravity'
   | 'github-copilot'
-  | 'opencode';
+  | 'opencode'
+  | 'codex';
 
 export interface FrameworkInfo {
   name: FrameworkName;
@@ -104,13 +105,8 @@ export interface ScriptsInfo {
   dev: string | null;
 }
 
-export interface ExistingConfigs {
-  'claude-code': boolean;
-  cursor: boolean;
-  antigravity: boolean;
-  'github-copilot': boolean;
-  opencode: boolean;
-}
+/** Which IDE configurations already exist in the target project */
+export type ExistingConfigs = Record<IDE, boolean>;
 
 export interface StackInfo {
   stateManagement: string[];

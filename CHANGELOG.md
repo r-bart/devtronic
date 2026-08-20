@@ -5,7 +5,138 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.0.0] - 2026-08-20
+
+Skills were pre-approving tools they had no business holding, three of them answered to names
+Claude Code had since taken, and two runtimes were being written to paths they never read. This
+release fixes all three. **Run `devtronic update` after upgrading** — it explains each move and
+installs the new locations.
+
+### Upgrading
+
+| Was | Now | Why |
+|-----|-----|-----|
+| `/loop` | `/converge` | Claude Code ships a built-in `/loop`; the short form always resolved to it |
+| `/recap` | `/summary --quick` | Claude Code ships a built-in `/recap`; the output is unchanged |
+| `/design-system-sync` | `/design-tokens-sync` | One word from the built-in `/design-sync` |
+| `.codex/skills/` | `.agents/skills/` | Codex reads repository skills from `.agents/skills` |
+| `.opencode/command/<name>.md` | `.opencode/skills/<name>/SKILL.md` | OpenCode reads skills, not commands |
+| Node.js 18 | Node.js 20+ | Node 18 left maintenance in April 2026 |
+
+`devtronic loop` and `loop.manifest.yaml` keep their names — neither collides with anything.
+`thoughts/RECAP.md` is still written, so `/handoff` and `/execute-plan` are unaffected. Both
+legacy runtime directories are swept on update; nothing is left behind to shadow the new paths.
+
+Skills that used to run shell commands and write files without prompting no longer do. If a
+workflow you rely on now asks for permission where it did not before, that is the fix, not a
+regression: the previous grant was unbounded.
+
+### Security
+- **`allowed-tools` no longer grants broad, unprompted access.** In current Claude Code the
+  field is a per-turn *pre-approval*, not a tool allowlist — every skill declaring
+  `allowed-tools: … Bash, Write, Edit` was silently handing itself unprompted shell and write
+  access for the whole turn. All 36 core skills and the 6 addon skills were rewritten: writes
+  are pre-approved only inside `thoughts/` (`Edit(thoughts/**)`), the few genuine shell needs
+  are scoped to exact commands (`Bash(git worktree *)`, `Bash(devtronic loop *)`), and
+  everything else goes back through the normal permission flow.
+- **Read-only skills and agents are now actually read-only.** `brief`, `learn`,
+  `devtronic-help`, `design-critique` and `design-harden` declare
+  `disallowed-tools: Edit, Write, NotebookEdit`; the 14 analysis agents gained the equivalent
+  `disallowedTools`.
+
+### Added
+- **Portable skill export (Agent Skills open format).** Every non-Claude IDE now receives the
+  core skill set at `.agents/skills/<name>/SKILL.md` — the one directory read by Codex,
+  Cursor, OpenCode and Copilot/VS Code. Claude Code-only execution controls (`context`,
+  `background`, `model`, `effort`, `hooks`, `agent`) are stripped on export. Addon skills are
+  filtered by enabled addon, exactly as the plugin generator filters them, and `devtronic
+  update` installs and refreshes the set for existing installs.
+- **OpenAI Codex as a first-class target** (`--ide codex`): `AGENTS.md` plus the portable
+  skill set. Codex has no static rules template — its rules live in `AGENTS.md`.
+- **`StopFailure` hook.** A turn that dies on `rate_limit`, `overloaded` or
+  `authentication_failed` now releases the loop ownership sentinel, instead of leaving the
+  Stop gate deferring for the full 900 s staleness window. Guarded on `owner:machine`, so a
+  human-owned barrier is never cleared by a failed turn.
+- Skills that write side effects (`loop`, `quick`, `execute-plan`, `scaffold`, `setup`,
+  `worktree`, `backlog`, `generate-tests`, `create-skill`, `design-system-sync`, `opensrc`)
+  declare `disable-model-invocation: true`, so Claude cannot trigger them unasked.
+- Analysis-only skills (`audit`, `design-audit`, `design-system-audit`, `design-review`) run
+  with `context: fork` + `background: false`, keeping their scan out of the main context
+  while still returning in the invoking turn.
+- Code-facing design skills declare `paths:` so they auto-activate only on UI files.
+- Analysis agents gained `maxTurns` bounds; `code-reviewer`, `architecture-checker`,
+  `design-system-guardian` and `test-generator` gained `memory: project` for cross-session
+  learning.
+
+### Changed
+- **Skill renames to clear Claude Code built-ins.** `/loop` → `/converge` (the bundled `/loop`
+  runs a prompt on a schedule; the short form always resolved to it, not to ours). `/recap` →
+  folded into `/summary --quick`, which keeps writing `thoughts/RECAP.md` so `/handoff` and
+  `/execute-plan` are unaffected; the orchestration addon now ships two skills. Renamed
+  `/design-system-sync` → `/design-tokens-sync`, which was one word from the bundled
+  `/design-sync`. All three are registered in `REMOVED_FILES`, so `devtronic update` explains
+  the move. The CLI command stays `devtronic loop` and `loop.manifest.yaml` keeps its name —
+  neither collides with anything.
+- **Codex addon skills move from `.codex/skills/` to `.agents/skills/`** — Codex reads
+  repository skills from `.agents/skills`; `.codex/` holds `config.toml` and agent
+  definitions. **OpenCode addon skills move from `.opencode/command/<name>.md` to
+  `.opencode/skills/<name>/SKILL.md`.** Both legacy locations are swept on removal.
+- The CLI-generated `PostToolUse` hook now calls a generated `auto-lint.sh` that filters
+  non-source edits, matching the bundled marketplace hook. The two copies had drifted: only
+  the marketplace one skipped markdown and JSON writes. `generateHooks()` is now
+  argument-free, and a test asserts the generated and bundled `hooks.json` are identical.
+- `Task` renamed to `Agent` throughout skills, agents and docs (Claude Code renamed the tool
+  in v2.1.63; `Task` still works as an alias).
+- Antigravity detection narrowed from `.agents` to `.agents/rules`, so the shared skills
+  directory is not mistaken for an Antigravity install.
+- Claude Code documentation links updated from `docs.anthropic.com` to `code.claude.com`.
+- Minimum Node.js raised to 20; CI matrix is now 20/22/24.
+
+### Internal
+- **Removal detection extracted to a pure function.** `detectRemovedFiles()` takes the
+  manifest and two filesystem predicates, so the rule that decides what `update` offers to
+  delete is testable on its own. It was previously inline in a 700-line interactive command
+  with no test touching it — `updateCommand` is still never invoked in the suite.
+- **Four command tests were reimplementing the logic they claimed to cover.** `uninstall`,
+  `config` and `list` each had a test file that copied the command's loop into itself and
+  never imported the module, so they passed whatever the command did — and `uninstall.ts`,
+  `config.ts` and `list.ts` reported zero coverage. Replaced by tests against extracted pure
+  functions: `planUninstall()`, `resolveConfigSet()` and `describeMarkdown()`. The remaining
+  one, `addon.test.ts`, covers ground that `addon-enable-disable.test.ts` already tests for
+  real against the module.
+- Closed the three coverage gaps that mattered: `detectRemovedFiles` (18 tests, every
+  generated-file exclusion pinned), `detectExistingConfigs` (20 tests, 16% → 100%), and the
+  `legacySkillDirs` sweep (9 tests). Each guard was mutation-checked: breaking the code it
+  protects makes the tests fail.
+- **Skill cross-references are now tested** (44 tests). Nothing checked that a router
+  delegates to a skill that exists, that `/devtronic-help` indexes every shipped skill and no
+  others, or that a renamed skill is never invoked under its old name. All three drifts were
+  present; all three are now failures. Mutation-checked in both directions.
+
+### Fixed
+- **`devtronic uninstall` no longer deletes `loop.manifest.yaml` without asking.** The bulk
+  managed-file sweep protected only `CLAUDE.md` and `AGENTS.md`, so the project's hand-tuned
+  convergence policy — gates, phases, DoD — went silently. It now sits alongside them behind
+  its own confirmation.
+- **`devtronic list` shows each skill's declared description.** It read the first prose
+  paragraph after the heading and ignored the `description:` frontmatter field, so the CLI and
+  the runtime disagreed about what a skill was for.
+- **`devtronic update` no longer offers to delete `AGENTS.md`, `CLAUDE.md` and
+  `loop.manifest.yaml`.** Removal detection listed every manifest-tracked file absent from a
+  template directory, and those three are generated, not copied. Pre-existing since the
+  manifest was introduced; found while reviewing the portable-skill export, which hit the
+  same code path.
+- Addon skill frontmatter used two keys that do not exist: `user-invokable` (the real field is
+  `user-invocable`, and `true` is the default) and `args:` (the real field is `arguments:`,
+  and these skills take flags, not named arguments). Both removed.
+- **The design routers pointed at skills that do not exist.** Every delegate was written
+  `/design:research`, `/design:system-audit` and so on — a `design:` namespace devtronic has
+  never shipped. 37 references across 8 skills and 6 agents now name the real skills
+  (`/design-research`, `/design-system-audit`, …), and `/design-system --sync` reaches
+  `/design-tokens-sync` instead of the name it carried two renames ago.
+- **`/devtronic-help` was out of date with the skills it indexes.** It still listed `/recap`,
+  removed in this release, and never listed `converge`, `generate-tests`, `briefing`,
+  `design-spec` or itself.
 
 ---
 

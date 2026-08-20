@@ -1,8 +1,9 @@
 ---
-name: design-system-sync
+name: design-tokens-sync
 description: Syncs design tokens from thoughts/design/design-system.md to project config files (Tailwind, CSS vars, tokens.json).
-allowed-tools: Task, Read, Write, Edit, Glob, Bash, AskUserQuestion
 argument-hint: "[--dry-run]"
+allowed-tools: Edit(thoughts/**)
+disable-model-invocation: true
 ---
 
 # Design:System-Sync - Token Synchronization
@@ -12,7 +13,7 @@ Syncs `thoughts/design/design-system.md` (source of truth) → project config fi
 Use `--dry-run` to preview changes without applying them.
 
 ## When to Use
-- After `/design:system-define` — apply newly defined tokens to project
+- After `/design-system-define` — apply newly defined tokens to project
 - When design tokens change in the design file — propagate to code
 - Before `/execute-plan` — ensure tokens are available before implementation starts
 

@@ -127,7 +127,7 @@ async function addAddon(
 
     p.log.success(`${addon.label} enabled`);
     p.note(
-      'Orchestration skills are included in the marketplace plugin.\nAlready available as /devtronic:briefing, /devtronic:recap, /devtronic:handoff.',
+      'Orchestration skills are included in the marketplace plugin.\nAlready available as /devtronic:briefing, /devtronic:handoff.',
       'Info'
     );
     p.outro('');

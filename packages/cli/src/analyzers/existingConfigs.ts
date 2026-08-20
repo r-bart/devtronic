@@ -17,8 +17,10 @@ const CONFIG_LOCATIONS: ConfigLocation[] = [
     paths: ['.cursor', '.cursorrules'],
   },
   {
+    // `.agents/rules`, not `.agents` — `.agents/skills` is the shared Agent
+    // Skills directory and would otherwise read as an Antigravity install.
     ide: 'antigravity',
-    paths: ['.agents', '.agent', '.antigravity'],
+    paths: ['.agents/rules', '.agent', '.antigravity'],
   },
   {
     ide: 'github-copilot',
@@ -27,6 +29,10 @@ const CONFIG_LOCATIONS: ConfigLocation[] = [
   {
     ide: 'opencode',
     paths: ['opencode.json'],
+  },
+  {
+    ide: 'codex',
+    paths: ['.codex'],
   },
 ];
 
@@ -37,6 +43,7 @@ export function detectExistingConfigs(targetDir: string): ExistingConfigs {
     antigravity: false,
     'github-copilot': false,
     opencode: false,
+    codex: false,
   };
 
   for (const config of CONFIG_LOCATIONS) {
