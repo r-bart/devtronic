@@ -283,7 +283,31 @@ function checkPluginRegistered(targetDir: string, installMode: string): DoctorCh
   };
 }
 
-function checkHookScripts(
+/**
+ * Every `command` string in a hooks file, at any depth.
+ *
+ * A hooks file nests them two levels down — `{ hooks: { Event: [ { hooks: [
+ * { type: "command", command } ] } ] } }` — and the check used to read
+ * `.command` off the root object, which never has one. So it counted zero hooks
+ * and passed on every project, including one whose hook pointed at a script that
+ * no longer existed. Walking the whole structure is what makes the check real.
+ */
+function collectHookCommands(node: unknown): string[] {
+  if (Array.isArray(node)) return node.flatMap(collectHookCommands);
+  if (node === null || typeof node !== 'object') return [];
+
+  const found: string[] = [];
+  for (const [key, value] of Object.entries(node as Record<string, unknown>)) {
+    if (key === 'command' && typeof value === 'string') {
+      found.push(value);
+    } else {
+      found.push(...collectHookCommands(value));
+    }
+  }
+  return found;
+}
+
+export function checkHookScripts(
   targetDir: string,
   manifest: NonNullable<ReturnType<typeof readManifest>>
 ): DoctorCheck {
@@ -316,29 +340,26 @@ function checkHookScripts(
   for (const hookFile of hookFiles) {
     try {
       const hookContent = JSON.parse(readFile(join(hooksDir, hookFile)));
-      const hooks = Array.isArray(hookContent) ? hookContent : [hookContent];
 
-      for (const hook of hooks) {
-        if (hook.command) {
-          total++;
-          // Check if command references a script file
-          const parts = hook.command.split(' ');
-          const scriptRef = parts.find(
-            (part: string) => part.endsWith('.sh') || part.endsWith('.js')
+      for (const command of collectHookCommands(hookContent)) {
+        total++;
+        // Check if command references a script file
+        const parts = command.split(' ');
+        const scriptRef = parts.find(
+          (part: string) => part.endsWith('.sh') || part.endsWith('.js')
+        );
+        if (scriptRef) {
+          // Resolve ${CLAUDE_PLUGIN_ROOT} and similar env-var placeholders
+          const resolved = scriptRef.replace(
+            /\$\{[A-Z_]+\}\//g,
+            ''
           );
-          if (scriptRef) {
-            // Resolve ${CLAUDE_PLUGIN_ROOT} and similar env-var placeholders
-            const resolved = scriptRef.replace(
-              /\$\{[A-Z_]+\}\//g,
-              ''
-            );
-            const scriptPath = join(pluginDir, resolved);
-            if (existsSync(scriptPath)) {
-              valid++;
-            }
-          } else {
-            valid++; // Not a file reference, assume valid
+          const scriptPath = join(pluginDir, resolved);
+          if (existsSync(scriptPath)) {
+            valid++;
           }
+        } else {
+          valid++; // Not a file reference, assume valid
         }
       }
     } catch {
