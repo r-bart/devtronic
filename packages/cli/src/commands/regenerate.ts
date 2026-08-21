@@ -15,6 +15,7 @@ import {
   createManifestEntry,
 } from '../utils/files.js';
 import { ensureInteractive } from '../utils/tty.js';
+import { retireOrphanPluginScripts } from './update.js';
 import { generateAgentsMdFromConfig, generateClaudeMd } from '../generators/rules.js';
 import { generateArchitectureRules } from '../generators/architectureRules.js';
 import { DYNAMIC_RULE_FILES } from './init.js';
@@ -240,6 +241,15 @@ export async function regenerateCommand(
         analysis.packageManager
       );
       Object.assign(manifest.files, pluginResult.files);
+      // The generator stopping is not enough: a script it no longer writes stays
+      // on disk until something deletes it (same rule as `devtronic update`).
+      const retired = retireOrphanPluginScripts(targetDir, pluginResult.pluginPath, manifest);
+      for (const relPath of retired.removed) {
+        p.log.info(`Retired ${chalk.dim(relPath)} — no hook runs it any more`);
+      }
+      for (const relPath of retired.kept) {
+        p.log.warn(`${chalk.dim(relPath)} no longer runs — kept because you changed it.`);
+      }
       regeneratedFiles.push('plugin (skills, agents, hooks)');
     }
   }

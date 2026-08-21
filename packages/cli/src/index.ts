@@ -205,7 +205,7 @@ program
   .option('--validate', 'Validate the manifest and report problems (default action)')
   .option('--dry-run', 'Preview the phase/gate/budget plan in plain language; execute nothing')
   .option('--abort', 'Clear the ownership signal and report the half-done phase')
-  .option('--gate-cmd', 'Print the Tier ① gate command (for the stop-guard hook)')
+  .option('--gate-cmd', 'Print the Tier ① gate command (consumed by the converge skill)')
   .option('--phase <name>', 'With --gate-cmd: also include gates guarded by when: phase:<name>')
   .option('--own <phase>', 'Take/refresh loop ownership of the tree for a phase (used by the skill)')
   .option('--owner <owner>', 'Ownership to write with --own: machine (default) or human')
@@ -392,7 +392,7 @@ program
           '--validate           Validate the manifest (default)',
           '--dry-run             Preview phase/gate/budget plan (executes nothing)',
           '--abort              Clear the ownership signal after a derailed loop',
-          '--gate-cmd           Print the Tier ① gate command (used by the stop-guard)',
+          '--gate-cmd           Print the Tier ① gate command (used by /converge)',
           '--own <phase>        Take/refresh loop ownership for a phase (used by the skill)',
           '--owner <owner>      Ownership for --own: machine (default) or human',
           '--at-barrier         Mark the owned phase as at a barrier (gate enforces)',

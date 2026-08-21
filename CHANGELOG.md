@@ -5,6 +5,55 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.2] - 2026-08-21
+
+### Removed
+- **The `Stop` hook is gone.** It ran typecheck + lint on every stop and blocked the turn on
+  failure, so a session that was reading code, answering a question, or half-way through a
+  refactor still paid a full quality gate before it could hand back control — and a red tree
+  you already knew about turned every stop into a fight. Quality checks belong where the work
+  is: `/post-review`, the per-iteration Tier ① gate in `/converge`, and CI. Five hook events
+  remain: `SessionStart`, `PostToolUse`, `StopFailure`, `SubagentStop`, `PreCompact`.
+- **`stop-guard.sh` no longer ships.** Nothing invoked it once the hook was gone, so the
+  generator, the marketplace template, and its tests go with it. `devtronic update` and
+  `devtronic regenerate --plugin` delete the orphan from existing plugin installs and drop it
+  from the manifest — `detectRemovedFiles()` skips the plugin path by design, so without this
+  the dead script would sit there forever. A script you edited yourself is kept, not deleted.
+- The ownership sentinel (`.claude/.loop-owner`) stays. Its readers are now the clean-tree
+  guard, `/converge --resume`, and the `SessionStart` sweep — not a stop gate.
+
+### Fixed
+- **The release synced the plugin's scripts but never unsynced them.** `release.yml` copied each
+  marketplace script by name and deleted nothing, so a script the templates stopped shipping
+  stayed in the published plugin — and in every user's cache — for good. Skills, agents, hooks
+  and scripts are now mirrored: cleared, then refilled from the templates. The sync also refuses
+  to publish a `hooks.json` that points at a script the plugin does not ship.
+- **`devtronic doctor` passed the hook check on every project, always.** It verifies that each
+  `command` hook points at a script that exists, but it read `.command` off the root of the
+  hooks file, where there is none — so it counted zero hooks and reported "pass". It now walks
+  the nested structure. Had it worked, it would have named this release's bug two versions ago.
+
+### Changed
+- Hook prompts pin `claude-haiku-4-5-20251001` instead of the `haiku` alias, so the model a
+  hook runs on does not move under you when the alias does.
+- **The release's file operations moved out of the workflow** into `scripts/sync-plugin-repo.sh`.
+  Inline YAML cannot be run or tested; a script can, and CI now does. `release.yml` keeps only
+  what needs credentials: clone, commit, tag, push.
+
+### Internal
+- 32 tests over the change. 7 unit tests for `retireOrphanPluginScripts()` (deletion, manifest
+  pruning, a user-edited script kept, a script with no manifest entry, an entry left behind
+  after the file is gone, an install that never had it, and the scripts that still ship
+  staying untouched); 7 end-to-end tests that run the real `updateCommand()` and
+  `regenerateCommand()`, including the case where every template file is already current — the
+  exit path the first attempt at this change never reached; 9 that run the real
+  `sync-plugin-repo.sh` against a fixture of the published plugin, one of which asserts the
+  workflow still calls it with the same arguments; 4 parity tests that fail if the generator
+  and the marketplace template ever register different hooks; and 5 for the repaired `doctor`
+  check. Every one of them mutation-checked.
+- `hooks-ownership.test.ts` (4 tests) removed with the script it covered. `generateStopGuardScript`
+  and its 5 unit tests removed. Test count: 1108 → 1125.
+
 ## [1.5.1] - 2026-08-20
 
 ### Added

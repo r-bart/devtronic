@@ -12,7 +12,7 @@ import type { LoopManifest, GateTier, PhaseOwner, ObjectiveGate } from './manife
  * Compose the Tier ① objective gates into a single shell command.
  *
  * Each gate runs in its own subshell `(…)` so a `cd` inside one gate cannot leak
- * into the next — the whole chain is `eval`'d from the repo root by the stop-guard,
+ * into the next — the whole chain is `eval`'d from the repo root by the skill,
  * and without isolation a second `cd apps/x` would fail once the first already moved.
  */
 export function composeGateCommand(gates: ObjectiveGate[]): string {
@@ -36,8 +36,8 @@ export interface GateContext {
  *   - it has no `when` (the always-on baseline), or
  *   - its `when` is `phase:<name>` and `<name>` matches `ctx.phase`.
  * Gates with a `when` we cannot positively evaluate here (e.g. `touches:<glob>`,
- * which needs the changed-file list) are excluded — so the ambient stop-guard and
- * per-iteration checks never run a heavy phase/touches gate (e.g. e2e) unconditionally.
+ * which needs the changed-file list) are excluded — so the per-iteration checks
+ * never run a heavy phase/touches gate (e.g. e2e) unconditionally.
  */
 export function selectObjectiveGates(gates: ObjectiveGate[], ctx: GateContext = {}): ObjectiveGate[] {
   return gates.filter((g) => {

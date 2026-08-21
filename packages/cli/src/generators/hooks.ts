@@ -23,8 +23,10 @@ interface HooksConfig {
 
 /**
  * One-liner that removes a stale ownership sentinel (heartbeat older than the
- * 900s threshold) on session start. Always exits 0 — a best-effort sweep that
- * never blocks the session. Mirrored in templates/marketplace/hooks.json.
+ * 900s threshold) on session start. A crashed loop leaves its sentinel behind,
+ * and `/converge --resume` reads that file to decide where to re-enter — so a
+ * dead one has to go. Always exits 0 — a best-effort sweep that never blocks the
+ * session. Mirrored in templates/marketplace/hooks.json.
  */
 const SWEEP_STALE_SENTINEL =
   `if [ -f .claude/.loop-owner ]; then HB=$(grep -o '"heartbeat":[0-9]*' .claude/.loop-owner | grep -o '[0-9]*'); if [ -n "$HB" ] && [ $(( $(date +%s) - HB )) -ge ${STALE_SECS} ]; then rm -f .claude/.loop-owner; fi; fi; exit 0`;
@@ -32,7 +34,7 @@ const SWEEP_STALE_SENTINEL =
 /**
  * Releases the ownership sentinel when the turn dies on an unrecoverable error.
  * The owning turn is gone, so its sentinel is dead regardless of the heartbeat —
- * without this the Stop gate defers for the full staleness window (FR-3).
+ * without this it reads as an in-flight phase for the full staleness window (FR-3).
  *
  * Guarded on `owner:machine`: a human-owned barrier is never cleared by a failed
  * turn, so a human hitting a rate limit at an `owner:human` phase keeps its
@@ -157,10 +159,9 @@ exit 0
  * package manager and quality command.
  *
  * Hooks included:
- * - SessionStart: quick project orientation (prompt, haiku)
+ * - SessionStart: quick project orientation (prompt, Haiku 4.5)
  * - PostToolUse(Write|Edit): auto-lint after each file change (command)
- * - Stop: quality gate (stop-guard.sh) + done criteria reminder (prompt, haiku)
- * - SubagentStop: validate subagent output (prompt, haiku)
+ * - SubagentStop: validate subagent output (prompt, Haiku 4.5)
  * - PreCompact: auto-checkpoint before context compaction (command)
  */
 export function generateHooks(): string {
@@ -175,15 +176,15 @@ export function generateHooks(): string {
               type: 'prompt',
               prompt:
                 'Quick project orientation: First check if thoughts/STATE.md exists — if so, read it and summarize the current project state. Then check git status, recent commits, and any in-progress work. Give a 3-line summary prioritizing STATE.md context if available.\n\nContext: $ARGUMENTS',
-              model: 'haiku',
+              model: 'claude-haiku-4-5-20251001',
               timeout: 30,
             },
           ],
         },
         {
           // Belt-and-suspenders reclaim: if a loop crashed, sweep its stale
-          // ownership sentinel so the returning human isn't stuck behind a
-          // Stop gate that never guards again (FR-3 crash lifecycle).
+          // ownership sentinel so `/converge --resume` never reads a dead phase
+          // as in flight (FR-3 crash lifecycle).
           matcher: 'startup',
           hooks: [
             {
@@ -222,28 +223,8 @@ export function generateHooks(): string {
           ],
         },
       ],
-      Stop: [
-        {
-          hooks: [
-            {
-              type: 'command',
-              command: '${CLAUDE_PLUGIN_ROOT}/scripts/stop-guard.sh',
-              timeout: 60,
-              statusMessage: 'Running quality checks...',
-            },
-            {
-              type: 'prompt',
-              prompt:
-                'If thoughts/plans/ contains a recent plan with a "Done Criteria" section, quickly check: are there unmet criteria? If yes, list them as a brief reminder. Do NOT run a full review. If no plan or all criteria met, say nothing.',
-              model: 'haiku',
-              timeout: 15,
-              statusMessage: 'Checking done criteria...',
-            },
-          ],
-        },
-      ],
       // A turn that dies on a rate limit leaves a fresh sentinel behind. Release
-      // it here so the next human turn isn't stuck behind a gate that defers.
+      // it here so the next turn does not read a dead phase as in flight.
       StopFailure: [
         {
           matcher: FATAL_STOP_ERRORS,
@@ -270,7 +251,7 @@ export function generateHooks(): string {
                 '',
                 'Context: $ARGUMENTS',
               ].join('\n'),
-              model: 'haiku',
+              model: 'claude-haiku-4-5-20251001',
               timeout: 30,
             },
           ],
@@ -307,84 +288,6 @@ function buildLintFixCommand(packageManager: PackageManager, config: ProjectConf
     return `${run} lint:fix -- --quiet`;
   }
   return `${run} lint --fix --quiet`;
-}
-
-/**
- * Generates the stop-guard.sh script used by the Stop hook.
- *
- * The script:
- * 1. Checks stop_hook_active to prevent infinite loops
- * 2. Subordinates to an active convergence loop (ownership signal — FR-3):
- *    - fresh `owner:machine` sentinel, not at a barrier → defer (exit 0)
- *    - stale sentinel (crashed loop) → reclaim (`rm`) and enforce
- *    - no sentinel → behaves exactly as before (backward compatible)
- * 3. Sources the Tier ① command from `loop.manifest.yaml` when present (single
- *    source of truth), else falls back to the baked project quality command
- * 4. Exits 2 (blocking) on failure, 0 (allow stop) on success
- */
-export function generateStopGuardScript(config: ProjectConfig): string {
-  // Escape single quotes in the quality command for safe shell embedding
-  const safeCmd = config.qualityCommand.replace(/'/g, "'\\''");
-
-  return `#!/bin/bash
-# Quality gate: runs checks before allowing Claude to stop
-# Generated by devtronic
-
-INPUT=$(cat)
-
-# Prevent infinite loops: if already triggered by a stop hook, allow stop
-if echo "$INPUT" | grep -q '"stop_hook_active"'; then
-  if echo "$INPUT" | grep -q '"stop_hook_active"[[:space:]]*:[[:space:]]*true'; then
-    exit 0
-  fi
-fi
-
-# --- Ownership signal: subordinate to an active convergence loop (FR-3) ---
-# The sentinel lives in the worktree (relative path) so concurrent loops on
-# different worktrees don't collide (FR-9).
-STALE_SECS=${STALE_SECS}
-if [ -f ".claude/.loop-owner" ]; then
-  HB=$(grep -o '"heartbeat":[0-9]*' ".claude/.loop-owner" | grep -o '[0-9]*')
-  NOW=$(date +%s)
-  if [ -n "$HB" ] && [ $((NOW - HB)) -lt $STALE_SECS ]; then
-    # Fresh: the loop is alive. Defer only while the machine owns a phase
-    # mid-flight (not at a barrier — barriers require the gate to enforce).
-    if grep -q '"owner":"machine"' ".claude/.loop-owner" && ! grep -q '"atBarrier":true' ".claude/.loop-owner"; then
-      exit 0
-    fi
-  else
-    # Stale: the loop died mid-phase. Reclaim for the human and enforce.
-    rm -f ".claude/.loop-owner"
-  fi
-fi
-
-# --- Tier ① command: manifest is the single source of truth when present ---
-# Resolve the devtronic CLI resiliently — global install, then a local/npx copy;
-# if neither is reachable, fall back to the baked command (no hard dependency).
-QUALITY_CMD='${safeCmd}'
-if [ -f "loop.manifest.yaml" ]; then
-  DEVTRONIC=""
-  if command -v devtronic >/dev/null 2>&1; then
-    DEVTRONIC="devtronic"
-  elif command -v npx >/dev/null 2>&1; then
-    DEVTRONIC="npx --no-install devtronic"
-  fi
-  if [ -n "$DEVTRONIC" ]; then
-    MANIFEST_CMD=$($DEVTRONIC loop --gate-cmd 2>/dev/null)
-    if [ -n "$MANIFEST_CMD" ]; then
-      QUALITY_CMD="$MANIFEST_CMD"
-    fi
-  fi
-fi
-
-# Run quality checks
-if ! eval "$QUALITY_CMD" > /dev/null 2>&1; then
-  echo "Quality checks failed. Run '$QUALITY_CMD' to see details." >&2
-  exit 2
-fi
-
-exit 0
-`;
 }
 
 /**

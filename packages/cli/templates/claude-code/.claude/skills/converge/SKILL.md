@@ -135,12 +135,12 @@ repeat (bounded by budget.max_iterations):
       # phase (e.g. e2e in qa, not on every implement iteration). Baseline gates
       # (no when:) always run; touches:* gates need a changed-file list (not yet wired).
       # never let an empty gate-cmd fail open: `eval ""` returns 0, which would
-      # silently count as "gates passed". Guard it like stop-guard.sh does.
+      # silently count as "gates passed". The `[ -n "$GATE" ]` check above is that guard.
   if exit condition met → break
 ```
 
-**Barrier before advancing.** At the phase boundary, mark the barrier so the ambient Stop
-gate enforces Tier ① green (the loop no longer holds the stop condition here):
+**Barrier before advancing.** At the phase boundary, mark the barrier — the sentinel then
+records that the phase is not mid-flight, and the loop must prove Tier ① green to cross:
 
 ```bash
 devtronic loop --own <phase> --owner machine --at-barrier
@@ -165,15 +165,14 @@ diff*. Without the trace the barbell's right end is blind.
 
 ### Step 5 — Release
 
-On phase exit, completion, error, **or** abort, relinquish ownership so the ambient hooks
-guard the human again:
+On phase exit, completion, error, **or** abort, relinquish ownership so the tree goes back
+to the human:
 
 ```bash
 devtronic loop --release
 ```
-If anything throws or you bail out, still release (or the returning human is stuck behind a
-Stop gate that never guards — the crash-lifecycle sweep will eventually reclaim it, but
-release explicitly).
+If anything throws or you bail out, still release (or `--resume` later reads a dead phase as
+in flight — the crash-lifecycle sweep will eventually reclaim it, but release explicitly).
 
 ---
 
@@ -240,10 +239,11 @@ devtronic loop --backlog --abort             # quarantine all in-flight, release
 
 ## Coexistence with the ambient hooks
 
-The `Stop` hook subordinates to this loop **only** while an `owner:machine` phase is in
-flight and not at a barrier — that is the sentinel's whole job. You do not disable hooks;
-you own the tree for a while and then hand it back. With no manifest and no active loop, the
-hooks behave exactly as they always have.
+Nothing to disable. The loop runs its own gates every iteration (Tier ① above), and the
+ambient hooks — `SessionStart`, `PostToolUse`, `PreCompact` — do not gate a stop, so they
+never contend with it. The sentinel records who owns the tree: the clean-tree guard reads it
+before a fresh take, `--resume` reads it to re-enter the right phase, and `SessionStart`
+sweeps it when a crashed loop leaves one behind.
 
 ## Guardrails
 

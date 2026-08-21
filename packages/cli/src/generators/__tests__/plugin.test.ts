@@ -210,7 +210,7 @@ describe('generatePlugin', () => {
 
     const content = JSON.parse(readFileSync(hooksPath, 'utf-8'));
     expect(content.hooks).toBeTruthy();
-    expect(Object.keys(content.hooks)).toHaveLength(6);
+    expect(Object.keys(content.hooks)).toHaveLength(5);
   });
 
   it('generates checkpoint.sh script', () => {
@@ -226,22 +226,6 @@ describe('generatePlugin', () => {
     expect(content).toContain('#!/bin/bash');
   });
 
-  it('generates stop-guard.sh script with quality command', () => {
-    const targetDir = join(tempDir, 'project');
-    mkdirSync(targetDir);
-
-    const config = createConfig({ qualityCommand: 'pnpm typecheck && pnpm lint' });
-    generatePlugin(targetDir, templatesDir, '1.8.0', config, 'pnpm');
-
-    const scriptPath = join(targetDir, PLUGIN_DIR, PLUGIN_NAME, 'scripts', 'stop-guard.sh');
-    expect(existsSync(scriptPath)).toBe(true);
-
-    const content = readFileSync(scriptPath, 'utf-8');
-    expect(content).toContain('#!/bin/bash');
-    expect(content).toContain('stop_hook_active');
-    expect(content).toContain('pnpm typecheck && pnpm lint');
-  });
-
   it('returns manifest entries for all generated files', () => {
     const targetDir = join(tempDir, 'project');
     mkdirSync(targetDir);
@@ -249,9 +233,9 @@ describe('generatePlugin', () => {
     const result = generatePlugin(targetDir, templatesDir, '1.8.0', createConfig(), 'npm');
 
     // marketplace.json + plugin.json + 3 skills (brief/SKILL.md, audit/SKILL.md, audit/report-template.md)
-    // + 2 agents + hooks.json + checkpoint.sh + stop-guard.sh + auto-lint.sh
-    // + version-check.sh = 12 files
-    expect(Object.keys(result.files)).toHaveLength(12);
+    // + 2 agents + hooks.json + checkpoint.sh + auto-lint.sh
+    // + version-check.sh = 11 files
+    expect(Object.keys(result.files)).toHaveLength(11);
 
     // Every entry should have checksum and originalChecksum
     for (const entry of Object.values(result.files)) {
