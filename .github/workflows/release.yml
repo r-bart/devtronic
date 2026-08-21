@@ -87,39 +87,9 @@ jobs:
           git clone https://x-access-token:${{ secrets.PLUGIN_REPO_TOKEN }}@github.com/r-bart/devtronic-plugin.git /tmp/plugin-repo
           cd /tmp/plugin-repo
 
-          PLUGIN_DIR="plugins/devtronic"
-
-          # Update skills and agents from templates
-          rm -rf "$PLUGIN_DIR/skills" "$PLUGIN_DIR/agents"
-          cp -r "$GITHUB_WORKSPACE/packages/cli/templates/claude-code/.claude/skills" "$PLUGIN_DIR/"
-          cp -r "$GITHUB_WORKSPACE/packages/cli/templates/claude-code/.claude/agents" "$PLUGIN_DIR/"
-
-          # Update hooks and scripts from marketplace templates
-          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/hooks.json" "$PLUGIN_DIR/hooks/"
-          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/stop-guard.sh" "$PLUGIN_DIR/scripts/"
-          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/auto-lint.sh" "$PLUGIN_DIR/scripts/"
-          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/checkpoint.sh" "$PLUGIN_DIR/scripts/"
-          cp "$GITHUB_WORKSPACE/packages/cli/templates/marketplace/version-check.sh" "$PLUGIN_DIR/scripts/"
-          chmod +x "$PLUGIN_DIR/scripts/"*.sh
-
-          # Update plugin.json version (count skills and agents dynamically)
-          SKILL_COUNT=$(find "$PLUGIN_DIR/skills" -mindepth 1 -maxdepth 1 -type d | wc -l | tr -d ' ')
-          AGENT_COUNT=$(find "$PLUGIN_DIR/agents" -name '*.md' | wc -l | tr -d ' ')
-          jq -n \
-            --arg version "$VERSION" \
-            --arg desc "Agentic development toolkit — ${SKILL_COUNT} skills, ${AGENT_COUNT} agents, workflow hooks" \
-            '{
-              name: "devtronic",
-              version: $version,
-              description: $desc,
-              author: {
-                name: "r-bart",
-                url: "https://github.com/r-bart/devtronic"
-              },
-              homepage: "https://github.com/r-bart/devtronic",
-              repository: "https://github.com/r-bart/devtronic-plugin",
-              license: "MIT"
-            }' > "$PLUGIN_DIR/.claude-plugin/plugin.json"
+          # Every file operation lives in scripts/sync-plugin-repo.sh so it can be
+          # tested against a fixture. This step keeps only what needs credentials.
+          bash "$GITHUB_WORKSPACE/scripts/sync-plugin-repo.sh" "$GITHUB_WORKSPACE" /tmp/plugin-repo "$VERSION"
 
           # Commit and push
           git config user.name "github-actions[bot]"
