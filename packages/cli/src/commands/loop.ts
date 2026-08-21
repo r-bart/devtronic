@@ -3,8 +3,8 @@
  *
  * Policy lives in `loop.manifest.yaml`; orchestration lives in the `loop` skill.
  * This command is the testable middle: validate the manifest, preview the plan
- * (dry-run, executes nothing), print the Tier ① gate command for the ambient
- * stop-guard, and abort a derailed loop by clearing the ownership sentinel.
+ * (dry-run, executes nothing), print the Tier ① gate command the skill runs each
+ * iteration, and abort a derailed loop by clearing the ownership sentinel.
  */
 import { resolve, join } from 'node:path';
 import { existsSync, readFileSync } from 'node:fs';
@@ -57,14 +57,14 @@ export async function loopCommand(pathArg: string | undefined, options: LoopOpti
     : join(targetDir, DEFAULT_MANIFEST);
 
   // --gate-cmd: machine-readable. Print the Tier ① command to stdout for the
-  // stop-guard to consume; stay silent + non-zero on any problem so bash falls
-  // back to its baked quality command. No clack decoration here.
+  // skill to consume; stay silent + non-zero on any problem so the caller can
+  // tell a real gate from an empty one. No clack decoration here.
   if (options.gateCmd) {
     const result = loadManifest(manifestPath);
     if (!result.ok) process.exit(1);
     // Honor each gate's `when`: baseline (no `when`) always; `phase:X` only when
     // --phase X is given. Heavy phase/touches gates (e.g. e2e) stay out of the
-    // ambient stop-guard + per-iteration checks unless their phase is active.
+    // per-iteration checks unless their phase is active.
     const selected = selectObjectiveGates(result.manifest.gates.objective, { phase: options.phase });
     const composed = composeGateCommand(selected);
     if (!composed) process.exit(1);

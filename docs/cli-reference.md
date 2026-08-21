@@ -504,7 +504,7 @@ npx devtronic loop --abort
 | `--validate` | Validate the manifest; one actionable error per problem (default) |
 | `--dry-run` | Print the ordered phase/gate/budget plan; runs no gates, spawns no agents |
 | `--abort` | Clear the ownership sentinel (`.claude/.loop-owner`) and report state |
-| `--gate-cmd` | Print the Tier ① gate command (consumed by the `Stop` hook) |
+| `--gate-cmd` | Print the Tier ① gate command (consumed by the `/converge` skill) |
 | `--own <phase>` | Take/refresh loop ownership for a phase (used by the skill) |
 | `--owner <owner>` | Ownership to write with `--own`: `machine` (default) or `human` |
 | `--at-barrier` | Mark the owned phase as at a barrier (the gate enforces) |
@@ -550,11 +550,11 @@ converge the middle:
 | **DoD** | feature | `/generate-tests` → `dod.as_tests` | *done* |
 | **Standards** | repo | `/calibrate` → gate lists | *…and to our bar* |
 
-**Coexistence with hooks.** The `Stop` hook subordinates to an active loop **only** while
-an `owner:machine` phase is in flight and not at a barrier — read from a worktree-scoped
-sentinel (`.claude/.loop-owner`) that self-clears on crash (heartbeat staleness +
-`SessionStart` sweep). With no manifest and no active loop, every hook behaves exactly as
-before — the loop machinery is **inert by default**.
+**Coexistence with hooks.** Nothing to disable: no ambient hook gates a stop, so the loop
+never contends with one. A worktree-scoped sentinel (`.claude/.loop-owner`) records who owns
+the tree — the clean-tree guard reads it before a fresh take, `--resume` reads it to re-enter
+the right phase, and it self-clears on crash (heartbeat staleness + `SessionStart` sweep).
+With no manifest and no active loop, the machinery is **inert by default**.
 
 `devtronic init` seeds a fully-commented `loop.manifest.yaml` (never overwriting an
 existing one). Learn the schema from that file's inline comments; learn the behavior from

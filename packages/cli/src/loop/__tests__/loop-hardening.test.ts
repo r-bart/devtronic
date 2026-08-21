@@ -33,7 +33,7 @@ describe('gate when-selection (--gate-cmd --phase)', () => {
   ];
 
   it('baseline (no phase) excludes phase- and touches-gated gates', () => {
-    // Fixes Bug 3: e2e (when: phase:qa) must NOT run on every iteration / stop-guard.
+    // Fixes Bug 3: e2e (when: phase:qa) must NOT run on every iteration.
     expect(selectObjectiveGates(GATES, {}).map((g) => g.cmd)).toEqual(['typecheck', 'lint']);
   });
 

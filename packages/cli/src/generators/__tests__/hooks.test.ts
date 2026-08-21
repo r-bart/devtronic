@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { generateAutoLintScript, generateHooks, generateCheckpointScript, generateStopGuardScript } from '../hooks.js';
+import { generateAutoLintScript, generateHooks, generateCheckpointScript } from '../hooks.js';
 import type { ProjectConfig } from '../../types.js';
 
 function createConfig(overrides: Partial<ProjectConfig> = {}): ProjectConfig {
@@ -26,17 +26,16 @@ describe('generateHooks', () => {
     expect(() => JSON.parse(result)).not.toThrow();
   });
 
-  it('includes all 6 hook events', () => {
+  it('includes all 5 hook events', () => {
     const result = JSON.parse(generateHooks());
     const events = Object.keys(result.hooks);
 
     expect(events).toContain('SessionStart');
     expect(events).toContain('PostToolUse');
-    expect(events).toContain('Stop');
     expect(events).toContain('SubagentStop');
     expect(events).toContain('PreCompact');
     expect(events).toContain('StopFailure');
-    expect(events).toHaveLength(6);
+    expect(events).toHaveLength(5);
   });
 
   it('includes description field', () => {
@@ -50,7 +49,7 @@ describe('generateHooks', () => {
       const hook = result.hooks.SessionStart[0].hooks[0];
 
       expect(hook.type).toBe('prompt');
-      expect(hook.model).toBe('haiku');
+      expect(hook.model).toBe('claude-haiku-4-5-20251001');
     });
 
     it('matches startup event', () => {
@@ -95,36 +94,16 @@ describe('generateHooks', () => {
     });
   });
 
-  describe('Stop hook', () => {
-    it('uses command type with stop-guard script', () => {
-      const result = JSON.parse(generateHooks());
-      const hook = result.hooks.Stop[0].hooks[0];
-      expect(hook.type).toBe('command');
-      expect(hook.command).toContain('${CLAUDE_PLUGIN_ROOT}');
-      expect(hook.command).toContain('stop-guard.sh');
-    });
-
-    it('has a statusMessage for user feedback', () => {
-      const result = JSON.parse(generateHooks());
-      const hook = result.hooks.Stop[0].hooks[0];
-      expect(hook.statusMessage).toBeTruthy();
-    });
-
-    it('has 2 hook entries (quality gate + done criteria check)', () => {
-      const result = JSON.parse(generateHooks());
-      const hooks = result.hooks.Stop[0].hooks;
-      expect(hooks).toHaveLength(2);
-      expect(hooks[0].type).toBe('command');
-      expect(hooks[1].type).toBe('prompt');
-      expect(hooks[1].prompt).toContain('Done Criteria');
-    });
+  it('no longer registers an ambient Stop gate', () => {
+    const result = JSON.parse(generateHooks());
+    expect(result.hooks.Stop).toBeUndefined();
   });
 
   describe('SubagentStop hook', () => {
     it('uses haiku model', () => {
       const result = JSON.parse(generateHooks());
       const hook = result.hooks.SubagentStop[0].hooks[0];
-      expect(hook.model).toBe('haiku');
+      expect(hook.model).toBe('claude-haiku-4-5-20251001');
     });
 
     it('includes $ARGUMENTS placeholder', () => {
@@ -152,35 +131,6 @@ describe('generateHooks', () => {
       const result = JSON.parse(generateHooks());
       expect(result.hooks.PreCompact[0].matcher).toBe('auto');
     });
-  });
-});
-
-describe('generateStopGuardScript', () => {
-  it('starts with shebang', () => {
-    const script = generateStopGuardScript(createConfig());
-    expect(script.startsWith('#!/bin/bash')).toBe(true);
-  });
-
-  it('checks stop_hook_active to prevent infinite loops', () => {
-    const script = generateStopGuardScript(createConfig());
-    expect(script).toContain('stop_hook_active');
-    expect(script).toContain('exit 0');
-  });
-
-  it('includes the project quality command', () => {
-    const config = createConfig({ qualityCommand: 'pnpm typecheck && pnpm lint' });
-    const script = generateStopGuardScript(config);
-    expect(script).toContain('pnpm typecheck && pnpm lint');
-  });
-
-  it('exits 2 on quality failure to block stop', () => {
-    const script = generateStopGuardScript(createConfig());
-    expect(script).toContain('exit 2');
-  });
-
-  it('reads input from stdin', () => {
-    const script = generateStopGuardScript(createConfig());
-    expect(script).toContain('INPUT=$(cat)');
   });
 });
 

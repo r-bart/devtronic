@@ -1,7 +1,7 @@
 /**
  * Ownership signal + lifecycle (FR-3), worktree-awareness (FR-9), clean-tree
- * guard (FR-7). The sentinel is the coexistence keystone: the skill writes it,
- * `stop-guard.sh` reads it, `SessionStart` sweeps it (Phase 0 verdict).
+ * guard (FR-7). The skill writes it, `--resume` reads it to re-enter the right
+ * phase, and `SessionStart` sweeps a stale one (Phase 0 verdict).
  *
  * The on-disk shape is a single-line JSON object whose literal substrings
  * (`"owner":"machine"`, `"atBarrier":true`, `"heartbeat":N`) the generated bash
@@ -33,8 +33,8 @@ export const STALE_SECS = STALE_SECS_CONST;
 /**
  * Resolve the sentinel path for a directory.
  *
- * Cwd-relative by design: the ambient bash hooks (`stop-guard.sh`, the
- * SessionStart sweep) read the *relative* path `.claude/.loop-owner` from their
+ * Cwd-relative by design: the ambient bash hooks (the SessionStart sweep, the
+ * StopFailure release) read the *relative* path `.claude/.loop-owner` from their
  * working directory, so the TS writer must resolve to the same location relative
  * to the same root. The skill runs `--own`/`--release` from the worktree root
  * (the session cwd), exactly where the hooks run — so both sides agree.

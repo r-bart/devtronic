@@ -148,7 +148,7 @@ export strips.
 │       │                                                         │
 │       └── Hooks     Automated workflow (lint, checkpoint,       │
 │                     version drift)                              │
-│                     6 hooks included (Claude Code)              │
+│                     5 hooks included (Claude Code)              │
 │                                                                 │
 │  thoughts/          Persistent documents (specs, plans, etc.)   │
 │                                                                 │

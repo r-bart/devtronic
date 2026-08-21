@@ -89,9 +89,8 @@ The marketplace repo (`r-bart/devtronic-plugin`) contains:
 │   │   └── ...
 │   ├── agents/                         # 15 agents
 │   ├── hooks/
-│   │   └── hooks.json                  # 6 hook events
+│   │   └── hooks.json                  # 5 hook events
 │   └── scripts/
-│       ├── stop-guard.sh
 │       ├── auto-lint.sh
 │       ├── version-check.sh
 │       └── checkpoint.sh
@@ -114,20 +113,20 @@ These remain in your project (not in the plugin):
 
 ## Workflow Hooks
 
-The plugin includes 6 hooks that automate parts of your development workflow:
+The plugin includes 5 hooks that automate parts of your development workflow:
 
 ### SessionStart
 
 ```
 Event: startup
-Type: prompt (haiku)
+Type: prompt (Haiku 4.5)
 ```
 
 Quick project orientation — checks git status, recent commits, and in-progress work.
 
 Two silent `command` steps run alongside it. The first sweeps a stale convergence-loop
-ownership sentinel (from a crashed loop) so a returning human is never stuck behind a `Stop`
-gate that never guards. The second runs `version-check.sh`, which compares the version in
+ownership sentinel (from a crashed loop) so `/converge --resume` never reads a dead phase as
+in flight. The second runs `version-check.sh`, which compares the version in
 `.ai-template/manifest.json` against the installed CLI and prints one line when they differ:
 
 ```
@@ -154,29 +153,11 @@ reads the real `tool_input.file_path` and exits early on anything that is not li
 so editing a README does not spawn a lint pass. Auto-detects your package manager. Errors
 suppressed so they never block Claude.
 
-### Stop
-
-```
-Event: (any stop)
-Type: command (stop-guard.sh)
-```
-
-Quality gate before Claude stops. Runs typecheck + lint and blocks stop if checks fail. Includes infinite loop guard.
-
-**Loop-aware (coexistence).** When an autonomous convergence loop owns the tree, `stop-guard.sh`
-subordinates to it: it reads a worktree-scoped sentinel (`.claude/.loop-owner`) and, while a
-fresh `owner:machine` phase is in flight and **not** at a barrier, allows the stop (the loop
-holds the stop condition). At a phase barrier — or with no active loop — it enforces the
-quality gate exactly as before. A crashed loop's sentinel goes stale (heartbeat older than
-15 min) and is reclaimed on the next stop, with a belt-and-suspenders `SessionStart` sweep.
-When `loop.manifest.yaml` is present, the Tier ① command is sourced from it (single source of
-truth) rather than re-guessed. **No manifest, no active loop → behaves identically to before.**
-
 ### SubagentStop
 
 ```
 Event: (subagent completes)
-Type: prompt (haiku)
+Type: prompt (Haiku 4.5)
 ```
 
 Lightweight validation of subagent completion.

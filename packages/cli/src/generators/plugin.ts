@@ -12,7 +12,6 @@ import {
 import {
   generateHooks,
   generateCheckpointScript,
-  generateStopGuardScript,
   generateAutoLintScript,
   generateVersionCheckScript,
 } from './hooks.js';
@@ -175,17 +174,12 @@ export function generatePlugin(
   const scriptRelPath = join(pluginRoot, 'scripts', 'checkpoint.sh');
   writeGeneratedFile(targetDir, scriptRelPath, scriptContent, files);
 
-  // 7. Generate stop-guard script (quality checks before stopping)
-  const stopGuardContent = generateStopGuardScript(config);
-  const stopGuardRelPath = join(pluginRoot, 'scripts', 'stop-guard.sh');
-  writeGeneratedFile(targetDir, stopGuardRelPath, stopGuardContent, files);
-
-  // 8. Generate auto-lint script (PostToolUse); it filters non-source edits
+  // 7. Generate auto-lint script (PostToolUse); it filters non-source edits
   const autoLintContent = generateAutoLintScript(config, packageManager);
   const autoLintRelPath = join(pluginRoot, 'scripts', 'auto-lint.sh');
   writeGeneratedFile(targetDir, autoLintRelPath, autoLintContent, files);
 
-  // 9. Generate version-check script (SessionStart); reports project ↔ CLI drift
+  // 8. Generate version-check script (SessionStart); reports project ↔ CLI drift
   const versionCheckContent = generateVersionCheckScript();
   const versionCheckRelPath = join(pluginRoot, 'scripts', 'version-check.sh');
   writeGeneratedFile(targetDir, versionCheckRelPath, versionCheckContent, files);
