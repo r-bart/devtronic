@@ -49,6 +49,79 @@ import { syncAddonFiles } from '../generators/addonFiles.js';
 const GENERATED_ROOT_FILES = ['AGENTS.md', 'CLAUDE.md', 'loop.manifest.yaml'];
 
 /**
+ * Plugin scripts devtronic used to generate and no longer does.
+ *
+ * `detectRemovedFiles()` cannot see these: it skips everything under the plugin
+ * path, because plugin files are regenerated rather than copied from a template.
+ * So a retired script would sit on disk forever, listed in the manifest, with no
+ * hook left to run it.
+ */
+const RETIRED_PLUGIN_SCRIPTS = ['stop-guard.sh'];
+
+export interface RetiredScripts {
+  /** Deleted from disk and dropped from the manifest. */
+  removed: string[];
+  /** Left on disk because the user changed them; dropped from the manifest. */
+  kept: string[];
+}
+
+/**
+ * Retires plugin scripts devtronic no longer generates.
+ *
+ * An untouched script is deleted — nothing invokes it, so it is only clutter. A
+ * script the user edited stays on disk: their work is not devtronic's to throw
+ * away, and the report says it no longer runs. Either way the manifest entry
+ * goes, so `update` stops tracking a file it will never write again.
+ */
+export function retireOrphanPluginScripts(
+  targetDir: string,
+  pluginPath: string,
+  manifest: Pick<Manifest, 'files'>
+): RetiredScripts {
+  const removed: string[] = [];
+  const kept: string[] = [];
+
+  for (const script of RETIRED_PLUGIN_SCRIPTS) {
+    const relPath = join(pluginPath, 'scripts', script);
+    const absPath = join(targetDir, relPath);
+    const entry = manifest.files[relPath];
+    const onDisk = existsSync(absPath);
+    if (!onDisk && !entry) continue;
+
+    const userEdited =
+      onDisk && !!entry && calculateChecksum(readFile(absPath)) !== entry.originalChecksum;
+
+    if (onDisk && !userEdited) {
+      unlinkSync(absPath);
+      removed.push(relPath);
+    } else if (onDisk) {
+      kept.push(relPath);
+    } else {
+      // Already gone from disk; only the manifest entry is left to clear.
+      removed.push(relPath);
+    }
+
+    delete manifest.files[relPath];
+  }
+
+  return { removed, kept };
+}
+
+/**
+ * Reports what `retireOrphanPluginScripts()` did, one line per script.
+ */
+function reportRetiredScripts(retired: RetiredScripts): void {
+  for (const relPath of retired.removed) {
+    p.log.info(`${symbols.updated} Retired ${chalk.dim(relPath)} — no hook runs it any more`);
+  }
+  for (const relPath of retired.kept) {
+    p.log.warn(
+      `${symbols.warn} ${chalk.dim(relPath)} no longer runs — kept because you changed it. Delete it when you want.`
+    );
+  }
+}
+
+/**
  * In plugin and marketplace mode the skills and agents come from the plugin,
  * not from the project, so `update` must neither copy them nor announce them.
  *
@@ -242,6 +315,30 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     }
     p.outro('Check complete');
     return;
+  }
+
+  // Retire plugin scripts devtronic no longer generates. This runs before the
+  // "all files are up to date" exits below: an install whose template files are
+  // current is exactly the one that would otherwise keep a dead script forever.
+  if (manifest.installMode === 'plugin' && manifest.pluginPath) {
+    if (options.dryRun) {
+      const pending = RETIRED_PLUGIN_SCRIPTS.map((s) =>
+        join(manifest.pluginPath as string, 'scripts', s)
+      ).filter((rel) => fileExists(join(targetDir, rel)) || rel in manifest.files);
+      for (const relPath of pending) {
+        p.log.info(`Would retire ${chalk.dim(relPath)} — no hook runs it any more`);
+      }
+    } else {
+      const retired = retireOrphanPluginScripts(targetDir, manifest.pluginPath, manifest);
+      reportRetiredScripts(retired);
+      // Persist now: the "all files are up to date" exits below return without
+      // writing, and an unwritten manifest would report the same retirement on
+      // every run. `updatedManifest` shares this `files` object, so a later
+      // write carries the same deletion.
+      if (retired.removed.length > 0 || retired.kept.length > 0) {
+        writeManifest(targetDir, manifest);
+      }
+    }
   }
 
   // Check for modified files
@@ -536,7 +633,7 @@ export async function updateCommand(options: UpdateOptions): Promise<void> {
     );
 
     // Make scripts executable
-    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh', 'version-check.sh']) {
+    for (const script of ['checkpoint.sh', 'auto-lint.sh', 'version-check.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);
@@ -845,12 +942,18 @@ async function regenerateWithNewStack(
       analysis.packageManager
     );
 
-    for (const script of ['checkpoint.sh', 'stop-guard.sh', 'auto-lint.sh']) {
+    for (const script of ['checkpoint.sh', 'auto-lint.sh']) {
       const scriptPath = join(targetDir, pluginResult.pluginPath, 'scripts', script);
       if (existsSync(scriptPath)) {
         chmodSync(scriptPath, 0o755);
       }
     }
+
+    const retiredScripts = retireOrphanPluginScripts(targetDir, pluginResult.pluginPath, manifest);
+    for (const relPath of [...retiredScripts.removed, ...retiredScripts.kept]) {
+      userModifiedPluginFiles.delete(relPath);
+    }
+    reportRetiredScripts(retiredScripts);
 
     // Restore user-modified files that generatePlugin overwrote
     for (const [relPath, content] of userModifiedPluginFiles) {
